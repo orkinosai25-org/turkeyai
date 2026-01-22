@@ -5,7 +5,7 @@ function Chat() {
   const [messages, setMessages] = useState([
     {
       role: 'ai',
-      content: 'Hello! I\'m TürkiyeAI, your AI travel expert for Turkey. How can I help you plan your Turkish adventure today? 🇹🇷'
+      content: 'Merhaba 👋 I\'m TürkiyeAI. Tell me what kind of trip you\'re dreaming of to Türkiye, and I\'ll help you plan the perfect adventure!'
     }
   ]);
   const [input, setInput] = useState('');
@@ -67,10 +67,10 @@ function Chat() {
 
   return (
     <div className="page">
-      <h1 style={{ color: '#0078d4', marginBottom: '1rem' }}>
+      <h1 style={{ color: 'var(--aegean-blue)', marginBottom: '1rem' }}>
         🤖 AI Travel Agent
       </h1>
-      <p style={{ color: '#666', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--warm-slate-500)', marginBottom: '2rem' }}>
         Chat with our AI assistant to plan your Turkish vacation
       </p>
 
@@ -117,9 +117,9 @@ function Chat() {
         </div>
       </div>
 
-      <div style={{ marginTop: '2rem', padding: '1rem', background: '#f3f2f1', borderRadius: '8px' }}>
-        <h4 style={{ color: '#0078d4', marginBottom: '0.5rem' }}>💡 Try asking:</h4>
-        <ul style={{ color: '#666', lineHeight: '1.8' }}>
+      <div style={{ marginTop: '2rem', padding: '1rem', background: 'var(--soft-beige)', borderRadius: '8px' }}>
+        <h4 style={{ color: 'var(--aegean-blue)', marginBottom: '0.5rem' }}>💡 Try asking:</h4>
+        <ul style={{ color: 'var(--warm-slate-700)', lineHeight: '1.8' }}>
           <li>"What's the best time to visit Bodrum?"</li>
           <li>"Recommend a 5-day itinerary for Cappadocia"</li>
           <li>"What are the must-see attractions in Antalya?"</li>

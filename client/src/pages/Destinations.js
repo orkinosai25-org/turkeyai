@@ -40,34 +40,34 @@ function Destinations() {
 
   return (
     <div className="page">
-      <h1 style={{ color: '#0078d4', marginBottom: '1rem' }}>
+      <h1 style={{ color: 'var(--aegean-blue)', marginBottom: '1rem' }}>
         Explore Turkish Destinations
       </h1>
-      <p style={{ color: '#666', marginBottom: '2rem' }}>
+      <p style={{ color: 'var(--warm-slate-500)', marginBottom: '2rem' }}>
         Discover the most beautiful places in Turkey
       </p>
 
       <div className="destinations-grid">
         {destinations.map((destination) => (
           <div key={destination.id} className="card">
-            <h3 style={{ color: '#0078d4', marginBottom: '0.5rem' }}>
+            <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.5rem' }}>
               {destination.name}
             </h3>
             <p style={{ 
-              color: '#666', 
+              color: 'var(--warm-slate-500)', 
               fontSize: '0.9rem', 
               marginBottom: '1rem',
               fontStyle: 'italic' 
             }}>
               {destination.region}
             </p>
-            <p style={{ marginBottom: '1rem' }}>
+            <p style={{ marginBottom: '1rem', color: 'var(--warm-slate-700)' }}>
               {destination.description}
             </p>
             
             <div style={{ marginBottom: '1rem' }}>
-              <strong style={{ color: '#0078d4' }}>Highlights:</strong>
-              <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+              <strong style={{ color: 'var(--azure-turquoise)' }}>Highlights:</strong>
+              <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: 'var(--warm-slate-700)' }}>
                 {destination.highlights.map((highlight, idx) => (
                   <li key={idx}>{highlight}</li>
                 ))}
@@ -78,7 +78,7 @@ function Destinations() {
               display: 'flex', 
               justifyContent: 'space-between',
               fontSize: '0.85rem',
-              color: '#666'
+              color: 'var(--warm-slate-500)'
             }}>
               <span>📅 {destination.bestTime}</span>
               <span>🏷️ {destination.type}</span>

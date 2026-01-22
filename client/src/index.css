@@ -10,7 +10,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #0078d4 0%, #00a4ef 100%);
+  background: linear-gradient(135deg, #1F6FAF 0%, #2FA4A9 100%);
   min-height: 100vh;
 }
 
@@ -19,10 +19,41 @@ code {
     monospace;
 }
 
-/* Azure-inspired color palette */
+/* TürkiyeAI Color Palette - Bodrum-inspired */
 :root {
-  --azure-blue: #0078d4;
-  --azure-light: #00a4ef;
+  /* Primary Colors */
+  --aegean-blue: #1F6FAF;
+  --azure-turquoise: #2FA4A9;
+  
+  /* Secondary Colors */
+  --soft-coral: #F2A38A;
+  --blush-pink: #F4D4D8;
+  --sunset-rose: #E89BA5;
+  
+  /* Nature Colors */
+  --olive-green: #6F7F4C;
+  --sage-green: #A8B7A0;
+  
+  /* Accent Colors */
+  --bougainvillea-pink: #C93A6A;
+  --terracotta-clay: #C56A3A;
+  --warm-sand: #E6D3B1;
+  --orange-blossom: #F4C430;
+  
+  /* Base Colors */
+  --limestone-white: #F8F9F7;
+  --pure-white: #FFFFFF;
+  --soft-beige: #F5F1E8;
+  
+  /* Neutral Colors */
+  --warm-charcoal: #1F1D1B;
+  --warm-slate-700: #423E3A;
+  --warm-slate-500: #7A7267;
+  --warm-slate-300: #D4CEC5;
+  
+  /* Legacy support */
+  --azure-blue: #1F6FAF;
+  --azure-light: #2FA4A9;
   --azure-dark: #005a9e;
   --white: #ffffff;
   --light-gray: #f3f2f1;
