@@ -1,0 +1,32 @@
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Concept 1: Aegean Mosaic-Inspired Mark -->
+  <!-- A geometric, minimal modern interpretation of ancient Greek mosaics -->
+  <!-- Symbolizing navigation, waves, and Mediterranean heritage -->
+  
+  <!-- Logo Mark: Mosaic pattern forming a compass/wave -->
+  <g id="mark">
+    <!-- Central compass/mosaic element -->
+    <path d="M 40 40 L 60 30 L 80 40 L 70 60 L 60 70 L 50 60 Z" fill="#2FA4A9" opacity="0.9"/>
+    <path d="M 60 30 L 80 40 L 80 60 L 60 70 Z" fill="#1F6FAF"/>
+    <path d="M 40 40 L 60 30 L 60 50 L 40 60 Z" fill="#1F6FAF" opacity="0.7"/>
+    <path d="M 60 50 L 80 60 L 70 80 L 50 70 Z" fill="#C93A6A" opacity="0.6"/>
+    <circle cx="60" cy="50" r="6" fill="#F8F9F7"/>
+  </g>
+  
+  <!-- Wordmark: TürkiyeAI -->
+  <g id="wordmark" transform="translate(110, 0)">
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="36" font-weight="600" fill="#1F1D1B" letter-spacing="-0.5">
+      Türkiye<tspan fill="#2FA4A9">AI</tspan>
+    </text>
+    <text x="0" y="75" font-family="Inter, sans-serif" font-size="11" font-weight="400" fill="#7A7267" letter-spacing="0.5">
+      Your AI Travel Expert for Türkiye
+    </text>
+  </g>
+  
+  <!-- Powered by OrkinosAI (optional lockup) -->
+  <g id="endorsement" transform="translate(110, 85)">
+    <text x="0" y="20" font-family="Inter, sans-serif" font-size="9" font-weight="500" fill="#A39A8E" letter-spacing="0.3">
+      POWERED BY <tspan fill="#1F6FAF">ORKINOSAI</tspan>
+    </text>
+  </g>
+</svg>

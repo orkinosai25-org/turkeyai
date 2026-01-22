@@ -1,0 +1,94 @@
+<svg viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">
+  <!-- Resort/Destination Card Component -->
+  <!-- Card design for destinations/hotels with Mediterranean aesthetics -->
+  
+  <defs>
+    <linearGradient id="cardImageBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2FA4A9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1F6FAF;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+  
+  <!-- Card container -->
+  <rect x="0" y="0" width="400" height="520" rx="20" fill="#FFFFFF" filter="url(#cardShadow)"/>
+  
+  <!-- Image area placeholder -->
+  <rect x="0" y="0" width="400" height="260" rx="20" fill="url(#cardImageBg)"/>
+  <rect x="0" y="0" width="400" height="260" rx="20" fill="#000000" opacity="0.1"/>
+  
+  <!-- Image placeholder text -->
+  <text x="200" y="135" font-family="Inter, sans-serif" font-size="16" font-weight="400" fill="#FFFFFF" text-anchor="middle" opacity="0.7">
+    Destination Image
+  </text>
+  
+  <!-- Favorite/Save icon -->
+  <g transform="translate(340, 20)">
+    <circle cx="20" cy="20" r="20" fill="#FFFFFF" opacity="0.9"/>
+    <path d="M 20 15 L 22 21 L 28 21 L 23 25 L 25 31 L 20 27 L 15 31 L 17 25 L 12 21 L 18 21 Z" 
+          fill="none" 
+          stroke="#C93A6A" 
+          stroke-width="2"/>
+  </g>
+  
+  <!-- Tag badge -->
+  <g transform="translate(20, 220)">
+    <rect x="0" y="0" width="100" height="32" rx="8" fill="#F2A38A"/>
+    <text x="50" y="21" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#FFFFFF" text-anchor="middle">
+      Premium
+    </text>
+  </g>
+  
+  <!-- Content area -->
+  <g transform="translate(24, 285)">
+    <!-- Title -->
+    <text x="0" y="0" font-family="Inter, sans-serif" font-size="26" font-weight="600" fill="#1F1D1B">
+      Bodrum Peninsula
+    </text>
+    
+    <!-- Location -->
+    <g transform="translate(0, 15)">
+      <path d="M 0 5 L 0 2 Q 0 0, 2 0 L 6 0 Q 8 0, 8 2 L 8 5 Q 8 10, 4 14 Q 0 10, 0 5 Z" 
+            fill="#7A7267"/>
+      <circle cx="4" cy="4" r="1.5" fill="#FFFFFF"/>
+      
+      <text x="16" y="10" font-family="Inter, sans-serif" font-size="15" font-weight="400" fill="#7A7267">
+        Turkish Riviera, Türkiye
+      </text>
+    </g>
+    
+    <!-- Description -->
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="15" font-weight="400" fill="#5C5550" opacity="0.9">
+      <tspan x="0" dy="0">Whitewashed houses, azure waters,</tspan>
+      <tspan x="0" dy="22">and vibrant bougainvillea blooms.</tspan>
+      <tspan x="0" dy="22">Experience Mediterranean charm.</tspan>
+    </text>
+    
+    <!-- Features/Tags -->
+    <g transform="translate(0, 130)">
+      <rect x="0" y="0" width="75" height="28" rx="6" fill="#E8F7F8"/>
+      <text x="37.5" y="18" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#2FA4A9" text-anchor="middle">
+        Beach
+      </text>
+      
+      <rect x="85" y="0" width="85" height="28" rx="6" fill="#E8F5EE"/>
+      <text x="127.5" y="18" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#4A9B6F" text-anchor="middle">
+        Luxury
+      </text>
+      
+      <rect x="180" y="0" width="95" height="28" rx="6" fill="#FCEEED"/>
+      <text x="227.5" y="18" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#D4594A" text-anchor="middle">
+        Historic
+      </text>
+    </g>
+    
+    <!-- CTA Button -->
+    <rect x="0" y="175" width="352" height="48" rx="12" fill="#1F6FAF"/>
+    <text x="176" y="204" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">
+      Explore Bodrum
+    </text>
+  </g>
+</svg>

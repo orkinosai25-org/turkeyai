@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <!-- Instagram Story Template (1080x1920) -->
+  <!-- Vertical format for stories -->
+  
+  <defs>
+    <linearGradient id="storyBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2FA4A9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F2A38A;stop-opacity:0.9" />
+    </linearGradient>
+    
+    <linearGradient id="contentBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8F9F7;stop-opacity:0.95" />
+      <stop offset="100%" style="stop-color:#F8F9F7;stop-opacity:0.85" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1080" height="1920" fill="url(#storyBg)"/>
+  
+  <!-- Wave decorative elements -->
+  <path d="M 0 400 Q 135 370, 270 400 T 540 400 T 810 400 T 1080 400" 
+        stroke="#F8F9F7" 
+        stroke-width="4" 
+        fill="none" 
+        opacity="0.2"/>
+  <path d="M 0 1500 Q 135 1470, 270 1500 T 540 1500 T 810 1500 T 1080 1500" 
+        stroke="#F8F9F7" 
+        stroke-width="4" 
+        fill="none" 
+        opacity="0.2"/>
+  
+  <!-- Top branding -->
+  <g transform="translate(90, 80)">
+    <!-- Logo mark -->
+    <path d="M 15 15 L 30 8 L 45 15 L 38 30 L 30 37 L 22 30 Z" fill="#F8F9F7" opacity="0.9"/>
+    <circle cx="30" cy="22" r="5" fill="#F2A38A"/>
+    
+    <!-- Brand text -->
+    <text x="65" y="32" font-family="Inter, sans-serif" font-size="32" font-weight="700" fill="#F8F9F7" letter-spacing="-0.5">
+      TürkiyeAI
+    </text>
+  </g>
+  
+  <!-- Main content card -->
+  <rect x="90" y="450" width="900" height="1000" fill="url(#contentBg)" rx="30"/>
+  
+  <!-- Content inside card -->
+  <g transform="translate(150, 550)">
+    <!-- Headline -->
+    <text x="0" y="0" font-family="Inter, sans-serif" font-size="64" font-weight="700" fill="#1F1D1B" letter-spacing="-1">
+      Plan Your
+    </text>
+    <text x="0" y="70" font-family="Inter, sans-serif" font-size="64" font-weight="700" fill="#1F1D1B" letter-spacing="-1">
+      Perfect Trip
+    </text>
+    <text x="0" y="140" font-family="Inter, sans-serif" font-size="64" font-weight="700" fill="#2FA4A9" letter-spacing="-1">
+      to Türkiye
+    </text>
+    
+    <!-- Decorative element -->
+    <line x1="0" y1="180" x2="200" y2="180" stroke="#C93A6A" stroke-width="4" stroke-linecap="round"/>
+    
+    <!-- Benefits list -->
+    <text x="0" y="250" font-family="Inter, sans-serif" font-size="32" font-weight="500" fill="#5C5550">
+      ✨ AI-Powered Recommendations
+    </text>
+    <text x="0" y="310" font-family="Inter, sans-serif" font-size="32" font-weight="500" fill="#5C5550">
+      🏖️ Best Destinations
+    </text>
+    <text x="0" y="370" font-family="Inter, sans-serif" font-size="32" font-weight="500" fill="#5C5550">
+      🗺️ Custom Itineraries
+    </text>
+    <text x="0" y="430" font-family="Inter, sans-serif" font-size="32" font-weight="500" fill="#5C5550">
+      💬 24/7 Travel Assistant
+    </text>
+    
+    <!-- CTA -->
+    <rect x="0" y="500" width="780" height="80" rx="16" fill="#1F6FAF"/>
+    <text x="390" y="550" font-family="Inter, sans-serif" font-size="32" font-weight="600" fill="#F8F9F7" text-anchor="middle">
+      Start Planning Now
+    </text>
+    
+    <!-- URL -->
+    <text x="0" y="650" font-family="Inter, sans-serif" font-size="28" font-weight="500" fill="#7A7267">
+      turkiyeai.travel
+    </text>
+  </g>
+  
+  <!-- Bottom decorative elements -->
+  <g transform="translate(200, 1600)" opacity="0.3">
+    <circle cx="50" cy="50" r="30" fill="#C93A6A"/>
+    <circle cx="100" cy="40" r="25" fill="#E89BA5"/>
+    <circle cx="35" cy="30" r="20" fill="#F2A38A"/>
+  </g>
+  
+  <!-- Bottom tagline -->
+  <text x="540" y="1850" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#F8F9F7" text-anchor="middle" opacity="0.9">
+    Powered by OrkinosAI
+  </text>
+</svg>

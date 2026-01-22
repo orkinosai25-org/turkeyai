@@ -1,0 +1,74 @@
+<svg viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+  <!-- Instagram Post Template (1080x1080) -->
+  <!-- Mediterranean vibes with space for destination photo -->
+  
+  <defs>
+    <linearGradient id="instaBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8F9F7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E6D3B1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1080" height="1080" fill="url(#instaBg)"/>
+  
+  <!-- Top decorative waves -->
+  <path d="M 0 80 Q 135 60, 270 80 T 540 80 T 810 80 T 1080 80" 
+        stroke="#2FA4A9" 
+        stroke-width="4" 
+        fill="none" 
+        opacity="0.2"/>
+  <path d="M 0 100 Q 135 80, 270 100 T 540 100 T 810 100 T 1080 100" 
+        stroke="#1F6FAF" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.2"/>
+  
+  <!-- Image placeholder area (for user to replace) -->
+  <rect x="90" y="150" width="900" height="500" fill="#F8F9F7" rx="20" stroke="#2FA4A9" stroke-width="3"/>
+  <text x="540" y="400" font-family="Inter, sans-serif" font-size="32" font-weight="400" fill="#A39A8E" text-anchor="middle" opacity="0.5">
+    [ Your Destination Photo ]
+  </text>
+  
+  <!-- Content area -->
+  <g transform="translate(90, 700)">
+    <!-- Headline -->
+    <text x="0" y="0" font-family="Inter, sans-serif" font-size="48" font-weight="700" fill="#1F1D1B" letter-spacing="-0.5">
+      Discover Bodrum
+    </text>
+    
+    <!-- Description -->
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#5C5550">
+      Whitewashed beauty meets azure waters
+    </text>
+    
+    <!-- Tags/Keywords -->
+    <text x="0" y="100" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#2FA4A9">
+      #TürkiyeAI #Bodrum #TravelTurkey #AITravel
+    </text>
+  </g>
+  
+  <!-- Bottom branding bar -->
+  <rect x="0" y="950" width="1080" height="130" fill="#1F6FAF"/>
+  
+  <g transform="translate(90, 1000)">
+    <!-- Logo mark -->
+    <path d="M 15 15 L 30 8 L 45 15 L 38 30 L 30 37 L 22 30 Z" fill="#F2A38A" opacity="0.9"/>
+    <path d="M 30 8 L 45 15 L 45 30 L 30 37 Z" fill="#F8F9F7"/>
+    <circle cx="30" cy="22" r="5" fill="#2FA4A9"/>
+    
+    <!-- Brand text -->
+    <text x="65" y="32" font-family="Inter, sans-serif" font-size="36" font-weight="700" fill="#F8F9F7" letter-spacing="-0.5">
+      TürkiyeAI
+    </text>
+    
+    <!-- Tagline -->
+    <text x="260" y="32" font-family="Inter, sans-serif" font-size="18" font-weight="400" fill="#F8F9F7" opacity="0.9">
+      Your AI Travel Expert
+    </text>
+  </g>
+  
+  <text x="990" y="1032" font-family="Inter, sans-serif" font-size="16" font-weight="400" fill="#F8F9F7" opacity="0.8" text-anchor="end">
+    turkiyeai.travel
+  </text>
+</svg>
