@@ -1,0 +1,14 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Favicon - Simplified mosaic mark optimized for small sizes -->
+  <rect width="32" height="32" fill="#F8F9F7" rx="6"/>
+  
+  <!-- Simplified geometric pattern -->
+  <path d="M 10 10 L 16 7 L 22 10 L 19 16 L 16 19 L 13 16 Z" fill="#2FA4A9" opacity="0.9"/>
+  <path d="M 16 7 L 22 10 L 22 16 L 16 19 Z" fill="#1F6FAF"/>
+  <path d="M 10 10 L 16 7 L 16 13 L 10 16 Z" fill="#1F6FAF" opacity="0.7"/>
+  <path d="M 16 13 L 22 16 L 19 22 L 13 19 Z" fill="#C93A6A" opacity="0.6"/>
+  <circle cx="16" cy="13" r="3" fill="#F8F9F7"/>
+  
+  <!-- Wave accent -->
+  <path d="M 6 26 Q 11 24, 16 26 T 26 26" stroke="#2FA4A9" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"/>
+</svg>
