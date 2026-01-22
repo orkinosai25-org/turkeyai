@@ -1,0 +1,35 @@
+<svg viewBox="0 0 300 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- Powered by OrkinosAI Lockup -->
+  <!-- For use in footers, about pages, and endorsement placements -->
+  
+  <defs>
+    <!-- Gradient for subtle depth -->
+    <linearGradient id="orkinosGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2FA4A9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- "Powered by" text -->
+  <text x="0" y="20" font-family="Inter, sans-serif" font-size="12" font-weight="400" fill="#7A7267" letter-spacing="0.5">
+    Powered by
+  </text>
+  
+  <!-- OrkinosAI Brand -->
+  <!-- Small tuna/wave icon -->
+  <g transform="translate(0, 25)">
+    <!-- Stylized wave/tuna shape -->
+    <path d="M 5 10 Q 10 5, 15 10 T 25 10" stroke="url(#orkinosGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <circle cx="22" cy="10" r="2" fill="#1F6FAF"/>
+  </g>
+  
+  <!-- OrkinosAI text -->
+  <text x="35" y="42" font-family="Inter, sans-serif" font-size="20" font-weight="700" letter-spacing="-0.3">
+    <tspan fill="#1F6FAF">Orkinos</tspan><tspan fill="#2FA4A9">AI</tspan>
+  </text>
+  
+  <!-- Tagline -->
+  <text x="135" y="38" font-family="Inter, sans-serif" font-size="10" font-weight="400" fill="#A39A8E" letter-spacing="0.3">
+    Azure-Native AI Platform
+  </text>
+</svg>

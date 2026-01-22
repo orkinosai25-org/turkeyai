@@ -1,0 +1,87 @@
+<svg viewBox="0 0 1200 627" xmlns="http://www.w3.org/2000/svg">
+  <!-- LinkedIn Banner (1200x627) -->
+  <!-- Professional, trustworthy, premium feel -->
+  
+  <defs>
+    <linearGradient id="linkedinBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8F9F7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E6D3B1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="627" fill="url(#linkedinBg)"/>
+  
+  <!-- Decorative wave patterns -->
+  <path d="M 0 150 Q 150 120, 300 150 T 600 150 T 900 150 T 1200 150" 
+        stroke="#2FA4A9" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.15"/>
+  <path d="M 0 180 Q 150 150, 300 180 T 600 180 T 900 180 T 1200 180" 
+        stroke="#1F6FAF" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.15"/>
+  
+  <path d="M 0 450 Q 150 420, 300 450 T 600 450 T 900 450 T 1200 450" 
+        stroke="#2FA4A9" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.15"/>
+  <path d="M 0 480 Q 150 450, 300 480 T 600 480 T 900 480 T 1200 480" 
+        stroke="#1F6FAF" 
+        stroke-width="2" 
+        fill="none" 
+        opacity="0.15"/>
+  
+  <!-- Left content area -->
+  <g transform="translate(100, 250)">
+    <!-- Logo mark -->
+    <g>
+      <path d="M 20 20 L 40 10 L 60 20 L 50 40 L 40 50 L 30 40 Z" fill="#2FA4A9" opacity="0.9"/>
+      <path d="M 40 10 L 60 20 L 60 40 L 40 50 Z" fill="#1F6FAF"/>
+      <circle cx="40" cy="30" r="6" fill="#F8F9F7"/>
+    </g>
+    
+    <!-- Brand name -->
+    <text x="80" y="40" font-family="Inter, sans-serif" font-size="48" font-weight="700" fill="#1F1D1B" letter-spacing="-1">
+      Türkiye<tspan fill="#2FA4A9">AI</tspan>
+    </text>
+    
+    <!-- Tagline -->
+    <text x="0" y="90" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#5C5550" letter-spacing="0.3">
+      Your AI Travel Expert for Türkiye
+    </text>
+    
+    <!-- Key value proposition -->
+    <text x="0" y="140" font-family="Inter, sans-serif" font-size="18" font-weight="500" fill="#7A7267">
+      🤖 AI-Powered Travel Planning
+    </text>
+    <text x="0" y="170" font-family="Inter, sans-serif" font-size="18" font-weight="500" fill="#7A7267">
+      🏖️ Bodrum · Antalya · Cappadocia · Fethiye
+    </text>
+  </g>
+  
+  <!-- Right visual element - stylized destination imagery -->
+  <g transform="translate(750, 100)">
+    <!-- Abstract Bodrum architecture -->
+    <rect x="0" y="150" width="140" height="200" fill="#F8F9F7" rx="8" stroke="#2FA4A9" stroke-width="2"/>
+    <rect x="30" y="180" width="80" height="100" fill="#1F6FAF" opacity="0.1" rx="6"/>
+    <circle cx="70" cy="230" r="15" fill="#C93A6A" opacity="0.4"/>
+    
+    <rect x="160" y="200" width="120" height="150" fill="#F8F9F7" rx="8" stroke="#1F6FAF" stroke-width="2"/>
+    <rect x="185" y="225" width="70" height="80" fill="#2FA4A9" opacity="0.1" rx="6"/>
+    <circle cx="220" cy="265" r="12" fill="#E89BA5" opacity="0.4"/>
+    
+    <rect x="300" y="180" width="100" height="170" fill="#F8F9F7" rx="8" stroke="#2FA4A9" stroke-width="2"/>
+    <circle cx="350" cy="245" r="10" fill="#F2A38A" opacity="0.4"/>
+  </g>
+  
+  <!-- Bottom branding -->
+  <g transform="translate(100, 570)">
+    <text font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#7A7267">
+      Powered by <tspan font-weight="600" fill="#1F6FAF">OrkinosAI</tspan> · turkiyeai.travel
+    </text>
+  </g>
+</svg>

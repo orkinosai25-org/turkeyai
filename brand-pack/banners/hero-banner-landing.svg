@@ -1,0 +1,79 @@
+<svg viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hero Banner for Website Landing Page -->
+  <!-- Mediterranean sunset gradient with whitewashed architectural elements -->
+  
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2FA4A9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F2A38A;stop-opacity:0.8" />
+    </linearGradient>
+    
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2FA4A9;stop-opacity:0.6" />
+      <stop offset="50%" style="stop-color:#1F6FAF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#2FA4A9;stop-opacity:0.6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="600" fill="url(#skyGradient)"/>
+  
+  <!-- Stylized whitewashed architecture silhouettes -->
+  <rect x="-50" y="380" width="200" height="220" fill="#F8F9F7" opacity="0.15" rx="10"/>
+  <rect x="120" y="420" width="150" height="180" fill="#F8F9F7" opacity="0.12" rx="8"/>
+  <rect x="240" y="400" width="120" height="200" fill="#F8F9F7" opacity="0.18" rx="8"/>
+  
+  <rect x="900" y="360" width="180" height="240" fill="#F8F9F7" opacity="0.15" rx="10"/>
+  <rect x="1050" y="400" width="140" height="200" fill="#F8F9F7" opacity="0.12" rx="8"/>
+  
+  <!-- Bougainvillea accent elements -->
+  <circle cx="180" cy="390" r="15" fill="#C93A6A" opacity="0.3"/>
+  <circle cx="200" cy="380" r="12" fill="#E89BA5" opacity="0.3"/>
+  <circle cx="165" cy="375" r="10" fill="#F2A38A" opacity="0.3"/>
+  
+  <circle cx="970" cy="370" r="15" fill="#C93A6A" opacity="0.3"/>
+  <circle cx="990" cy="360" r="12" fill="#E89BA5" opacity="0.3"/>
+  
+  <!-- Wave layers (sea) -->
+  <path d="M 0 450 Q 150 430, 300 450 T 600 450 T 900 450 T 1200 450 L 1200 600 L 0 600 Z" 
+        fill="url(#waveGradient)"/>
+  <path d="M 0 480 Q 150 465, 300 480 T 600 480 T 900 480 T 1200 480 L 1200 600 L 0 600 Z" 
+        fill="#1F6FAF" 
+        opacity="0.4"/>
+  <path d="M 0 510 Q 150 495, 300 510 T 600 510 T 900 510 T 1200 510 L 1200 600 L 0 600 Z" 
+        fill="#2FA4A9" 
+        opacity="0.3"/>
+  
+  <!-- Content Area - Center -->
+  <g transform="translate(600, 200)" text-anchor="middle">
+    <!-- Logo mark -->
+    <g transform="translate(0, -40)">
+      <path d="M -15 -15 L 0 -22 L 15 -15 L 10 0 L 0 8 L -10 0 Z" fill="#F8F9F7" opacity="0.9"/>
+      <circle cx="0" cy="-5" r="4" fill="#F2A38A"/>
+    </g>
+    
+    <!-- Main headline -->
+    <text y="0" font-family="Inter, sans-serif" font-size="64" font-weight="700" fill="#F8F9F7" letter-spacing="-1">
+      Discover Türkiye with AI
+    </text>
+    
+    <!-- Subheadline -->
+    <text y="50" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#F8F9F7" opacity="0.95" letter-spacing="0.5">
+      Your intelligent travel companion for Turkish destinations
+    </text>
+    
+    <!-- CTA Button shape (reference) -->
+    <rect x="-120" y="80" width="240" height="56" rx="12" fill="#F2A38A"/>
+    <text y="115" font-family="Inter, sans-serif" font-size="18" font-weight="600" fill="#1F1D1B" letter-spacing="0.3">
+      Start Planning Your Journey
+    </text>
+  </g>
+  
+  <!-- Powered by badge - bottom right -->
+  <g transform="translate(1000, 560)">
+    <text font-family="Inter, sans-serif" font-size="12" font-weight="400" fill="#F8F9F7" opacity="0.8">
+      Powered by <tspan font-weight="600">OrkinosAI</tspan>
+    </text>
+  </g>
+</svg>

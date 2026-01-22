@@ -1,0 +1,36 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- App Icon - High resolution for iOS/Android -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2FA4A9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bgGradient)" rx="100"/>
+  
+  <!-- Main mosaic pattern - centered and scaled -->
+  <g transform="translate(156, 156)">
+    <path d="M 60 60 L 100 40 L 140 60 L 120 100 L 100 120 L 80 100 Z" fill="#F2A38A" opacity="0.9"/>
+    <path d="M 100 40 L 140 60 L 140 100 L 100 120 Z" fill="#F8F9F7"/>
+    <path d="M 60 60 L 100 40 L 100 80 L 60 100 Z" fill="#F8F9F7" opacity="0.8"/>
+    <path d="M 100 80 L 140 100 L 120 140 L 80 120 Z" fill="#C93A6A" opacity="0.8"/>
+    <circle cx="100" cy="80" r="15" fill="#1F6FAF"/>
+    <circle cx="100" cy="80" r="6" fill="#F8F9F7"/>
+  </g>
+  
+  <!-- Wave elements at bottom -->
+  <path d="M 100 420 Q 150 400, 200 420 T 300 420 T 412 420" 
+        stroke="#F8F9F7" 
+        stroke-width="12" 
+        fill="none" 
+        stroke-linecap="round"
+        opacity="0.4"/>
+  <path d="M 100 450 Q 150 430, 200 450 T 300 450 T 412 450" 
+        stroke="#F2A38A" 
+        stroke-width="10" 
+        fill="none" 
+        stroke-linecap="round"
+        opacity="0.5"/>
+</svg>

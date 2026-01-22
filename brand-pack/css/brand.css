@@ -1,0 +1,371 @@
+/**
+ * TürkiyeAI Brand CSS Variables & Base Styles
+ * 
+ * Mediterranean-inspired design system for AI-powered Turkish travel platform
+ * Powered by OrkinosAI
+ * 
+ * Color Philosophy:
+ * - Primary: Aegean & Azure blues (trust, navigation, AI)
+ * - Secondary: Soft corals & pinks (warmth, femininity, approachability)
+ * - Nature: Olive & sage greens (wisdom, wellness, land)
+ * - Accent: Bougainvillea pink, terracotta, warm sand (Mediterranean heritage)
+ * - Base: Limestone white (whitewashed Bodrum walls)
+ */
+
+:root {
+  /* ========================================
+     PRIMARY COLORS - Trust & Identity
+     ======================================== */
+  --color-aegean-blue: #1F6FAF;
+  --color-azure-turquoise: #2FA4A9;
+
+  /* ========================================
+     SECONDARY COLORS - Emotional Warmth
+     ======================================== */
+  --color-soft-coral: #F2A38A;
+  --color-blush-pink: #F4D4D8;
+  --color-sunset-rose: #E89BA5;
+
+  /* ========================================
+     NATURE COLORS - Wellness & Land
+     ======================================== */
+  --color-olive-green: #6F7F4C;
+  --color-sage-green: #A8B7A0;
+
+  /* ========================================
+     ACCENT COLORS - Mediterranean Character
+     ======================================== */
+  --color-bougainvillea-pink: #C93A6A;
+  --color-terracotta-clay: #C56A3A;
+  --color-warm-sand: #E6D3B1;
+  --color-orange-blossom: #F4C430;
+
+  /* ========================================
+     BASE COLORS - Foundations
+     ======================================== */
+  --color-limestone-white: #F8F9F7;
+  --color-pure-white: #FFFFFF;
+  --color-soft-beige: #F5F1E8;
+
+  /* ========================================
+     NEUTRAL COLORS - Grays & Slate
+     ======================================== */
+  --color-warm-slate-100: #F7F5F3;
+  --color-warm-slate-200: #E8E4DF;
+  --color-warm-slate-300: #D4CEC5;
+  --color-warm-slate-400: #A39A8E;
+  --color-warm-slate-500: #7A7267;
+  --color-warm-slate-600: #5C5550;
+  --color-warm-slate-700: #423E3A;
+  --color-warm-slate-800: #2D2926;
+  --color-warm-charcoal: #1F1D1B;
+
+  /* ========================================
+     SEMANTIC COLORS - Status & Feedback
+     ======================================== */
+  --color-success: #4A9B6F;
+  --color-success-light: #E8F5EE;
+  --color-warning: #D89E3F;
+  --color-warning-light: #FFF4E5;
+  --color-error: #D4594A;
+  --color-error-light: #FCEEED;
+  --color-info: #2FA4A9;
+  --color-info-light: #E8F7F8;
+
+  /* ========================================
+     TYPOGRAPHY
+     ======================================== */
+  --font-primary: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;      /* 12px */
+  --text-sm: 0.875rem;     /* 14px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.125rem;     /* 18px */
+  --text-xl: 1.25rem;      /* 20px */
+  --text-2xl: 1.5rem;      /* 24px */
+  --text-3xl: 1.875rem;    /* 30px */
+  --text-4xl: 2.25rem;     /* 36px */
+  --text-5xl: 3rem;        /* 48px */
+  --text-6xl: 3.75rem;     /* 60px */
+  --text-7xl: 4.5rem;      /* 72px */
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ========================================
+     SPACING SCALE
+     ======================================== */
+  --space-0: 0;
+  --space-1: 0.25rem;      /* 4px */
+  --space-2: 0.5rem;       /* 8px */
+  --space-3: 0.75rem;      /* 12px */
+  --space-4: 1rem;         /* 16px */
+  --space-5: 1.25rem;      /* 20px */
+  --space-6: 1.5rem;       /* 24px */
+  --space-8: 2rem;         /* 32px */
+  --space-10: 2.5rem;      /* 40px */
+  --space-12: 3rem;        /* 48px */
+  --space-16: 4rem;        /* 64px */
+  --space-20: 5rem;        /* 80px */
+  --space-24: 6rem;        /* 96px */
+  --space-32: 8rem;        /* 128px */
+
+  /* ========================================
+     BORDER RADIUS - Soft Mediterranean Curves
+     ======================================== */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;    /* 4px */
+  --radius-base: 0.5rem;   /* 8px */
+  --radius-md: 0.75rem;    /* 12px */
+  --radius-lg: 1rem;       /* 16px */
+  --radius-xl: 1.25rem;    /* 20px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* ========================================
+     SHADOWS - Subtle Mediterranean Light
+     ======================================== */
+  --shadow-sm: 0 1px 2px 0 rgba(42, 38, 35, 0.05);
+  --shadow-base: 0 1px 3px 0 rgba(42, 38, 35, 0.1), 0 1px 2px 0 rgba(42, 38, 35, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(42, 38, 35, 0.1), 0 2px 4px -1px rgba(42, 38, 35, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(42, 38, 35, 0.1), 0 4px 6px -2px rgba(42, 38, 35, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(42, 38, 35, 0.1), 0 10px 10px -5px rgba(42, 38, 35, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(42, 38, 35, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(42, 38, 35, 0.06);
+
+  /* ========================================
+     ANIMATION
+     ======================================== */
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ========================================
+     BREAKPOINTS (for reference)
+     ======================================== */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-warm-slate-700);
+  background-color: var(--color-limestone-white);
+}
+
+/* ========================================
+   TYPOGRAPHY BASE STYLES
+   ======================================== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+  color: var(--color-warm-charcoal);
+  margin-bottom: var(--space-4);
+}
+
+h1 { font-size: var(--text-5xl); }
+h2 { font-size: var(--text-4xl); }
+h3 { font-size: var(--text-3xl); }
+h4 { font-size: var(--text-2xl); }
+h5 { font-size: var(--text-xl); }
+h6 { font-size: var(--text-lg); }
+
+p {
+  margin-bottom: var(--space-4);
+}
+
+a {
+  color: var(--color-aegean-blue);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--color-azure-turquoise);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+/* Cards */
+.card {
+  background-color: var(--color-pure-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.btn-primary {
+  background-color: var(--color-aegean-blue);
+  color: var(--color-pure-white);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-azure-turquoise);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+  background-color: var(--color-soft-coral);
+  color: var(--color-pure-white);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-bougainvillea-pink);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Text Colors */
+.text-primary { color: var(--color-aegean-blue); }
+.text-secondary { color: var(--color-soft-coral); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }
+
+/* Background Colors */
+.bg-primary { background-color: var(--color-aegean-blue); }
+.bg-secondary { background-color: var(--color-azure-turquoise); }
+.bg-limestone { background-color: var(--color-limestone-white); }
+.bg-white { background-color: var(--color-pure-white); }
+.bg-sand { background-color: var(--color-warm-sand); }
+
+/* ========================================
+   COMPONENT PATTERNS
+   ======================================== */
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(135deg, var(--color-aegean-blue) 0%, var(--color-azure-turquoise) 100%);
+  color: var(--color-pure-white);
+  padding: var(--space-20) var(--space-4);
+  text-align: center;
+}
+
+/* Section */
+.section {
+  padding: var(--space-16) var(--space-4);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+   ======================================== */
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-aegean-blue);
+  outline-offset: 2px;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-aegean-blue);
+  color: var(--color-pure-white);
+  padding: var(--space-2) var(--space-4);
+  text-decoration: none;
+  z-index: 100;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

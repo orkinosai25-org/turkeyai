@@ -1,0 +1,59 @@
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Concept 5: Minimal Horizon/Wave with AI Spark -->
+  <!-- Clean, modern, minimal - perfect for tech/AI context -->
+  
+  <defs>
+    <!-- Gradient for modern tech feel -->
+    <linearGradient id="horizonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2FA4A9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1F6FAF;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Glow effect for AI spark -->
+    <radialGradient id="sparkGlow">
+      <stop offset="0%" style="stop-color:#F2A38A;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#F2A38A;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Logo Mark -->
+  <g id="mark">
+    <!-- Horizon line (sea meeting sky) -->
+    <line x1="20" y1="50" x2="100" y2="50" stroke="#1F6FAF" stroke-width="2" opacity="0.4"/>
+    
+    <!-- Wave forms -->
+    <path d="M 20 55 Q 30 50, 40 55 T 60 55 T 80 55 T 100 55" 
+          stroke="url(#horizonGradient)" 
+          stroke-width="3.5" 
+          fill="none" 
+          stroke-linecap="round"/>
+    
+    <path d="M 20 62 Q 30 57, 40 62 T 60 62 T 80 62 T 100 62" 
+          stroke="#2FA4A9" 
+          stroke-width="2.5" 
+          fill="none" 
+          stroke-linecap="round"
+          opacity="0.6"/>
+    
+    <!-- AI spark/star at intersection point -->
+    <circle cx="60" cy="50" r="8" fill="url(#sparkGlow)"/>
+    <circle cx="60" cy="50" r="4" fill="#F2A38A"/>
+    
+    <!-- Star points -->
+    <line x1="60" y1="42" x2="60" y2="46" stroke="#F2A38A" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="60" y1="54" x2="60" y2="58" stroke="#F2A38A" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="52" y1="50" x2="56" y2="50" stroke="#F2A38A" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="64" y1="50" x2="68" y2="50" stroke="#F2A38A" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Wordmark -->
+  <g id="wordmark" transform="translate(120, 0)">
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="36" font-weight="600" fill="#1F1D1B" letter-spacing="-0.5">
+      Türkiye<tspan fill="#2FA4A9">AI</tspan>
+    </text>
+    <text x="0" y="75" font-family="Inter, sans-serif" font-size="11" font-weight="400" fill="#7A7267" letter-spacing="0.5">
+      Your AI Travel Expert for Türkiye
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,71 @@
+<svg viewBox="0 0 1500 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- X/Twitter Banner (1500x500) -->
+  <!-- Clean, modern, with Aegean vibes -->
+  
+  <defs>
+    <linearGradient id="xBg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2FA4A9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1F6FAF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1500" height="500" fill="url(#xBg)"/>
+  
+  <!-- Wave layers for depth -->
+  <path d="M 0 350 Q 188 330, 375 350 T 750 350 T 1125 350 T 1500 350 L 1500 500 L 0 500 Z" 
+        fill="#F8F9F7" 
+        opacity="0.08"/>
+  <path d="M 0 380 Q 188 365, 375 380 T 750 380 T 1125 380 T 1500 380 L 1500 500 L 0 500 Z" 
+        fill="#F8F9F7" 
+        opacity="0.12"/>
+  <path d="M 0 410 Q 188 395, 375 410 T 750 410 T 1125 410 T 1500 410 L 1500 500 L 0 500 Z" 
+        fill="#F8F9F7" 
+        opacity="0.15"/>
+  
+  <!-- Content - Left aligned -->
+  <g transform="translate(80, 150)">
+    <!-- Logo mark -->
+    <g>
+      <path d="M 20 15 L 35 8 L 50 15 L 43 30 L 35 37 L 27 30 Z" fill="#F2A38A" opacity="0.9"/>
+      <path d="M 35 8 L 50 15 L 50 30 L 35 37 Z" fill="#F8F9F7"/>
+      <circle cx="35" cy="22" r="5" fill="#C93A6A"/>
+    </g>
+    
+    <!-- Brand wordmark -->
+    <text x="70" y="35" font-family="Inter, sans-serif" font-size="56" font-weight="700" fill="#F8F9F7" letter-spacing="-1">
+      TürkiyeAI
+    </text>
+    
+    <!-- Tagline -->
+    <text x="0" y="85" font-family="Inter, sans-serif" font-size="28" font-weight="400" fill="#F8F9F7" opacity="0.95" letter-spacing="0.5">
+      Your AI Travel Expert for Türkiye
+    </text>
+    
+    <!-- Highlights -->
+    <text x="0" y="130" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#F8F9F7" opacity="0.9">
+      AI-Powered · Bodrum · Antalya · Cappadocia · Fethiye · Marmaris
+    </text>
+  </g>
+  
+  <!-- Decorative elements - Right side -->
+  <g transform="translate(1200, 100)" opacity="0.2">
+    <!-- Stylized architectural elements -->
+    <rect x="0" y="50" width="80" height="120" fill="#F8F9F7" rx="6"/>
+    <rect x="100" y="80" width="70" height="90" fill="#F8F9F7" rx="6"/>
+    <rect x="190" y="60" width="60" height="110" fill="#F8F9F7" rx="6"/>
+    
+    <!-- Bougainvillea accents -->
+    <circle cx="40" cy="45" r="8" fill="#C93A6A"/>
+    <circle cx="55" cy="40" r="6" fill="#E89BA5"/>
+    <circle cx="30" cy="38" r="5" fill="#F2A38A"/>
+  </g>
+  
+  <!-- Bottom branding -->
+  <g transform="translate(80, 460)">
+    <text font-family="Inter, sans-serif" font-size="16" font-weight="500" fill="#F8F9F7" opacity="0.9">
+      Powered by OrkinosAI · turkiyeai.travel
+    </text>
+  </g>
+</svg>

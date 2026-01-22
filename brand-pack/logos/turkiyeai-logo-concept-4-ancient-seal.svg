@@ -1,0 +1,45 @@
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Concept 4: Ancient Seal/Emblem (Greek/Anatolian Inspired) -->
+  <!-- Circular seal reminiscent of ancient Greek coins and Anatolian stamps -->
+  
+  <!-- Logo Mark: Ancient seal -->
+  <g id="mark">
+    <!-- Outer ring -->
+    <circle cx="60" cy="60" r="38" fill="none" stroke="#C56A3A" stroke-width="2.5" opacity="0.8"/>
+    <circle cx="60" cy="60" r="34" fill="none" stroke="#C56A3A" stroke-width="1" opacity="0.5"/>
+    
+    <!-- Inner geometric pattern (Greek key inspired) -->
+    <path d="M 60 35 L 60 50 L 50 50 L 50 60 L 40 60 L 40 70 L 50 70 L 50 80 L 60 80 L 60 70 L 70 70 L 70 60 L 80 60 L 80 50 L 70 50 L 70 40 L 60 40 Z" 
+          fill="#1F6FAF" 
+          opacity="0.7"/>
+    
+    <!-- Wave element -->
+    <path d="M 35 58 Q 45 54, 50 58 T 60 58 T 70 58 T 85 58" 
+          stroke="#2FA4A9" 
+          stroke-width="2.5" 
+          fill="none"
+          stroke-linecap="round"/>
+    
+    <!-- Central dot -->
+    <circle cx="60" cy="60" r="5" fill="#C56A3A"/>
+    <circle cx="60" cy="60" r="2" fill="#F8F9F7"/>
+    
+    <!-- Decorative dots around perimeter (like ancient coins) -->
+    <circle cx="60" cy="25" r="2" fill="#C56A3A" opacity="0.6"/>
+    <circle cx="85" cy="40" r="2" fill="#C56A3A" opacity="0.6"/>
+    <circle cx="85" cy="80" r="2" fill="#C56A3A" opacity="0.6"/>
+    <circle cx="60" cy="95" r="2" fill="#C56A3A" opacity="0.6"/>
+    <circle cx="35" cy="80" r="2" fill="#C56A3A" opacity="0.6"/>
+    <circle cx="35" cy="40" r="2" fill="#C56A3A" opacity="0.6"/>
+  </g>
+  
+  <!-- Wordmark -->
+  <g id="wordmark" transform="translate(120, 0)">
+    <text x="0" y="50" font-family="Inter, sans-serif" font-size="36" font-weight="600" fill="#1F1D1B" letter-spacing="-0.5">
+      Türkiye<tspan fill="#C56A3A">AI</tspan>
+    </text>
+    <text x="0" y="75" font-family="Inter, sans-serif" font-size="11" font-weight="400" fill="#7A7267" letter-spacing="0.5">
+      Your AI Travel Expert for Türkiye
+    </text>
+  </g>
+</svg>

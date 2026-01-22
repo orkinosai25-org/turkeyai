@@ -1,0 +1,125 @@
+<svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Chat Widget Component -->
+  <!-- Modern chat interface with AI assistant personality -->
+  
+  <defs>
+    <linearGradient id="chatHeaderBg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2FA4A9;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="widgetShadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  
+  <!-- Widget container -->
+  <rect x="0" y="0" width="400" height="600" rx="24" fill="#FFFFFF" filter="url(#widgetShadow)"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="400" height="80" rx="24" fill="url(#chatHeaderBg)"/>
+  <rect x="0" y="56" width="400" height="24" fill="url(#chatHeaderBg)"/>
+  
+  <!-- AI Avatar -->
+  <g transform="translate(20, 20)">
+    <circle cx="20" cy="20" r="20" fill="#F8F9F7"/>
+    <!-- Simplified logo mark -->
+    <path d="M 14 14 L 20 11 L 26 14 L 23 20 L 20 23 L 17 20 Z" fill="#2FA4A9" opacity="0.9"/>
+    <circle cx="20" cy="17" r="3" fill="#F2A38A"/>
+    
+    <!-- Online status dot -->
+    <circle cx="35" cy="35" r="6" fill="#4A9B6F"/>
+    <circle cx="35" cy="35" r="4" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Header text -->
+  <text x="65" y="33" font-family="Inter, sans-serif" font-size="18" font-weight="600" fill="#FFFFFF">
+    TürkiyeAI Assistant
+  </text>
+  <text x="65" y="53" font-family="Inter, sans-serif" font-size="13" font-weight="400" fill="#FFFFFF" opacity="0.9">
+    Online · Typically replies instantly
+  </text>
+  
+  <!-- Close button -->
+  <g transform="translate(360, 28)">
+    <line x1="0" y1="0" x2="12" y2="12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+    <line x1="12" y1="0" x2="0" y2="12" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Chat messages area -->
+  <g transform="translate(0, 100)">
+    <!-- AI message bubble 1 -->
+    <g transform="translate(20, 20)">
+      <rect x="0" y="0" width="280" height="70" rx="12" fill="#E8F7F8"/>
+      <text x="16" y="25" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#1F1D1B">
+        <tspan x="16" dy="0">Hello! 👋 I'm your AI travel expert</tspan>
+        <tspan x="16" dy="20">for Türkiye. How can I help you plan</tspan>
+        <tspan x="16" dy="20">your perfect trip?</tspan>
+      </text>
+    </g>
+    
+    <!-- Quick reply suggestions -->
+    <g transform="translate(20, 110)">
+      <rect x="0" y="0" width="140" height="36" rx="8" fill="#F8F9F7" stroke="#2FA4A9" stroke-width="1.5"/>
+      <text x="70" y="23" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#2FA4A9" text-anchor="middle">
+        Best beaches 🏖️
+      </text>
+      
+      <rect x="150" y="0" width="180" height="36" rx="8" fill="#F8F9F7" stroke="#2FA4A9" stroke-width="1.5"/>
+      <text x="240" y="23" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#2FA4A9" text-anchor="middle">
+        Plan 5-day trip 🗺️
+      </text>
+    </g>
+    
+    <!-- User message bubble -->
+    <g transform="translate(100, 170)">
+      <rect x="0" y="0" width="280" height="50" rx="12" fill="#1F6FAF"/>
+      <text x="16" y="25" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#FFFFFF">
+        <tspan x="16" dy="0">Tell me about Bodrum</tspan>
+      </text>
+    </g>
+    
+    <!-- AI message bubble 2 (typing) -->
+    <g transform="translate(20, 240)">
+      <rect x="0" y="0" width="280" height="90" rx="12" fill="#E8F7F8"/>
+      <text x="16" y="25" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#1F1D1B">
+        <tspan x="16" dy="0">Bodrum is a stunning coastal town</tspan>
+        <tspan x="16" dy="20">on the Aegean Sea! Known for its</tspan>
+        <tspan x="16" dy="20">whitewashed houses, vibrant...</tspan>
+      </text>
+      
+      <!-- Typing indicator -->
+      <g transform="translate(16, 75)">
+        <circle cx="4" cy="0" r="3" fill="#2FA4A9" opacity="0.6"/>
+        <circle cx="14" cy="0" r="3" fill="#2FA4A9" opacity="0.4"/>
+        <circle cx="24" cy="0" r="3" fill="#2FA4A9" opacity="0.3"/>
+      </g>
+    </g>
+  </g>
+  
+  <!-- Input area -->
+  <g transform="translate(0, 520)">
+    <rect x="20" y="0" width="360" height="60" rx="12" fill="#F7F5F3"/>
+    
+    <!-- Input placeholder -->
+    <text x="36" y="35" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#A39A8E">
+      Type your message...
+    </text>
+    
+    <!-- Send button -->
+    <g transform="translate(340, 18)">
+      <circle cx="12" cy="12" r="12" fill="#2FA4A9"/>
+      <path d="M 8 12 L 12 8 L 16 12 L 12 16 Z" 
+            fill="none" 
+            stroke="#FFFFFF" 
+            stroke-width="2" 
+            stroke-linejoin="round"
+            transform="rotate(45 12 12)"/>
+    </g>
+  </g>
+  
+  <!-- Powered by footer -->
+  <text x="200" y="595" font-family="Inter, sans-serif" font-size="10" font-weight="400" fill="#A39A8E" text-anchor="middle">
+    Powered by OrkinosAI
+  </text>
+</svg>
