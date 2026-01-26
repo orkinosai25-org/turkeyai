@@ -14,6 +14,9 @@ function Home() {
         </p>
         
         <div className="hero-buttons">
+          <button className="btn btn-primary" onClick={() => navigate('/trip-planner')}>
+            📋 Plan Your Trip
+          </button>
           <button className="btn btn-primary" onClick={() => navigate('/chat')}>
             🤖 Chat with AI Agent
           </button>

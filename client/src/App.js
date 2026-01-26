@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Destinations from './pages/Destinations';
 import Chat from './pages/Chat';
+import TripPlanner from './pages/TripPlanner';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/trip-planner" element={<TripPlanner />} />
         </Routes>
         <Footer />
       </div>
