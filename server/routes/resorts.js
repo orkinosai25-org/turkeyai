@@ -16,11 +16,11 @@ router.get('/', async (req, res) => {
     
     // Validate and parse star_rating if provided
     if (req.query.star_rating !== undefined) {
-      const starRating = parseInt(req.query.star_rating);
-      if (isNaN(starRating) || starRating < 1 || starRating > 5) {
+      const starRating = Number(req.query.star_rating);
+      if (!Number.isInteger(starRating) || starRating < 1 || starRating > 5) {
         return res.status(400).json({
           error: 'Invalid star_rating',
-          message: 'star_rating must be a number between 1 and 5'
+          message: 'star_rating must be an integer between 1 and 5'
         });
       }
       filters.star_rating = starRating;
