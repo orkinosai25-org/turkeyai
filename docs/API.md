@@ -191,6 +191,306 @@ Retrieve details of a specific destination by ID.
 
 ---
 
+## Regions
+
+### Get All Regions
+
+#### `GET /api/regions`
+
+Retrieve a list of all distinct regions with destination counts.
+
+**Response:**
+```json
+{
+  "regions": [
+    {
+      "region": "Aegean Coast",
+      "destination_count": "2"
+    },
+    {
+      "region": "Central Anatolia",
+      "destination_count": "1"
+    },
+    {
+      "region": "Mediterranean Coast",
+      "destination_count": "2"
+    }
+  ],
+  "count": 3,
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+### Get Region with Destinations
+
+#### `GET /api/regions/:name`
+
+Retrieve all destinations in a specific region.
+
+**Parameters:**
+- `name` (string): Region name (e.g., "Aegean Coast")
+
+**Response:**
+```json
+{
+  "region": "Aegean Coast",
+  "destinations": [
+    {
+      "id": "uuid",
+      "name": "Bodrum",
+      "slug": "bodrum",
+      "region": "Aegean Coast",
+      "description": "A stunning coastal town...",
+      "destination_type": "Beach & Culture",
+      "best_time_to_visit": "May to October",
+      "latitude": 37.0344,
+      "longitude": 27.4305,
+      "image_url": "..."
+    }
+  ],
+  "count": 2,
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "error": "Region not found",
+  "region": "Unknown Region"
+}
+```
+
+### Search Regions
+
+#### `GET /api/regions/search/:term`
+
+Search for regions by name.
+
+**Parameters:**
+- `term` (string): Search term
+
+**Response:**
+```json
+{
+  "regions": [
+    {
+      "region": "Aegean Coast",
+      "destination_count": "2"
+    }
+  ],
+  "count": 1,
+  "searchTerm": "aegean",
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+---
+
+## Resorts
+
+### Get All Resorts
+
+#### `GET /api/resorts`
+
+Retrieve a list of all resorts/hotels with optional filters.
+
+**Query Parameters:**
+- `destination_id` (uuid, optional): Filter by destination ID
+- `star_rating` (integer, optional): Filter by star rating (1-5)
+- `region` (string, optional): Filter by region name
+
+**Example Request:**
+```
+GET /api/resorts?star_rating=5&region=Aegean Coast
+```
+
+**Response:**
+```json
+{
+  "resorts": [
+    {
+      "id": "uuid",
+      "name": "Luxury Beach Resort",
+      "slug": "luxury-beach-resort",
+      "description": "5-star resort with private beach...",
+      "star_rating": 5,
+      "address": "123 Beach Road, Bodrum",
+      "latitude": 37.0344,
+      "longitude": 27.4305,
+      "phone": "+90 252 123 4567",
+      "email": "info@resort.com",
+      "website_url": "https://resort.com",
+      "booking_url": "https://booking.com/resort",
+      "price_range": "$$$",
+      "room_count": 200,
+      "check_in_time": "15:00:00",
+      "check_out_time": "11:00:00",
+      "destination_name": "Bodrum",
+      "destination_region": "Aegean Coast"
+    }
+  ],
+  "count": 1,
+  "filters": {
+    "star_rating": 5,
+    "region": "Aegean Coast"
+  },
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+### Get Resort by ID
+
+#### `GET /api/resorts/:id`
+
+Retrieve details of a specific resort by UUID.
+
+**Parameters:**
+- `id` (uuid): Resort ID
+
+**Response:**
+```json
+{
+  "resort": {
+    "id": "uuid",
+    "name": "Luxury Beach Resort",
+    "slug": "luxury-beach-resort",
+    "description": "5-star resort...",
+    "star_rating": 5,
+    "address": "123 Beach Road, Bodrum",
+    "latitude": 37.0344,
+    "longitude": 27.4305,
+    "phone": "+90 252 123 4567",
+    "email": "info@resort.com",
+    "website_url": "https://resort.com",
+    "booking_url": "https://booking.com/resort",
+    "price_range": "$$$",
+    "room_count": 200,
+    "check_in_time": "15:00:00",
+    "check_out_time": "11:00:00",
+    "destination_name": "Bodrum",
+    "destination_region": "Aegean Coast",
+    "destination_slug": "bodrum"
+  },
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "error": "Resort not found",
+  "id": "uuid"
+}
+```
+
+### Get Resort Amenities
+
+#### `GET /api/resorts/:id/amenities`
+
+Retrieve all amenities for a specific resort.
+
+**Parameters:**
+- `id` (uuid): Resort ID
+
+**Response:**
+```json
+{
+  "resort_id": "uuid",
+  "resort_name": "Luxury Beach Resort",
+  "amenities": [
+    {
+      "id": "uuid",
+      "amenity_name": "Infinity Pool",
+      "amenity_category": "Pool",
+      "icon": "🏊"
+    },
+    {
+      "id": "uuid",
+      "amenity_name": "Spa & Wellness Center",
+      "amenity_category": "Spa",
+      "icon": "💆"
+    }
+  ],
+  "count": 2,
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**Error Response (404):**
+```json
+{
+  "error": "Resort not found",
+  "id": "uuid"
+}
+```
+
+### Get Resorts by Region
+
+#### `GET /api/resorts/region/:region`
+
+Retrieve all resorts in a specific region.
+
+**Parameters:**
+- `region` (string): Region name (e.g., "Aegean Coast")
+
+**Response:**
+```json
+{
+  "region": "Aegean Coast",
+  "resorts": [
+    {
+      "id": "uuid",
+      "name": "Luxury Beach Resort",
+      "slug": "luxury-beach-resort",
+      "description": "5-star resort...",
+      "star_rating": 5,
+      "price_range": "$$$",
+      "latitude": 37.0344,
+      "longitude": 27.4305,
+      "destination_name": "Bodrum",
+      "destination_region": "Aegean Coast"
+    }
+  ],
+  "count": 1,
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+### Search Resorts
+
+#### `GET /api/resorts/search/:term`
+
+Search for resorts by name or description.
+
+**Parameters:**
+- `term` (string): Search term
+
+**Response:**
+```json
+{
+  "resorts": [
+    {
+      "id": "uuid",
+      "name": "Luxury Beach Resort",
+      "slug": "luxury-beach-resort",
+      "description": "5-star resort...",
+      "star_rating": 5,
+      "price_range": "$$$",
+      "latitude": 37.0344,
+      "longitude": 27.4305,
+      "destination_name": "Bodrum",
+      "destination_region": "Aegean Coast"
+    }
+  ],
+  "count": 1,
+  "searchTerm": "beach",
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+---
+
 ## Search
 
 ### Semantic Search
