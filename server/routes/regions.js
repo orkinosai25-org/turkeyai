@@ -24,6 +24,30 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * GET /api/regions/search/:term
+ * Search regions by name
+ */
+router.get('/search/:term', async (req, res) => {
+  try {
+    const { term } = req.params;
+    const regions = await Region.search(term);
+    
+    res.json({
+      regions,
+      count: regions.length,
+      searchTerm: term,
+      brand: 'TürkiyeAI - Powered by OrkinosAI'
+    });
+  } catch (error) {
+    console.error('Error in GET /api/regions/search/:term:', error);
+    res.status(500).json({ 
+      error: 'Failed to search regions',
+      message: error.message 
+    });
+  }
+});
+
+/**
  * GET /api/regions/:name
  * Get a specific region with its destinations
  */
@@ -49,30 +73,6 @@ router.get('/:name', async (req, res) => {
     console.error('Error in GET /api/regions/:name:', error);
     res.status(500).json({ 
       error: 'Failed to fetch region',
-      message: error.message 
-    });
-  }
-});
-
-/**
- * GET /api/regions/search/:term
- * Search regions by name
- */
-router.get('/search/:term', async (req, res) => {
-  try {
-    const { term } = req.params;
-    const regions = await Region.search(term);
-    
-    res.json({
-      regions,
-      count: regions.length,
-      searchTerm: term,
-      brand: 'TürkiyeAI - Powered by OrkinosAI'
-    });
-  } catch (error) {
-    console.error('Error in GET /api/regions/search/:term:', error);
-    res.status(500).json({ 
-      error: 'Failed to search regions',
       message: error.message 
     });
   }

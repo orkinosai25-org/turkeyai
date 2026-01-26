@@ -15,6 +15,16 @@ router.get('/', async (req, res) => {
       region: req.query.region
     };
     
+    // Validate star_rating if provided
+    if (filters.star_rating !== null) {
+      if (isNaN(filters.star_rating) || filters.star_rating < 1 || filters.star_rating > 5) {
+        return res.status(400).json({
+          error: 'Invalid star_rating',
+          message: 'star_rating must be a number between 1 and 5'
+        });
+      }
+    }
+    
     // Remove null/undefined filters
     Object.keys(filters).forEach(key => 
       (filters[key] === null || filters[key] === undefined) && delete filters[key]
