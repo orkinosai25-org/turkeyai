@@ -18,6 +18,8 @@ app.use('/api/chat', require('./routes/chat'));
 app.use('/api/destinations', require('./routes/destinations'));
 app.use('/api/search', require('./routes/search'));
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/regions', require('./routes/regions'));
+app.use('/api/resorts', require('./routes/resorts'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
