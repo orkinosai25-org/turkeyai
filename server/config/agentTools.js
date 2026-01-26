@@ -39,17 +39,35 @@ async function searchResorts(params) {
     let resorts = await Resort.getAll(filters);
 
     // Apply additional filters (will be undefined in DB but may exist in Search index)
-    // These filters are primarily for Azure AI Search integration
+    // Note: These filters work best with Azure AI Search which has these fields
     if (family_friendly !== undefined) {
-      resorts = resorts.filter(r => r.family_friendly === family_friendly || r.family_friendly === undefined);
+      // Only filter if we have explicit values in the database
+      resorts = resorts.filter(r => {
+        if (r.family_friendly !== undefined) {
+          return r.family_friendly === family_friendly;
+        }
+        // If field is undefined, include it (no data to filter on)
+        return true;
+      });
     }
     if (adults_only !== undefined) {
-      resorts = resorts.filter(r => r.adults_only === adults_only || r.adults_only === undefined);
+      resorts = resorts.filter(r => {
+        if (r.adults_only !== undefined) {
+          return r.adults_only === adults_only;
+        }
+        // If field is undefined, include it (no data to filter on)
+        return true;
+      });
     }
     if (vibe) {
       resorts = resorts.filter(r => {
         const tags = r.vibe_tags || [];
-        return Array.isArray(tags) && tags.includes(vibe);
+        // Only filter if we have tags
+        if (Array.isArray(tags) && tags.length > 0) {
+          return tags.includes(vibe);
+        }
+        // If no tags, include it (no data to filter on)
+        return true;
       });
     }
 
@@ -134,7 +152,7 @@ async function getResort(params) {
         beach_type: resort.beach_type,
         season_notes: resort.season_notes,
         distance_to_airport: resort.distance_to_airport,
-        amenities: amenities.map(a => a.name)
+        amenities: amenities.map(a => a.amenity_name || a.name)
       }
     };
   } catch (error) {
@@ -201,7 +219,7 @@ async function compareResorts(params) {
         vibe_tags: resort.vibe_tags || [],
         beach_type: resort.beach_type,
         distance_to_airport: resort.distance_to_airport,
-        amenities: amenities.map(a => a.name)
+        amenities: amenities.map(a => a.amenity_name || a.name)
       };
     });
 
