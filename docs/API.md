@@ -33,6 +33,62 @@ Check if the API is running.
 
 ---
 
+## Settings
+
+### Get Settings Status
+
+#### `GET /api/settings/status`
+
+Get the current Azure OpenAI configuration status without exposing sensitive API keys.
+
+**Response:**
+```json
+{
+  "status": "configured",
+  "source": "website",
+  "endpoint": "https://your-resource-name.***",
+  "deploymentName": "gpt-4o",
+  "apiVersion": "2024-08-01-preview",
+  "settings": {
+    "maxTokens": 800,
+    "temperature": 0.7,
+    "topP": 0.95,
+    "frequencyPenalty": 0,
+    "presencePenalty": 0
+  },
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**Fields:**
+- `status`: Configuration status (configured/error)
+- `source`: Where settings were loaded from (website/local-env)
+- `endpoint`: Masked Azure OpenAI endpoint
+- `deploymentName`: GPT model deployment name
+- `apiVersion`: Azure OpenAI API version
+- `settings`: Current chat completion parameters
+
+### Refresh Settings Cache
+
+#### `POST /api/settings/refresh`
+
+Clear the settings cache and force a fresh fetch from the settings source (website or environment variables).
+
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Settings cache cleared. Next request will fetch fresh settings.",
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**Use Case:**
+- Use this endpoint when Azure settings have been updated on the website
+- Forces immediate refresh without waiting for cache expiration (5 minutes)
+
+---
+
 ## Chat / AI Agent
 
 ### Send Message to AI Travel Agent
