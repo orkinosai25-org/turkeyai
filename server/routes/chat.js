@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getAzureOpenAIClient, getDeploymentName } = require('../config/azureOpenAI');
+const { getAzureOpenAIClient, getDeploymentName, getChatOptions } = require('../config/azureOpenAI');
 
 /**
  * System prompt for TürkiyeAI travel agent
@@ -37,8 +37,9 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const client = getAzureOpenAIClient();
-    const deploymentName = getDeploymentName();
+    const client = await getAzureOpenAIClient();
+    const deploymentName = await getDeploymentName();
+    const chatOptions = await getChatOptions();
 
     // Build messages array
     const messages = [
@@ -48,13 +49,7 @@ router.post('/', async (req, res) => {
     ];
 
     // Get completion from Azure OpenAI
-    const result = await client.getChatCompletions(deploymentName, messages, {
-      temperature: 0.7,
-      maxTokens: 800,
-      topP: 0.95,
-      frequencyPenalty: 0,
-      presencePenalty: 0
-    });
+    const result = await client.getChatCompletions(deploymentName, messages, chatOptions);
 
     const response = result.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
 
