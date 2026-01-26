@@ -1,33 +1,51 @@
 const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+const { getAzureSettings } = require("./settingsProvider");
 
 let client = null;
+let currentEndpoint = null;
+let currentApiKey = null;
 
 /**
- * Initialize Azure OpenAI client
+ * Initialize Azure OpenAI client with dynamic settings
  */
-function getAzureOpenAIClient() {
-  if (!client) {
-    const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
-    const apiKey = process.env.AZURE_OPENAI_API_KEY;
-    
-    if (!endpoint || !apiKey) {
-      throw new Error('Azure OpenAI credentials not configured');
-    }
-    
-    client = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey));
+async function getAzureOpenAIClient() {
+  const settings = await getAzureSettings();
+  
+  // Recreate client if settings have changed
+  if (!client || currentEndpoint !== settings.endpoint || currentApiKey !== settings.apiKey) {
+    console.log('🔄 Initializing Azure OpenAI client with updated settings');
+    client = new OpenAIClient(settings.endpoint, new AzureKeyCredential(settings.apiKey));
+    currentEndpoint = settings.endpoint;
+    currentApiKey = settings.apiKey;
   }
   
   return client;
 }
 
 /**
- * Get deployment name
+ * Get deployment name from settings
  */
-function getDeploymentName() {
-  return process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4';
+async function getDeploymentName() {
+  const settings = await getAzureSettings();
+  return settings.deploymentName;
+}
+
+/**
+ * Get chat completion options from settings
+ */
+async function getChatOptions() {
+  const settings = await getAzureSettings();
+  return {
+    temperature: settings.temperature,
+    maxTokens: settings.maxTokens,
+    topP: settings.topP,
+    frequencyPenalty: settings.frequencyPenalty,
+    presencePenalty: settings.presencePenalty
+  };
 }
 
 module.exports = {
   getAzureOpenAIClient,
-  getDeploymentName
+  getDeploymentName,
+  getChatOptions
 };

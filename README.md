@@ -160,11 +160,16 @@ nano server/.env
 Required environment variables:
 
 ```env
-# Azure OpenAI
+# Azure OpenAI Configuration
+# By default, Azure settings are fetched from the OrkinosAI website
+# Set USE_WEBSITE_SETTINGS=false to use only local environment variables
 AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
 AZURE_OPENAI_API_KEY=your-api-key
 AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4
 AZURE_OPENAI_API_VERSION=2024-02-15-preview
+
+# Settings Provider Configuration
+USE_WEBSITE_SETTINGS=true  # Set to false to disable website settings fetching
 
 # Azure AI Search
 AZURE_SEARCH_ENDPOINT=https://your-search-service.search.windows.net
@@ -179,6 +184,8 @@ DB_USER=your-admin-user
 DB_PASSWORD=your-password
 DB_SSL=true
 ```
+
+**Note:** TürkiyeAI can automatically fetch Azure OpenAI settings from the OrkinosAI website. This allows centralized configuration management. If the website is unavailable, it falls back to local environment variables.
 
 ### 4. Run Development Server
 
@@ -196,6 +203,7 @@ npm run client    # Frontend only (port 3000)
 - **Frontend:** http://localhost:3000
 - **Backend API:** http://localhost:5000
 - **Health Check:** http://localhost:5000/api/health
+- **Settings Status:** http://localhost:5000/api/settings/status
 
 ---
 
@@ -205,6 +213,18 @@ npm run client    # Frontend only (port 3000)
 ```
 GET /api/health
 ```
+
+### Settings Status
+```
+GET /api/settings/status
+```
+Returns the current Azure OpenAI configuration status (without exposing API keys)
+
+### Refresh Settings
+```
+POST /api/settings/refresh
+```
+Clears the settings cache and forces a fresh fetch from the source
 
 ### Chat with AI Agent
 ```

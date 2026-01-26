@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/destinations', require('./routes/destinations'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/settings', require('./routes/settings'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
