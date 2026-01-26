@@ -48,7 +48,7 @@
 }
 
 .logo-icon {
-  font-size: 2rem;
+  display: block;
   line-height: 1;
 }
 
