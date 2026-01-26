@@ -13,7 +13,7 @@ router.get('/status', async (req, res) => {
     // Return status without exposing sensitive data
     res.json({
       status: 'configured',
-      source: settings.endpoint.includes('your-resource') ? 'local-env' : 'website',
+      source: settings.source || 'unknown',
       endpoint: settings.endpoint.replace(/https:\/\/([^.]+).*/, 'https://$1.***'),
       deploymentName: settings.deploymentName,
       apiVersion: settings.apiVersion,

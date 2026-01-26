@@ -92,8 +92,12 @@ async function runTests() {
     console.log('✅ PASS: Local fallback works correctly');
     console.log(`   - Used endpoint: ${settings.endpoint}`);
     
-    // Restore original value
-    process.env.USE_WEBSITE_SETTINGS = originalValue;
+    // Restore original value or delete if it was undefined
+    if (originalValue === undefined) {
+      delete process.env.USE_WEBSITE_SETTINGS;
+    } else {
+      process.env.USE_WEBSITE_SETTINGS = originalValue;
+    }
     clearCache();
     
     testsPassed++;

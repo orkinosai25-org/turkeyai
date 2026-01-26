@@ -32,7 +32,8 @@ async function fetchSettingsFromWebsite() {
         temperature: azureConfig.Temperature,
         topP: azureConfig.TopP,
         frequencyPenalty: azureConfig.FrequencyPenalty,
-        presencePenalty: azureConfig.PresencePenalty
+        presencePenalty: azureConfig.PresencePenalty,
+        source: 'website'
       };
     }
     
@@ -52,11 +53,12 @@ function getLocalSettings() {
     apiKey: process.env.AZURE_OPENAI_API_KEY,
     deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4',
     apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
-    maxTokens: parseInt(process.env.AZURE_OPENAI_MAX_TOKENS) || 800,
+    maxTokens: parseInt(process.env.AZURE_OPENAI_MAX_TOKENS, 10) || 800,
     temperature: parseFloat(process.env.AZURE_OPENAI_TEMPERATURE) || 0.7,
     topP: parseFloat(process.env.AZURE_OPENAI_TOP_P) || 0.95,
     frequencyPenalty: parseFloat(process.env.AZURE_OPENAI_FREQUENCY_PENALTY) || 0,
-    presencePenalty: parseFloat(process.env.AZURE_OPENAI_PRESENCE_PENALTY) || 0
+    presencePenalty: parseFloat(process.env.AZURE_OPENAI_PRESENCE_PENALTY) || 0,
+    source: 'local-env'
   };
 }
 
