@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const DEFAULT_DAYS = 2;
+const MIN_DAYS = 1;
+const MAX_DAYS = 30;
+
 function TripPlanner() {
   const [destinations, setDestinations] = useState([]);
   const [tripItems, setTripItems] = useState([]);
   const [tripName, setTripName] = useState('My Turkish Adventure');
   const [tripDates, setTripDates] = useState({ start: '', end: '' });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedDestination, setSelectedDestination] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -20,22 +25,26 @@ function TripPlanner() {
       setDestinations(response.data.destinations || []);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching destinations:', err);
+      setError('Failed to load destinations');
       setLoading(false);
+      console.error('Error fetching destinations:', err);
     }
   };
 
   const addToTrip = () => {
     if (!selectedDestination) return;
 
-    const destination = destinations.find(d => d.id === parseInt(selectedDestination));
+    const destinationId = parseInt(selectedDestination);
+    if (isNaN(destinationId)) return;
+
+    const destination = destinations.find(d => d.id === destinationId);
     if (destination && !tripItems.find(item => item.id === destination.id)) {
       setTripItems([...tripItems, {
         id: destination.id,
         name: destination.name,
         region: destination.region,
         type: destination.type,
-        days: 2
+        days: DEFAULT_DAYS
       }]);
       setSelectedDestination('');
     }
@@ -46,8 +55,10 @@ function TripPlanner() {
   };
 
   const updateDays = (id, days) => {
+    const parsedDays = parseInt(days);
+    const validDays = isNaN(parsedDays) ? MIN_DAYS : Math.min(Math.max(parsedDays, MIN_DAYS), MAX_DAYS);
     setTripItems(tripItems.map(item => 
-      item.id === id ? { ...item, days: parseInt(days) || 1 } : item
+      item.id === id ? { ...item, days: validDays } : item
     ));
   };
 
@@ -65,7 +76,15 @@ function TripPlanner() {
   if (loading) {
     return (
       <div className="page">
-        <h2>Loading...</h2>
+        <h2>Loading destinations...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page">
+        <h2 style={{ color: 'red' }}>{error}</h2>
       </div>
     );
   }
@@ -292,8 +311,8 @@ function TripPlanner() {
                       </label>
                       <input
                         type="number"
-                        min="1"
-                        max="30"
+                        min={MIN_DAYS}
+                        max={MAX_DAYS}
                         value={item.days}
                         onChange={(e) => updateDays(item.id, e.target.value)}
                         style={{
