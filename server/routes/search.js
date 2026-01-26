@@ -4,42 +4,99 @@ const { getSearchClient } = require('../config/azureSearch');
 
 /**
  * POST /api/search
- * Semantic search for Turkish travel content
+ * Semantic search for Turkish travel content using Azure AI Search
  */
 router.post('/', async (req, res) => {
   try {
-    const { query, top = 10 } = req.body;
+    const { query, filters = {}, top = 10 } = req.body;
     
     if (!query) {
       return res.status(400).json({ error: 'Search query is required' });
     }
 
-    // For demo purposes without actual Azure Search configured
-    // This would use Azure AI Search in production
-    const mockResults = [
-      {
-        id: '1',
-        title: 'Best Time to Visit Bodrum',
-        content: 'Bodrum is best visited between May and October when the weather is warm and sunny.',
-        score: 0.95,
-        category: 'destination'
-      },
-      {
-        id: '2',
-        title: 'Cappadocia Hot Air Balloon Tours',
-        content: 'Experience the magical sunrise over Cappadocia\'s unique landscape from a hot air balloon.',
-        score: 0.88,
-        category: 'activity'
-      }
-    ];
+    try {
+      // Try to use Azure AI Search if configured
+      const searchClient = getSearchClient();
+      
+      // Build search options
+      const searchOptions = {
+        top,
+        select: [
+          'id', 'resort_name', 'region', 'description', 
+          'amenities', 'vibe_tags', 'star_rating', 'price_range',
+          'beach_type', 'season_notes', 'family_friendly', 'adults_only'
+        ],
+        queryType: 'semantic',
+        semanticConfiguration: 'resort-semantic-config',
+        includeTotalCount: true
+      };
 
-    res.json({
-      results: mockResults,
-      query,
-      count: mockResults.length,
-      brand: 'TürkiyeAI - Powered by OrkinosAI',
-      note: 'Configure Azure AI Search for production semantic search'
-    });
+      // Add filters if provided
+      const filterClauses = [];
+      if (filters.region) filterClauses.push(`region eq '${filters.region}'`);
+      if (filters.family_friendly !== undefined) filterClauses.push(`family_friendly eq ${filters.family_friendly}`);
+      if (filters.adults_only !== undefined) filterClauses.push(`adults_only eq ${filters.adults_only}`);
+      if (filters.min_rating) filterClauses.push(`star_rating ge ${filters.min_rating}`);
+      
+      if (filterClauses.length > 0) {
+        searchOptions.filter = filterClauses.join(' and ');
+      }
+
+      // Perform search
+      const searchResults = await searchClient.search(query, searchOptions);
+      
+      // Collect results
+      const results = [];
+      for await (const result of searchResults.results) {
+        results.push({
+          ...result.document,
+          score: result.score
+        });
+      }
+
+      res.json({
+        results,
+        query,
+        count: results.length,
+        totalCount: searchResults.count,
+        brand: 'TürkiyeAI - Powered by OrkinosAI'
+      });
+
+    } catch (searchError) {
+      // Fall back to mock results if Azure Search is not configured
+      console.warn('Azure AI Search not available, using mock results:', searchError.message);
+      
+      const mockResults = [
+        {
+          id: '1',
+          resort_name: 'Sample Luxury Beach Resort',
+          region: 'Bodrum',
+          description: 'Bodrum is best visited between May and October when the weather is warm and sunny.',
+          score: 0.95,
+          amenities: ['Pool', 'Spa', 'Beach Access'],
+          vibe_tags: ['luxury', 'beach'],
+          star_rating: 5
+        },
+        {
+          id: '2',
+          resort_name: 'Family-Friendly Seaside Hotel',
+          region: 'Antalya',
+          description: 'Perfect resort for families with children, featuring kids club and family activities.',
+          score: 0.88,
+          amenities: ['Kids Club', 'Pool', 'Restaurant'],
+          vibe_tags: ['family', 'beach'],
+          star_rating: 4
+        }
+      ];
+
+      res.json({
+        results: mockResults,
+        query,
+        count: mockResults.length,
+        brand: 'TürkiyeAI - Powered by OrkinosAI',
+        note: 'Using mock data. Configure Azure AI Search for production semantic search.'
+      });
+    }
 
   } catch (error) {
     console.error('Search API Error:', error);

@@ -1,0 +1,205 @@
+{
+  "name": "turkiyeai-resorts",
+  "fields": [
+    {
+      "name": "id",
+      "type": "Edm.String",
+      "key": true,
+      "searchable": false,
+      "filterable": false,
+      "sortable": false,
+      "facetable": false
+    },
+    {
+      "name": "resort_name",
+      "type": "Edm.String",
+      "searchable": true,
+      "filterable": false,
+      "sortable": true,
+      "facetable": false,
+      "analyzer": "en.lucene"
+    },
+    {
+      "name": "region",
+      "type": "Edm.String",
+      "searchable": true,
+      "filterable": true,
+      "sortable": true,
+      "facetable": true
+    },
+    {
+      "name": "description",
+      "type": "Edm.String",
+      "searchable": true,
+      "filterable": false,
+      "sortable": false,
+      "facetable": false,
+      "analyzer": "en.lucene"
+    },
+    {
+      "name": "amenities",
+      "type": "Collection(Edm.String)",
+      "searchable": true,
+      "filterable": true,
+      "sortable": false,
+      "facetable": true
+    },
+    {
+      "name": "vibe_tags",
+      "type": "Collection(Edm.String)",
+      "searchable": true,
+      "filterable": true,
+      "sortable": false,
+      "facetable": true
+    },
+    {
+      "name": "distance_to_airport",
+      "type": "Edm.Double",
+      "searchable": false,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    },
+    {
+      "name": "family_friendly",
+      "type": "Edm.Boolean",
+      "searchable": false,
+      "filterable": true,
+      "sortable": false,
+      "facetable": true
+    },
+    {
+      "name": "adults_only",
+      "type": "Edm.Boolean",
+      "searchable": false,
+      "filterable": true,
+      "sortable": false,
+      "facetable": true
+    },
+    {
+      "name": "beach_type",
+      "type": "Edm.String",
+      "searchable": true,
+      "filterable": true,
+      "sortable": false,
+      "facetable": true
+    },
+    {
+      "name": "season_notes",
+      "type": "Edm.String",
+      "searchable": true,
+      "filterable": false,
+      "sortable": false,
+      "facetable": false,
+      "analyzer": "en.lucene"
+    },
+    {
+      "name": "star_rating",
+      "type": "Edm.Int32",
+      "searchable": false,
+      "filterable": true,
+      "sortable": true,
+      "facetable": true
+    },
+    {
+      "name": "price_range",
+      "type": "Edm.String",
+      "searchable": false,
+      "filterable": true,
+      "sortable": false,
+      "facetable": true
+    },
+    {
+      "name": "latitude",
+      "type": "Edm.Double",
+      "searchable": false,
+      "filterable": false,
+      "sortable": false,
+      "facetable": false
+    },
+    {
+      "name": "longitude",
+      "type": "Edm.Double",
+      "searchable": false,
+      "filterable": false,
+      "sortable": false,
+      "facetable": false
+    },
+    {
+      "name": "location",
+      "type": "Edm.GeographyPoint",
+      "searchable": false,
+      "filterable": true,
+      "sortable": true,
+      "facetable": false
+    }
+  ],
+  "suggesters": [
+    {
+      "name": "sg-resorts",
+      "searchMode": "analyzingInfixMatching",
+      "sourceFields": [
+        "resort_name",
+        "region",
+        "amenities"
+      ]
+    }
+  ],
+  "scoringProfiles": [
+    {
+      "name": "boostByRating",
+      "text": {
+        "weights": {
+          "resort_name": 2.0,
+          "description": 1.5,
+          "amenities": 1.0
+        }
+      },
+      "functions": [
+        {
+          "type": "magnitude",
+          "fieldName": "star_rating",
+          "boost": 2.0,
+          "interpolation": "linear",
+          "magnitude": {
+            "boostingRangeStart": 1,
+            "boostingRangeEnd": 5,
+            "constantBoostBeyondRange": false
+          }
+        }
+      ]
+    }
+  ],
+  "corsOptions": {
+    "allowedOrigins": ["*"],
+    "maxAgeInSeconds": 300
+  },
+  "semanticSearch": {
+    "configurations": [
+      {
+        "name": "resort-semantic-config",
+        "prioritizedFields": {
+          "titleField": {
+            "fieldName": "resort_name"
+          },
+          "prioritizedContentFields": [
+            {
+              "fieldName": "description"
+            },
+            {
+              "fieldName": "season_notes"
+            }
+          ],
+          "prioritizedKeywordsFields": [
+            {
+              "fieldName": "amenities"
+            },
+            {
+              "fieldName": "vibe_tags"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
