@@ -10,6 +10,12 @@ const { getSearchClient } = require('./azureSearch');
 
 /**
  * Search for resorts based on filters
+ * 
+ * NOTE: This function queries the PostgreSQL database. For advanced filtering
+ * (family_friendly, adults_only, vibe_tags), use Azure AI Search which has
+ * these fields in the index schema. The database only has basic fields like
+ * name, description, star_rating, and destination_id.
+ * 
  * @param {Object} params - Search parameters
  * @returns {Promise<Object>} Search results with resorts
  */
@@ -24,7 +30,7 @@ async function searchResorts(params) {
       max_results = 10
     } = params;
 
-    // Build filters for database query
+    // Build filters for database query (only supports basic fields)
     const filters = {};
     if (region) filters.region = region;
     if (min_star_rating) filters.star_rating = min_star_rating;
@@ -32,17 +38,18 @@ async function searchResorts(params) {
     // Get resorts from database
     let resorts = await Resort.getAll(filters);
 
-    // Apply additional filters
+    // Apply additional filters (will be undefined in DB but may exist in Search index)
+    // These filters are primarily for Azure AI Search integration
     if (family_friendly !== undefined) {
-      resorts = resorts.filter(r => r.family_friendly === family_friendly);
+      resorts = resorts.filter(r => r.family_friendly === family_friendly || r.family_friendly === undefined);
     }
     if (adults_only !== undefined) {
-      resorts = resorts.filter(r => r.adults_only === adults_only);
+      resorts = resorts.filter(r => r.adults_only === adults_only || r.adults_only === undefined);
     }
     if (vibe) {
       resorts = resorts.filter(r => {
         const tags = r.vibe_tags || [];
-        return tags.includes(vibe);
+        return Array.isArray(tags) && tags.includes(vibe);
       });
     }
 
@@ -58,13 +65,15 @@ async function searchResorts(params) {
         region: r.region,
         star_rating: r.star_rating,
         description: r.description,
-        price_range: r.price_range,
+        price_range: r.price_range || 'Contact for pricing',
+        // These fields may be undefined if not in database
         family_friendly: r.family_friendly,
         adults_only: r.adults_only,
-        vibe_tags: r.vibe_tags,
+        vibe_tags: r.vibe_tags || [],
         beach_type: r.beach_type
       })),
-      filters: params
+      filters: params,
+      note: 'For advanced filtering, Azure AI Search integration is recommended'
     };
   } catch (error) {
     console.error('Error in searchResorts tool:', error);
@@ -78,6 +87,10 @@ async function searchResorts(params) {
 
 /**
  * Get detailed information about a specific resort
+ * 
+ * NOTE: Extended fields (family_friendly, adults_only, vibe_tags, etc.) may be
+ * undefined in PostgreSQL. Use Azure AI Search for complete resort data.
+ * 
  * @param {Object} params - Parameters with resort_id
  * @returns {Promise<Object>} Resort details
  */
@@ -113,10 +126,11 @@ async function getResort(params) {
         region: resort.region,
         star_rating: resort.star_rating,
         description: resort.description,
-        price_range: resort.price_range,
+        price_range: resort.price_range || 'Contact for pricing',
+        // Extended fields - may be undefined if not in database
         family_friendly: resort.family_friendly,
         adults_only: resort.adults_only,
-        vibe_tags: resort.vibe_tags,
+        vibe_tags: resort.vibe_tags || [],
         beach_type: resort.beach_type,
         season_notes: resort.season_notes,
         distance_to_airport: resort.distance_to_airport,
@@ -180,22 +194,23 @@ async function compareResorts(params) {
         region: resort.region,
         star_rating: resort.star_rating,
         description: resort.description,
-        price_range: resort.price_range,
+        price_range: resort.price_range || 'Contact for pricing',
+        // Extended fields - may be undefined if not in database
         family_friendly: resort.family_friendly,
         adults_only: resort.adults_only,
-        vibe_tags: resort.vibe_tags,
+        vibe_tags: resort.vibe_tags || [],
         beach_type: resort.beach_type,
         distance_to_airport: resort.distance_to_airport,
         amenities: amenities.map(a => a.name)
       };
     });
 
-    // Add comparison summary
+    // Add comparison summary (handle undefined values gracefully)
     const summary = {
       total_compared: comparison.length,
       star_ratings: comparison.map(r => ({ name: r.name, rating: r.star_rating })),
-      family_friendly_count: comparison.filter(r => r.family_friendly).length,
-      adults_only_count: comparison.filter(r => r.adults_only).length,
+      family_friendly_count: comparison.filter(r => r.family_friendly === true).length,
+      adults_only_count: comparison.filter(r => r.adults_only === true).length,
       regions: [...new Set(comparison.map(r => r.region))]
     };
 

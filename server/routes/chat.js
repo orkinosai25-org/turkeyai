@@ -49,7 +49,25 @@ router.post('/', async (req, res) => {
       // Execute each tool call
       for (const toolCall of responseMessage.tool_calls) {
         const functionName = toolCall.function.name;
-        const functionArgs = JSON.parse(toolCall.function.arguments);
+        let functionArgs;
+        
+        try {
+          functionArgs = JSON.parse(toolCall.function.arguments);
+        } catch (parseError) {
+          console.error(`❌ Failed to parse tool arguments:`, parseError);
+          // Store error result
+          toolCalls.push({
+            id: toolCall.id,
+            function: functionName,
+            arguments: null,
+            result: {
+              success: false,
+              error: 'Invalid function arguments',
+              message: parseError.message
+            }
+          });
+          continue; // Skip this tool call
+        }
         
         console.log(`🔧 AI Agent calling tool: ${functionName}`, functionArgs);
         
