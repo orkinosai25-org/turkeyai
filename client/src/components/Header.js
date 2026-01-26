@@ -8,7 +8,12 @@ function Header() {
         <Link to="/" className="brand-link">
           <div className="brand">
             <div className="brand-logo">
-              <span className="logo-icon">🌊</span>
+              <img 
+                src="/logo-mark.svg" 
+                alt="TürkiyeAI Logo" 
+                className="logo-icon"
+                style={{ width: '40px', height: '40px' }}
+              />
               <div className="brand-text">
                 <h1>TürkiyeAI</h1>
                 <p className="brand-tagline">Your AI Travel Expert for Türkiye</p>

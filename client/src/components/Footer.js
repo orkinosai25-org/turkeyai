@@ -6,9 +6,18 @@ function Footer() {
       <div className="footer-content">
         <div className="footer-section">
           <div className="footer-brand">
-            <h3>🌊 TürkiyeAI</h3>
+            <img 
+              src="/logo-mark.svg" 
+              alt="TürkiyeAI" 
+              style={{ width: '40px', height: '40px', marginBottom: '0.5rem' }}
+            />
+            <h3>TürkiyeAI</h3>
             <p className="footer-tagline">Your AI Travel Expert for Türkiye</p>
-            <p className="footer-powered">Powered by OrkinosAI</p>
+            <img 
+              src="/powered-by-orkinosai.svg" 
+              alt="Powered by OrkinosAI" 
+              style={{ width: '150px', marginTop: '1rem' }}
+            />
           </div>
         </div>
         
