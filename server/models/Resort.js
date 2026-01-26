@@ -158,7 +158,7 @@ class Resort {
         h.price_range, h.latitude, h.longitude,
         d.name as destination_name, d.region as destination_region
       FROM hotels h
-      INNER JOIN destinations d ON h.destination_id = d.id
+      LEFT JOIN destinations d ON h.destination_id = d.id
       WHERE h.is_active = true AND d.region = $1
       ORDER BY h.star_rating DESC, h.name ASC
     `;
