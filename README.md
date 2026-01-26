@@ -271,7 +271,9 @@ Body: {
 
 ---
 
-## 📊 Database Schema
+## 📊 Database & Search Schema
+
+### PostgreSQL Database
 
 See [database/schema.sql](database/schema.sql) for the complete PostgreSQL schema including:
 
@@ -280,6 +282,34 @@ See [database/schema.sql](database/schema.sql) for the complete PostgreSQL schem
 - Experiences & Activities
 - User interactions
 - Search logs
+
+### Azure AI Search Index
+
+See [database/SEARCH_INDEX.md](database/SEARCH_INDEX.md) for the Azure AI Search index schema:
+
+- **Index Name**: `turkiyeai-resorts`
+- **Fields**: 16 searchable/filterable fields
+- **Semantic Search**: Enabled for natural language queries
+- **Auto-suggest**: Enabled on resort names and amenities
+
+#### Quick Start with Search Index
+
+```bash
+# Navigate to server directory
+cd server
+
+# Create the search index
+npm run search:create-index
+
+# Populate with data from PostgreSQL
+npm run search:populate
+
+# Check index status
+npm run search:index-info
+
+# Clear all documents (if needed)
+npm run search:clear
+```
 
 ---
 

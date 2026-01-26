@@ -84,24 +84,85 @@ az search admin-key show \
 
 ### Create Search Index
 
-You can create the index via:
+#### Option 1: Automated Setup (Recommended)
+
+Use the provided script to create the index automatically:
+
+```bash
+cd server/config
+node createSearchIndex.js create
+```
+
+This will create the `turkiyeai-resorts` index with the complete schema defined in `database/azure-search-index-schema.json`.
+
+To verify the index was created:
+
+```bash
+node createSearchIndex.js info
+```
+
+#### Option 2: Manual Setup
+
+You can also create the index via:
 1. Azure Portal UI
 2. REST API
-3. Azure SDK (see server/config/azureSearch.js)
+3. Direct Azure SDK usage
 
-Recommended index schema:
-```json
-{
-  "name": "turkeyai-travel-index",
-  "fields": [
-    {"name": "id", "type": "Edm.String", "key": true},
-    {"name": "title", "type": "Edm.String", "searchable": true},
-    {"name": "content", "type": "Edm.String", "searchable": true},
-    {"name": "category", "type": "Edm.String", "filterable": true},
-    {"name": "destination", "type": "Edm.String", "filterable": true},
-    {"name": "tags", "type": "Collection(Edm.String)", "filterable": true}
-  ]
-}
+#### Index Schema: turkiyeai-resorts
+
+The index includes the following fields for AI-powered resort search and RAG:
+
+**Core Fields:**
+- `id` (Edm.String, key) - Unique resort identifier
+- `resort_name` (Edm.String, searchable, sortable) - Resort/hotel name
+- `region` (Edm.String, searchable, filterable, facetable) - Geographic region
+- `description` (Edm.String, searchable) - Full resort description
+
+**Amenities & Features:**
+- `amenities` (Collection(Edm.String), searchable, filterable, facetable) - List of amenities (pool, spa, beach access, etc.)
+- `vibe_tags` (Collection(Edm.String), searchable, filterable, facetable) - Atmosphere tags (luxury, family, romantic, etc.)
+
+**Location & Logistics:**
+- `distance_to_airport` (Edm.Double, filterable, sortable) - Distance in kilometers
+- `latitude` (Edm.Double) - GPS latitude
+- `longitude` (Edm.Double) - GPS longitude
+- `location` (Edm.GeographyPoint, filterable, sortable) - Geographic point for proximity search
+
+**Guest Preferences:**
+- `family_friendly` (Edm.Boolean, filterable, facetable) - Suitable for families with children
+- `adults_only` (Edm.Boolean, filterable, facetable) - Adults-only property
+
+**Property Details:**
+- `beach_type` (Edm.String, searchable, filterable, facetable) - Type of beach (sandy, pebble, rocky, etc.)
+- `season_notes` (Edm.String, searchable) - Best time to visit and seasonal information
+- `star_rating` (Edm.Int32, filterable, sortable, facetable) - Hotel star rating (1-5)
+- `price_range` (Edm.String, filterable, facetable) - Indicative price range
+
+**AI Features:**
+- **Semantic Search**: Configured with semantic ranking for natural language queries
+- **Auto-suggest**: Suggester on resort_name, region, and amenities
+- **Scoring Profile**: Boosts results by star rating and relevant text matches
+
+Full schema available in: `database/azure-search-index-schema.json`
+
+#### Populate Index with Data
+
+After creating the index, populate it with data from PostgreSQL:
+
+```bash
+cd server/config
+node populateSearchIndex.js populate
+```
+
+This script:
+- Fetches all active resorts from the PostgreSQL database
+- Transforms data to match the index schema
+- Uploads documents in batches to Azure AI Search
+
+To clear the index:
+
+```bash
+node populateSearchIndex.js clear
 ```
 
 ## 3. Azure Database for PostgreSQL

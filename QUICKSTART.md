@@ -102,13 +102,29 @@ psql "host=your-db.postgres.database.azure.com \
 \q
 ```
 
-### 4. Start the App
+### 4. Set Up Azure AI Search Index
 
 ```bash
+cd server
+
+# Create the search index
+npm run search:create-index
+
+# Populate with resort data from database
+npm run search:populate
+
+# Verify index was created
+npm run search:index-info
+```
+
+### 5. Start the App
+
+```bash
+cd ..
 npm run dev
 ```
 
-Now the AI chat will work with Azure OpenAI! 🎉
+Now the AI chat will work with Azure OpenAI and semantic search! 🎉
 
 ## Project Structure
 
