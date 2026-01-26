@@ -90,9 +90,13 @@ async function populateSearchIndex() {
         description: resort.description || '',
         amenities: amenities.filter(a => a), // Remove nulls
         vibe_tags: vibe_tags,
-        distance_to_airport: 0.0, // TODO: Calculate or store in DB
-        family_friendly: true, // TODO: Add to DB schema
-        adults_only: false, // TODO: Add to DB schema
+        // TODO: Calculate distance_to_airport using actual airport coordinates
+        // For now, defaulting to 0.0 until we have airport location data
+        distance_to_airport: 0.0,
+        // TODO: Add family_friendly and adults_only fields to database schema
+        // These should be determined based on actual resort policies
+        family_friendly: true,
+        adults_only: false,
         beach_type: resort.beach_type || 'Mixed',
         season_notes: resort.season_notes || 'Year-round',
         star_rating: resort.star_rating || 3,

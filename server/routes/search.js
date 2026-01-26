@@ -33,10 +33,20 @@ router.post('/', async (req, res) => {
 
       // Add filters if provided
       const filterClauses = [];
-      if (filters.region) filterClauses.push(`region eq '${filters.region}'`);
+      if (filters.region) {
+        // Escape single quotes to prevent OData injection
+        const escapedRegion = filters.region.replace(/'/g, "''");
+        filterClauses.push(`region eq '${escapedRegion}'`);
+      }
       if (filters.family_friendly !== undefined) filterClauses.push(`family_friendly eq ${filters.family_friendly}`);
       if (filters.adults_only !== undefined) filterClauses.push(`adults_only eq ${filters.adults_only}`);
-      if (filters.min_rating) filterClauses.push(`star_rating ge ${filters.min_rating}`);
+      if (filters.min_rating) {
+        // Ensure min_rating is a number to prevent injection
+        const rating = parseInt(filters.min_rating, 10);
+        if (!isNaN(rating)) {
+          filterClauses.push(`star_rating ge ${rating}`);
+        }
+      }
       
       if (filterClauses.length > 0) {
         searchOptions.filter = filterClauses.join(' and ');
