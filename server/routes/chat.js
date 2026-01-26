@@ -1,33 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { getAzureOpenAIClient, getDeploymentName, getChatOptions } = require('../config/azureOpenAI');
-
-/**
- * System prompt for TürkiyeAI travel agent
- */
-const SYSTEM_PROMPT = `You are TürkiyeAI, an expert AI travel assistant specializing in Turkish travel destinations.
-You are powered by OrkinosAI, an Azure-native AI platform.
-
-Your expertise covers:
-- Turkish destinations: Bodrum, Marmaris, Fethiye, Antalya, Cappadocia, Istanbul, and more
-- Resort and hotel information
-- Local experiences and cultural insights
-- Trip planning and itinerary suggestions
-- Weather, best times to visit, and seasonal activities
-- Transportation options within Turkey
-
-Key guidelines:
-- You provide recommendations and information only - you do NOT book or process payments
-- For bookings, direct users to licensed travel providers or official booking platforms
-- Be enthusiastic and knowledgeable about Turkish culture and destinations
-- Provide practical, actionable travel advice
-- Use a friendly, helpful tone
-
-Remember: TürkiyeAI is a SaaS AI travel agent, not a tour operator or travel agency.`;
+const { getAgentPrompt, getAgentTools } = require('../config/agentConfig');
+const { executeTool } = require('../config/agentTools');
 
 /**
  * POST /api/chat
- * Send a message to the AI travel agent
+ * Send a message to the AI travel agent with function calling support
  */
 router.post('/', async (req, res) => {
   try {
@@ -40,21 +19,72 @@ router.post('/', async (req, res) => {
     const client = await getAzureOpenAIClient();
     const deploymentName = await getDeploymentName();
     const chatOptions = await getChatOptions();
+    const agentPrompt = getAgentPrompt();
+    const agentTools = getAgentTools();
 
     // Build messages array
     const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: agentPrompt },
       ...conversationHistory,
       { role: 'user', content: message }
     ];
 
-    // Get completion from Azure OpenAI
-    const result = await client.getChatCompletions(deploymentName, messages, chatOptions);
+    // Add tools to chat options
+    const optionsWithTools = {
+      ...chatOptions,
+      tools: agentTools,
+      tool_choice: "auto" // Let the model decide when to use tools
+    };
 
-    const response = result.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
+    // Get completion from Azure OpenAI
+    let result = await client.getChatCompletions(deploymentName, messages, optionsWithTools);
+    let responseMessage = result.choices[0]?.message;
+    
+    // Handle function calls
+    const toolCalls = [];
+    let finalResponse = responseMessage?.content || '';
+
+    // Check if the model wants to call functions
+    if (responseMessage?.tool_calls && responseMessage.tool_calls.length > 0) {
+      // Execute each tool call
+      for (const toolCall of responseMessage.tool_calls) {
+        const functionName = toolCall.function.name;
+        const functionArgs = JSON.parse(toolCall.function.arguments);
+        
+        console.log(`🔧 AI Agent calling tool: ${functionName}`, functionArgs);
+        
+        // Execute the tool
+        const toolResult = await executeTool(functionName, functionArgs);
+        
+        // Store tool call info
+        toolCalls.push({
+          id: toolCall.id,
+          function: functionName,
+          arguments: functionArgs,
+          result: toolResult
+        });
+
+        // Add function result to messages
+        messages.push({
+          role: 'assistant',
+          content: null,
+          tool_calls: [toolCall]
+        });
+        messages.push({
+          role: 'tool',
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(toolResult)
+        });
+      }
+
+      // Get final response from the model with tool results
+      const finalResult = await client.getChatCompletions(deploymentName, messages, optionsWithTools);
+      finalResponse = finalResult.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
+    }
 
     res.json({
-      response,
+      response: finalResponse,
+      toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
       conversationId: result.id,
       model: deploymentName,
       brand: 'TürkiyeAI - Powered by OrkinosAI'
