@@ -7,6 +7,50 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ========================================
+-- USERS (Authentication & Registration)
+-- ========================================
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT,                           -- NULL for social-only accounts
+    password_salt VARCHAR(64),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100),
+    phone VARCHAR(30),
+    country_code VARCHAR(10) DEFAULT 'GB',
+    address TEXT,
+    postcode VARCHAR(20),
+    travel_interests JSONB DEFAULT '[]',  -- e.g. ["beach","culture","adventure"]
+    newsletter_opt_in BOOLEAN DEFAULT FALSE,
+    creation_source VARCHAR(50) DEFAULT 'email', -- 'email','google','facebook','linkedin'
+    status VARCHAR(20) DEFAULT 'active',  -- 'active','inactive','suspended'
+    avatar_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_status ON users(status);
+
+-- ========================================
+-- USER SAVED SEARCHES / WISHLIST
+-- ========================================
+
+CREATE TABLE user_saved_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    item_type VARCHAR(50) NOT NULL,   -- 'resort','excursion','package'
+    item_id VARCHAR(255) NOT NULL,
+    item_name VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_saved_items_user ON user_saved_items(user_id);
+CREATE INDEX idx_saved_items_type ON user_saved_items(item_type);
+
+-- ========================================
 -- DESTINATIONS
 -- ========================================
 

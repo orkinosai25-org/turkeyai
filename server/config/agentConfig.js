@@ -9,13 +9,15 @@
  * Enhanced system prompt for TürkiyeAI travel agent
  * Defines the agent's personality, expertise, and behavior guidelines
  */
-const AGENT_SYSTEM_PROMPT = `You are TürkiyeAI, an expert AI travel assistant specializing in Turkish travel destinations.
+const AGENT_SYSTEM_PROMPT = `You are TürkiyeAI, an expert AI travel assistant specialising in Turkish travel destinations.
 You are powered by OrkinosAI, an Azure-native AI platform.
 
 ## Your Expertise
 You are a knowledgeable Turkish travel expert covering:
 - Turkish destinations: Bodrum, Marmaris, Fethiye, Antalya, Cappadocia, Istanbul, Izmir, Kusadasi, and more
-- Resort and hotel recommendations
+- Resort and hotel recommendations with deep AI analysis
+- Hotel proximity learning – understanding which hotels are closest to beaches, airports, cultural sites
+- Travel service verticals: excursions, day trips, transfers, holiday packages, flight routes
 - Local experiences, cultural insights, and authentic Turkish traditions
 - Trip planning and itinerary suggestions
 - Weather patterns, best times to visit, and seasonal activities
@@ -23,22 +25,27 @@ You are a knowledgeable Turkish travel expert covering:
 - Turkish cuisine and dining experiences
 - Historical sites and cultural landmarks
 
-## Your Role and Behavior
+## Your Role and Behaviour
 - Act as a warm, enthusiastic, and knowledgeable Turkish travel expert
-- Ask clarifying questions to understand traveler preferences:
+- Ask clarifying questions to understand traveller preferences:
   * Travel dates and duration
   * Budget range (use "from prices" and "indicative pricing")
   * Departure airport and transportation needs
-  * Number of travelers and their ages
+  * Number of travellers and their ages
   * Preferred vibe (luxury, family-friendly, adults-only, adventure, cultural, relaxation)
   * Special requirements (halal-friendly, accessibility needs, dietary restrictions)
+- Use available tools to:
+  * Search for resorts, get deep dive profiles, compare options, and build itineraries
+  * Find nearby hotels using proximity AI learning
+  * Search excursions and experiences by destination and type
+  * Recommend holiday packages by destination, board basis, and category
+  * Provide airport transfer options and indicative pricing
 - Provide practical, actionable travel advice with specific recommendations
-- Use available tools to search for resorts, get details, compare options, and build itineraries
 - Be enthusiastic about Turkish culture and destinations while remaining professional
 
 ## Critical Guidelines
-- You provide recommendations and information ONLY - you do NOT book or process payments
-- NEVER invent prices or availability - always use "from prices" and "indicative pricing"
+- You provide recommendations and information ONLY – you do NOT book or process payments
+- NEVER invent prices or availability – always use "from prices" and "indicative pricing"
 - For actual bookings, direct users to licensed travel providers or official booking platforms
 - When you don't have specific information, acknowledge it and offer to search or suggest alternatives
 - Maintain a friendly, helpful, and conversational tone
@@ -140,6 +147,131 @@ const AGENT_TOOLS = [
           }
         },
         required: ["resort_ids"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "getResortDeepDive",
+      description: "Get a comprehensive AI deep-dive profile for a specific resort, including proximity to beaches, airports, and cultural sites, amenity breakdown, and AI-generated travel insights. Use this when users want detailed resort information or want to understand a resort's location advantages.",
+      parameters: {
+        type: "object",
+        properties: {
+          resort_id: {
+            type: "string",
+            description: "The unique identifier of the resort to deep-dive into"
+          }
+        },
+        required: ["resort_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "getNearbyResorts",
+      description: "Find hotels and resorts near a given resort using proximity AI learning. Returns nearby alternatives sorted by distance and similarity score. Use this when users want to compare nearby options or find alternatives.",
+      parameters: {
+        type: "object",
+        properties: {
+          resort_id: {
+            type: "string",
+            description: "The reference resort ID to find nearby hotels for"
+          },
+          radius_km: {
+            type: "number",
+            description: "Search radius in kilometres (default: 15, max: 50)",
+            minimum: 1,
+            maximum: 50,
+            default: 15
+          }
+        },
+        required: ["resort_id"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchExcursions",
+      description: "Search for excursions, day trips, and authentic Turkish experiences. Use this when users ask about activities, tours, things to do, or experiences in a Turkish destination.",
+      parameters: {
+        type: "object",
+        properties: {
+          destination: {
+            type: "string",
+            description: "Turkish destination for excursions",
+            enum: ["Bodrum", "Antalya", "Marmaris", "Fethiye", "Istanbul", "Cappadocia", "Kusadasi"]
+          },
+          type: {
+            type: "string",
+            description: "Type of excursion",
+            enum: ["Cultural", "Adventure", "Boat Tour", "Culinary", "Wellness"]
+          },
+          difficulty: {
+            type: "string",
+            description: "Difficulty level",
+            enum: ["Easy", "Moderate", "Challenging"]
+          }
+        },
+        required: []
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchPackages",
+      description: "Search for curated Turkish holiday packages including all-inclusive and tailor-made options. Use this when users ask about holiday packages, deals, or all-inclusive options.",
+      parameters: {
+        type: "object",
+        properties: {
+          destination: {
+            type: "string",
+            description: "Turkish destination",
+            enum: ["Bodrum", "Antalya", "Marmaris", "Fethiye", "Istanbul", "Cappadocia", "Kusadasi"]
+          },
+          category: {
+            type: "string",
+            description: "Package category or theme",
+            enum: ["Beach & Relaxation", "Cultural & Adventure", "Family", "City & Culture", "Wellness & Spa", "Adventure"]
+          },
+          board_basis: {
+            type: "string",
+            description: "Board basis preference",
+            enum: ["All Inclusive", "Half Board", "Bed & Breakfast", "Room Only"]
+          },
+          duration_min: {
+            type: "integer",
+            description: "Minimum number of nights",
+            minimum: 1
+          },
+          duration_max: {
+            type: "integer",
+            description: "Maximum number of nights",
+            maximum: 21
+          }
+        },
+        required: []
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "getTransferOptions",
+      description: "Get airport transfer options for a Turkish destination. Returns private, shared, and luxury vehicle options with indicative pricing. Use this when users ask about getting from the airport to their hotel.",
+      parameters: {
+        type: "object",
+        properties: {
+          destination: {
+            type: "string",
+            description: "The resort destination to get transfers for",
+            enum: ["Bodrum", "Antalya", "Marmaris", "Fethiye", "Istanbul", "Cappadocia", "Kusadasi", "Izmir"]
+          }
+        },
+        required: ["destination"]
       }
     }
   },
