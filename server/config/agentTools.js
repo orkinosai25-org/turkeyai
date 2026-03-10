@@ -7,6 +7,8 @@
 
 const Resort = require('../models/Resort');
 const { getSearchClient } = require('./azureSearch');
+const { haversineKm } = require('../utils/geoUtils');
+const { EXCURSION_CATALOG, PACKAGE_CATALOG, AIRPORT_ROUTES } = require('../data/travelCatalogs');
 
 /**
  * Search for resorts based on filters
@@ -377,6 +379,190 @@ function getDaySuggestions(day, totalDays, region, interests, profile) {
 }
 
 /**
+ * Get comprehensive deep-dive profile for a resort
+ */
+async function getResortDeepDive(params) {
+  try {
+    const { resort_id } = params;
+    if (!resort_id) {
+      return { success: false, error: 'resort_id is required' };
+    }
+
+    const [resort, amenities] = await Promise.all([
+      Resort.getById(resort_id),
+      Resort.getAmenities(resort_id),
+    ]);
+
+    if (!resort) {
+      return { success: false, error: 'Resort not found', resort_id };
+    }
+
+    return {
+      success: true,
+      resort: {
+        id: resort.id,
+        name: resort.name,
+        destination: resort.destination_name,
+        region: resort.destination_region,
+        star_rating: resort.star_rating,
+        description: resort.description,
+        price_range: resort.price_range || 'Contact for pricing',
+        amenities: amenities.map(a => a.amenity_name),
+        latitude: resort.latitude,
+        longitude: resort.longitude,
+      },
+      deep_dive_url: `/api/resorts/${resort_id}/deep-dive`,
+      note: 'Full proximity and AI insight data available at the deep-dive endpoint.',
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to get resort deep dive', message: error.message };
+  }
+}
+
+/**
+ * Get nearby resorts using proximity AI learning
+ */
+async function getNearbyResorts(params) {
+  try {
+    const { resort_id, radius_km = 15 } = params;
+    if (!resort_id) {
+      return { success: false, error: 'resort_id is required' };
+    }
+
+    const pivot = await Resort.getById(resort_id);
+    if (!pivot) {
+      return { success: false, error: 'Resort not found', resort_id };
+    }
+
+    if (!pivot.latitude || !pivot.longitude) {
+      return {
+        success: true,
+        pivot_resort: { id: pivot.id, name: pivot.name },
+        nearby_resorts: [],
+        note: 'Coordinate data not available – proximity calculation unavailable for this resort.',
+      };
+    }
+
+    const allResorts = await Resort.getAll({ region: pivot.destination_region });
+
+    const nearby = allResorts
+      .filter(r => r.id !== resort_id && r.latitude && r.longitude)
+      .map(r => {
+        const dist = haversineKm(
+          parseFloat(pivot.latitude), parseFloat(pivot.longitude),
+          parseFloat(r.latitude), parseFloat(r.longitude)
+        );
+        return {
+          id: r.id,
+          name: r.name,
+          star_rating: r.star_rating,
+          destination: r.destination_name,
+          distance_km: Math.round(dist * 10) / 10,
+        };
+      })
+      .filter(r => r.distance_km <= radius_km)
+      .sort((a, b) => a.distance_km - b.distance_km)
+      .slice(0, 10);
+
+    return {
+      success: true,
+      pivot_resort: { id: pivot.id, name: pivot.name, destination: pivot.destination_name },
+      nearby_resorts: nearby,
+      count: nearby.length,
+      radius_km,
+    };
+  } catch (error) {
+    return { success: false, error: 'Failed to find nearby resorts', message: error.message };
+  }
+}
+
+/**
+ * Search excursions catalog
+ */
+async function searchExcursions(params) {
+  let results = [...EXCURSION_CATALOG];
+  if (params.destination) results = results.filter(e => e.destination.toLowerCase() === params.destination.toLowerCase());
+  if (params.type) results = results.filter(e => e.type.toLowerCase() === params.type.toLowerCase());
+  if (params.difficulty) results = results.filter(e => e.difficulty.toLowerCase() === params.difficulty.toLowerCase());
+
+  return {
+    success: true,
+    excursions: results,
+    count: results.length,
+    note: 'Prices are indicative. Bookings via licensed providers.',
+  };
+}
+
+/**
+ * Search holiday packages catalog
+ */
+async function searchPackages(params) {
+  let results = [...PACKAGE_CATALOG];
+  if (params.destination) results = results.filter(p => p.destination.toLowerCase() === params.destination.toLowerCase());
+  if (params.category) results = results.filter(p => p.category.toLowerCase().includes(params.category.toLowerCase()));
+  if (params.board_basis) results = results.filter(p => p.board_basis.toLowerCase().includes(params.board_basis.toLowerCase()));
+  if (params.duration_min) results = results.filter(p => p.duration_nights >= parseInt(params.duration_min, 10));
+  if (params.duration_max) results = results.filter(p => p.duration_nights <= parseInt(params.duration_max, 10));
+
+  return {
+    success: true,
+    packages: results,
+    count: results.length,
+    note: 'Prices are per person (pp) and indicative. Bookings via ATOL-protected licensed providers.',
+  };
+}
+
+/**
+ * Get airport transfer options for a destination
+ */
+async function getTransferOptions(params) {
+  const { destination } = params;
+
+  // Build a consistent route lookup from shared AIRPORT_ROUTES catalog
+  const ROUTE_OVERRIDES = {
+    Izmir: { airport: 'ADB', airport_name: 'Adnan Menderes Airport', base_eur: 20, distance_km: 18 },
+    Cappadocia: { airport: 'ESB', airport_name: 'Nevşehir Airport', base_eur: 60, distance_km: 75 },
+  };
+
+  let route = AIRPORT_ROUTES.find(r => r.destination.toLowerCase() === (destination || '').toLowerCase());
+  if (!route) {
+    const override = ROUTE_OVERRIDES[destination];
+    if (override) {
+      route = { destination, from: override.airport, base_price_eur: override.base_eur, distance_km: override.distance_km };
+    }
+  }
+
+  if (!route) {
+    return {
+      success: false,
+      error: `No transfer data for destination: ${destination}`,
+      available_destinations: [
+        ...AIRPORT_ROUTES.map(r => r.destination),
+        ...Object.keys(ROUTE_OVERRIDES),
+      ],
+    };
+  }
+
+  const override = ROUTE_OVERRIDES[route.destination];
+  const airportCode = override ? override.airport : route.from;
+  const airportName = override ? override.airport_name : `${airportCode} Airport`;
+  const baseEur = route.base_price_eur;
+
+  return {
+    success: true,
+    destination: route.destination,
+    nearest_airport: { code: airportCode, name: airportName, distance_km: route.distance_km },
+    transfer_options: [
+      { type: 'Shared Shuttle', vehicle: 'Minibus', approx_price_eur: Math.round(baseEur * 0.4), capacity: 16 },
+      { type: 'Private Transfer', vehicle: 'Executive Saloon', approx_price_eur: baseEur, capacity: 3 },
+      { type: 'Private Transfer', vehicle: 'MPV / Minivan', approx_price_eur: Math.round(baseEur * 1.3), capacity: 7 },
+      { type: 'Private Transfer', vehicle: 'Luxury SUV', approx_price_eur: Math.round(baseEur * 1.6), capacity: 5 },
+    ],
+    note: 'Prices are indicative. Final pricing confirmed at booking via licensed ground transport providers.',
+  };
+}
+
+/**
  * Execute a tool function by name
  * @param {string} functionName - Name of the function to execute
  * @param {Object} args - Arguments for the function
@@ -387,7 +573,12 @@ async function executeTool(functionName, args) {
     searchResorts,
     getResort,
     compareResorts,
-    buildItinerary
+    buildItinerary,
+    getResortDeepDive,
+    getNearbyResorts,
+    searchExcursions,
+    searchPackages,
+    getTransferOptions,
   };
 
   const tool = tools[functionName];
@@ -406,5 +597,10 @@ module.exports = {
   getResort,
   compareResorts,
   buildItinerary,
+  getResortDeepDive,
+  getNearbyResorts,
+  searchExcursions,
+  searchPackages,
+  getTransferOptions,
   executeTool
 };

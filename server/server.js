@@ -20,6 +20,8 @@ app.use('/api/search', require('./routes/search'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/regions', require('./routes/regions'));
 app.use('/api/resorts', require('./routes/resorts'));
+app.use('/api/resorts', require('./routes/proximity'));
+app.use('/api/services', require('./routes/services'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

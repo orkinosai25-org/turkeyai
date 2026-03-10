@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import Destinations from './pages/Destinations';
 import Chat from './pages/Chat';
 import TripPlanner from './pages/TripPlanner';
+import Services from './pages/Services';
+import ResortDeepDive from './pages/ResortDeepDive';
 import './App.css';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/trip-planner" element={<TripPlanner />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/resorts/:id/deep-dive" element={<ResortDeepDive />} />
         </Routes>
         <Footer />
       </div>

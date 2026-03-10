@@ -6,7 +6,7 @@
  */
 
 const { getAgentPrompt, getAgentTools, getToolConfig } = require('../config/agentConfig');
-const { searchResorts, getResort, compareResorts, buildItinerary, executeTool } = require('../config/agentTools');
+const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, executeTool } = require('../config/agentTools');
 
 console.log('🧪 Testing AI Agent Configuration and Tools\n');
 
@@ -34,13 +34,16 @@ logTest('getAgentPrompt returns string', typeof prompt === 'string' && prompt.le
 logTest('Prompt includes TürkiyeAI', prompt.includes('TürkiyeAI'));
 logTest('Prompt includes OrkinosAI', prompt.includes('OrkinosAI'));
 logTest('getAgentTools returns array', Array.isArray(tools));
-logTest('Tools array has 4 tools', tools.length === 4);
+logTest('Tools array has 9 tools', tools.length === 9);
 logTest('getToolConfig returns object', typeof toolConfig === 'object');
 console.log('');
 
 // Test 2: Tool Definitions Structure
 console.log('Test 2: Tool Definitions Structure');
-const expectedTools = ['searchResorts', 'getResort', 'compareResorts', 'buildItinerary'];
+const expectedTools = [
+  'searchResorts', 'getResort', 'compareResorts', 'buildItinerary',
+  'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions'
+];
 const actualToolNames = tools.map(t => t.function.name);
 
 expectedTools.forEach(toolName => {
@@ -72,6 +75,18 @@ logTest('compareResorts has resort_ids array',
 const itineraryTool = tools.find(t => t.function.name === 'buildItinerary');
 logTest('buildItinerary has duration_days', 
   itineraryTool?.function.parameters.properties.duration_days !== undefined);
+
+const deepDiveTool = tools.find(t => t.function.name === 'getResortDeepDive');
+logTest('getResortDeepDive requires resort_id',
+  deepDiveTool?.function.parameters.required.includes('resort_id'));
+
+const nearbyTool = tools.find(t => t.function.name === 'getNearbyResorts');
+logTest('getNearbyResorts requires resort_id',
+  nearbyTool?.function.parameters.required.includes('resort_id'));
+
+const transferTool = tools.find(t => t.function.name === 'getTransferOptions');
+logTest('getTransferOptions requires destination',
+  transferTool?.function.parameters.required.includes('destination'));
 console.log('');
 
 // Test 4: Tool Handler Functions
@@ -80,6 +95,11 @@ logTest('searchResorts is a function', typeof searchResorts === 'function');
 logTest('getResort is a function', typeof getResort === 'function');
 logTest('compareResorts is a function', typeof compareResorts === 'function');
 logTest('buildItinerary is a function', typeof buildItinerary === 'function');
+logTest('getResortDeepDive is a function', typeof getResortDeepDive === 'function');
+logTest('getNearbyResorts is a function', typeof getNearbyResorts === 'function');
+logTest('searchExcursions is a function', typeof searchExcursions === 'function');
+logTest('searchPackages is a function', typeof searchPackages === 'function');
+logTest('getTransferOptions is a function', typeof getTransferOptions === 'function');
 logTest('executeTool is a function', typeof executeTool === 'function');
 console.log('');
 
@@ -124,6 +144,34 @@ async function testToolHandlers() {
     logTest('buildItinerary creates correct number of days', 
       validItinerary.itinerary?.daily_plan.length === 5);
 
+    // Test getResortDeepDive without ID
+    const deepDiveResult = await getResortDeepDive({});
+    logTest('getResortDeepDive handles missing resort_id', !deepDiveResult.success && deepDiveResult.error);
+
+    // Test getNearbyResorts without ID
+    const nearbyResult = await getNearbyResorts({});
+    logTest('getNearbyResorts handles missing resort_id', !nearbyResult.success && nearbyResult.error);
+
+    // Test searchExcursions with destination filter
+    const excResult = await searchExcursions({ destination: 'Istanbul' });
+    logTest('searchExcursions returns results for Istanbul', excResult.success && excResult.count > 0);
+
+    // Test searchExcursions with unknown destination returns empty
+    const excEmpty = await searchExcursions({ destination: 'NonExistent' });
+    logTest('searchExcursions returns 0 for unknown destination', excEmpty.success && excEmpty.count === 0);
+
+    // Test searchPackages with destination
+    const pkgResult = await searchPackages({ destination: 'Bodrum' });
+    logTest('searchPackages returns Bodrum packages', pkgResult.success && pkgResult.count > 0);
+
+    // Test getTransferOptions with valid destination
+    const transferResult = await getTransferOptions({ destination: 'Bodrum' });
+    logTest('getTransferOptions returns Bodrum transfers', transferResult.success && transferResult.transfer_options.length > 0);
+
+    // Test getTransferOptions with unknown destination
+    const transferUnknown = await getTransferOptions({ destination: 'Nowhere' });
+    logTest('getTransferOptions handles unknown destination', !transferUnknown.success);
+
     // Test executeTool with valid function
     const execResult = await executeTool('buildItinerary', {
       duration_days: 3,
@@ -131,6 +179,10 @@ async function testToolHandlers() {
       traveler_profile: 'couple'
     });
     logTest('executeTool routes to correct handler', execResult.success);
+
+    // Test executeTool with new tool
+    const excExec = await executeTool('searchExcursions', { destination: 'Marmaris' });
+    logTest('executeTool routes searchExcursions correctly', excExec.success);
 
     // Test executeTool with invalid function
     const invalidExec = await executeTool('nonExistentTool', {});
