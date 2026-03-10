@@ -8,6 +8,9 @@ import Chat from './pages/Chat';
 import TripPlanner from './pages/TripPlanner';
 import Services from './pages/Services';
 import ResortDeepDive from './pages/ResortDeepDive';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import SearchPage from './pages/SearchPage';
 import './App.css';
 
 function App() {
@@ -22,6 +25,9 @@ function App() {
           <Route path="/trip-planner" element={<TripPlanner />} />
           <Route path="/services" element={<Services />} />
           <Route path="/resorts/:id/deep-dive" element={<ResortDeepDive />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
         <Footer />
       </div>
