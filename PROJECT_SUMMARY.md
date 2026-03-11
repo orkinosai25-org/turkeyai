@@ -139,7 +139,7 @@
 ## Setup Requirements
 
 ### Minimum (Local Development)
-- Node.js 18+
+- Node.js 24 LTS
 - npm
 - Git
 

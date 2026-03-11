@@ -6,7 +6,7 @@ This guide covers deploying TürkiyeAI to Azure.
 
 - Azure subscription
 - Azure CLI installed and configured
-- Node.js 18+ installed locally
+- Node.js 24 LTS installed locally
 - Git
 
 ## Deployment Options
@@ -36,12 +36,12 @@ az appservice plan create \
   --sku B2 \
   --is-linux
 
-# Create Web App (Node.js 18)
+# Create Web App (Node.js 24 LTS)
 az webapp create \
   --name $WEB_APP_NAME \
   --resource-group $RESOURCE_GROUP \
   --plan $APP_SERVICE_PLAN \
-  --runtime "NODE|18-lts"
+  --runtime "NODE|24-lts"
 ```
 
 #### 3. Configure App Settings
@@ -137,7 +137,7 @@ For containerized deployment.
 Create `Dockerfile` in the root:
 
 ```dockerfile
-FROM node:18-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -284,7 +284,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '24'
       
       - name: Install dependencies
         run: npm run install-all

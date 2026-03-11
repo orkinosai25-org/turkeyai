@@ -3,7 +3,10 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 
-// Load environment variables
+// Load appsettings.json (and appsettings.<NODE_ENV>.json) first so that
+// Azure App Service Application Settings always win, then fall back to .env.
+const { loadAppSettings } = require('./config/appSettings');
+loadAppSettings();
 dotenv.config();
 
 const app = express();

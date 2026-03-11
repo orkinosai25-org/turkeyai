@@ -1,8 +1,11 @@
+const fs = require('fs');
+const path = require('path');
 const axios = require('axios');
 
 /**
  * Settings Provider
- * Fetches Azure OpenAI settings from the orkinosai website or falls back to local env variables
+ * Fetches Azure OpenAI settings from the orkinosai website, then tries the
+ * local appsettings.json, and finally falls back to plain environment variables.
  */
 
 let cachedSettings = null;
@@ -45,6 +48,42 @@ async function fetchSettingsFromWebsite() {
 }
 
 /**
+ * Get Azure OpenAI settings from a local appsettings.json file.
+ * Returns null if the file is missing or does not contain an AzureOpenAI section.
+ */
+function getSettingsFromFile() {
+  try {
+    const filePath = path.join(__dirname, '..', 'appsettings.json');
+    if (!fs.existsSync(filePath)) return null;
+
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const config = JSON.parse(raw);
+
+    if (!config.AzureOpenAI) return null;
+
+    const az = config.AzureOpenAI;
+    if (!az.Endpoint || !az.ApiKey) return null;
+
+    console.log('📋 Using Azure settings from local appsettings.json');
+    return {
+      endpoint: az.Endpoint,
+      apiKey: az.ApiKey,
+      deploymentName: az.DeploymentName || 'gpt-4',
+      apiVersion: az.ApiVersion || '2024-02-15-preview',
+      maxTokens: az.MaxTokens || 800,
+      temperature: az.Temperature !== undefined ? az.Temperature : 0.7,
+      topP: az.TopP !== undefined ? az.TopP : 0.95,
+      frequencyPenalty: az.FrequencyPenalty !== undefined ? az.FrequencyPenalty : 0,
+      presencePenalty: az.PresencePenalty !== undefined ? az.PresencePenalty : 0,
+      source: 'appsettings.json'
+    };
+  } catch (err) {
+    console.warn('⚠️ Failed to read local appsettings.json:', err.message);
+    return null;
+  }
+}
+
+/**
  * Get Azure OpenAI settings from local environment variables
  */
 function getLocalSettings() {
@@ -63,8 +102,11 @@ function getLocalSettings() {
 }
 
 /**
- * Get Azure OpenAI settings with caching
- * First tries to fetch from website, falls back to local env variables
+ * Get Azure OpenAI settings with caching.
+ * Resolution order:
+ *   1. Website (remote appsettings.json via SETTINGS_SOURCE_URL)
+ *   2. Local appsettings.json / appsettings.<env>.json
+ *   3. Environment variables (.env or host settings)
  */
 async function getAzureSettings() {
   const now = Date.now();
@@ -84,7 +126,12 @@ async function getAzureSettings() {
     settings = await fetchSettingsFromWebsite();
   }
   
-  // Fall back to local environment variables if website fetch failed or disabled
+  // Try local appsettings.json next
+  if (!settings || !settings.endpoint || !settings.apiKey) {
+    settings = getSettingsFromFile();
+  }
+
+  // Fall back to environment variables
   if (!settings || !settings.endpoint || !settings.apiKey) {
     console.log('📋 Using local environment variables for Azure settings');
     settings = getLocalSettings();
@@ -92,7 +139,7 @@ async function getAzureSettings() {
   
   // Validate that we have required settings
   if (!settings.endpoint || !settings.apiKey) {
-    throw new Error('Azure OpenAI credentials not configured. Please set environment variables or configure website settings URL.');
+    throw new Error('Azure OpenAI credentials not configured. Please set environment variables, appsettings.json, or configure website settings URL.');
   }
   
   // Cache the settings

@@ -126,7 +126,7 @@ turkeyai/
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 24 LTS and npm
 - Azure subscription with:
   - Azure OpenAI Service
   - Azure AI Search
