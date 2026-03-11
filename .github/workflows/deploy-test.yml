@@ -1,0 +1,112 @@
+# Deploy TürkiyeAI to Azure App Service — TEST environment
+#
+# Triggers:
+#   • Every push to the `test` or `develop` branch
+#   • Manual dispatch (workflow_dispatch) so you can deploy on demand
+#
+# Required GitHub Secrets:
+#   AZURE_WEBAPP_NAME            – Name of the Azure Web App  (e.g. turkeyai-test)
+#   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
+#
+# Optional GitHub Secrets (used to set App Service Application Settings):
+#   AZURE_OPENAI_ENDPOINT
+#   AZURE_OPENAI_API_KEY
+#   AZURE_OPENAI_DEPLOYMENT_NAME
+#   AZURE_OPENAI_API_VERSION
+#   AZURE_SEARCH_ENDPOINT
+#   AZURE_SEARCH_API_KEY
+#   AZURE_SEARCH_INDEX_NAME
+#   DB_HOST
+#   DB_PORT
+#   DB_NAME
+#   DB_USER
+#   DB_PASSWORD
+
+name: Deploy to Azure (Test)
+
+on:
+  push:
+    branches:
+      - test
+      - develop
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Node.js setup ───────────────────────────────────────────────────────
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+
+      # ── Install & build client ───────────────────────────────────────────────
+      - name: Install client dependencies
+        run: npm ci
+        working-directory: client
+
+      - name: Build React client
+        run: npm run build
+        working-directory: client
+        env:
+          CI: false               # Treats warnings as warnings, not errors
+
+      # ── Install server dependencies ──────────────────────────────────────────
+      - name: Install server dependencies
+        run: npm ci --omit=dev
+        working-directory: server
+
+      # ── Assemble deployment artefact ─────────────────────────────────────────
+      # Azure App Service expects a zip containing everything the server needs.
+      - name: Assemble deployment package
+        run: |
+          mkdir -p deploy_package
+          # Server files
+          cp -r server/* deploy_package/
+          # React build output (served as static files in production)
+          mkdir -p deploy_package/client/build
+          cp -r client/build/* deploy_package/client/build/
+          # Root package.json (App Service reads the start script from here)
+          cp package.json deploy_package/
+          cd deploy_package && zip -r ../deploy.zip .
+
+      # ── Deploy to Azure Web App ──────────────────────────────────────────────
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: deploy.zip
+
+      # ── Smoke-test: verify the health endpoint ───────────────────────────────
+      - name: Smoke test — health endpoint
+        run: |
+          APP_URL="https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net"
+          echo "Testing $APP_URL/api/health …"
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/api/health" || true)
+            echo "  Attempt $i — HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Health check passed"
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "❌ Health check failed after 5 attempts"
+          exit 1
