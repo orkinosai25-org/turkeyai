@@ -3,6 +3,16 @@
 #
 # Required GitHub Secrets:
 #   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
+#
+# Optional GitHub Secrets (configure Azure OpenAI / settings; requires AZURE_CREDENTIALS):
+#   AZURE_CREDENTIALS            – Azure service principal JSON for az login
+#   SETTINGS_API_TOKEN           – GitHub PAT with contents:read on orkinosai-website (private repo)
+#   AZURE_OPENAI_ENDPOINT        – Direct Azure OpenAI endpoint (fallback if website settings fail)
+#   AZURE_OPENAI_API_KEY         – Direct Azure OpenAI API key
+#   AZURE_OPENAI_DEPLOYMENT_NAME – Deployment name (default: gpt-4o)
+#   AZURE_OPENAI_API_VERSION     – API version (default: 2024-08-01-preview)
+#   AZURE_SEARCH_ENDPOINT        – Azure AI Search endpoint
+#   AZURE_SEARCH_API_KEY         – Azure AI Search API key
 
 name: Build and deploy Node.js app to Azure Web App - turkai
 
@@ -83,4 +93,30 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
+
+      # ── Configure App Service Application Settings ──────────────────────────
+      # Runs only when AZURE_CREDENTIALS is configured as a GitHub secret.
+      # Populates the Azure App Service environment with the credentials needed
+      # for the chat agent (Azure OpenAI) and settings provider (SETTINGS_API_TOKEN).
+      - name: Log in to Azure (for App Settings)
+        if: secrets.AZURE_CREDENTIALS != ''
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure App Service Application Settings
+        if: secrets.AZURE_CREDENTIALS != ''
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'turkai'
+          app-settings-json: |
+            [
+              { "name": "SETTINGS_API_TOKEN",           "value": "${{ secrets.SETTINGS_API_TOKEN }}",           "slotSetting": false },
+              { "name": "AZURE_OPENAI_ENDPOINT",        "value": "${{ secrets.AZURE_OPENAI_ENDPOINT }}",        "slotSetting": false },
+              { "name": "AZURE_OPENAI_API_KEY",         "value": "${{ secrets.AZURE_OPENAI_API_KEY }}",         "slotSetting": false },
+              { "name": "AZURE_OPENAI_DEPLOYMENT_NAME", "value": "${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}", "slotSetting": false },
+              { "name": "AZURE_OPENAI_API_VERSION",     "value": "${{ secrets.AZURE_OPENAI_API_VERSION }}",     "slotSetting": false },
+              { "name": "AZURE_SEARCH_ENDPOINT",        "value": "${{ secrets.AZURE_SEARCH_ENDPOINT }}",        "slotSetting": false },
+              { "name": "AZURE_SEARCH_API_KEY",         "value": "${{ secrets.AZURE_SEARCH_API_KEY }}",         "slotSetting": false }
+            ]
           
