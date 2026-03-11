@@ -1,5 +1,5 @@
 # ── Stage 1: Build the React client ──────────────────────────────────────────
-FROM node:18-alpine AS client-builder
+FROM node:24-alpine AS client-builder
 
 WORKDIR /app/client
 
@@ -10,7 +10,7 @@ COPY client/ ./
 RUN npm run build
 
 # ── Stage 2: Production server image ─────────────────────────────────────────
-FROM node:18-alpine AS server
+FROM node:24-alpine AS server
 
 # Tighten the image: run as a non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

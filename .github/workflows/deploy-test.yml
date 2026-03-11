@@ -32,7 +32,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '24'
 
 jobs:
   build-and-deploy:

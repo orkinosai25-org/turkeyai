@@ -4,7 +4,7 @@ Get TürkiyeAI up and running in 10 minutes!
 
 ## Prerequisites
 
-- Node.js 18+ ([Download](https://nodejs.org/))
+- Node.js 24 LTS ([Download](https://nodejs.org/))
 - Git ([Download](https://git-scm.com/))
 - Azure subscription (for production)
 
