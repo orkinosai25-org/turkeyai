@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const fs = require('fs');
 const path = require('path');
 
 // Load appsettings.json (and appsettings.<NODE_ENV>.json) first so that
@@ -37,12 +38,23 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve static assets in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/build')));
-  
+// Serve static assets if client build exists, regardless of NODE_ENV
+const clientBuildPath = path.join(__dirname, '../client/build');
+if (fs.existsSync(clientBuildPath)) {
+  app.use(express.static(clientBuildPath));
+
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+} else {
+  // Fallback root route when client build is not present
+  app.get('/', (req, res) => {
+    res.json({
+      service: 'TürkiyeAI API',
+      brand: 'Powered by OrkinosAI',
+      status: 'running',
+      health: '/api/health'
+    });
   });
 }
 
