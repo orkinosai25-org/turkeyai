@@ -22,7 +22,7 @@ const path = require('path');
  */
 
 function setIfMissing(key, value) {
-  if (value !== undefined && value !== null && process.env[key] === undefined) {
+  if (value !== undefined && value !== null && value !== '' && process.env[key] === undefined) {
     process.env[key] = String(value);
   }
 }
