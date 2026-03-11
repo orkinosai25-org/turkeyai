@@ -134,8 +134,8 @@ async function runTests() {
   }
   console.log('');
 
-  // Test 5: Missing credentials throw a clear error
-  console.log('Test 5: Missing credentials throw a descriptive error');
+  // Test 5: Missing endpoint throws a clear error (apiKey alone is no longer required)
+  console.log('Test 5: Missing endpoint throws a descriptive error');
   try {
     const restore = saveEnv('USE_WEBSITE_SETTINGS', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
     process.env.USE_WEBSITE_SETTINGS = 'false';
@@ -148,16 +148,16 @@ async function runTests() {
       await getAzureSettings();
     } catch (err) {
       threw = true;
-      if (!err.message.includes('Azure OpenAI credentials not configured')) {
+      if (!err.message.includes('Azure OpenAI endpoint not configured')) {
         throw new Error(`Unexpected error message: ${err.message}`);
       }
     }
 
     if (!threw) {
-      throw new Error('Expected an error to be thrown when credentials are missing');
+      throw new Error('Expected an error to be thrown when endpoint is missing');
     }
 
-    console.log('✅ PASS: Missing credentials produce a descriptive error');
+    console.log('✅ PASS: Missing endpoint produces a descriptive error');
 
     restore();
     testsPassed++;
@@ -194,11 +194,12 @@ async function runTests() {
   }
   console.log('');
 
-  // Test 7: Placeholder credentials in website response are skipped
-  console.log('Test 7: Placeholder credentials in fetched settings are skipped, fallback to env vars');
+  // Test 7: Placeholder endpoint in website response causes fallback to env vars.
+  //         A placeholder API key alone no longer triggers fallback (Managed Identity is valid).
+  console.log('Test 7: Placeholder endpoint in fetched settings causes fallback to env vars');
   try {
     const http = require('http');
-    // Start a minimal HTTP server that returns placeholder credentials
+    // Start a minimal HTTP server that returns a placeholder endpoint
     const placeholderServer = http.createServer((_req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
@@ -231,12 +232,65 @@ async function runTests() {
         throw new Error(`Expected env var endpoint, got '${settings.endpoint}'`);
       }
 
-      console.log('✅ PASS: Placeholder credentials skipped, fell back to env vars');
+      console.log('✅ PASS: Placeholder endpoint skipped, fell back to env vars');
       console.log(`   - Source: ${settings.source}`);
       testsPassed++;
     } finally {
       restore();
       await new Promise((resolve) => placeholderServer.close(resolve));
+    }
+  } catch (error) {
+    console.log(`❌ FAIL: ${error.message}`);
+    testsFailed++;
+  }
+  console.log('');
+
+  // Test 7b: Placeholder API key alone does NOT cause fallback (Managed Identity path).
+  console.log('Test 7b: Placeholder API key alone does not skip website settings (Managed Identity valid)');
+  try {
+    const http = require('http');
+    // Return a real endpoint but placeholder/empty API key — should be accepted
+    const managedIdServer = http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        AzureOpenAI: {
+          Endpoint: 'https://real-resource.openai.azure.com/',
+          ApiKey: 'your-api-key-here',
+          DeploymentName: 'gpt-4o'
+        }
+      }));
+    });
+
+    await new Promise((resolve) => managedIdServer.listen(0, '127.0.0.1', resolve));
+    const managedIdPort = managedIdServer.address().port;
+
+    const restore = saveEnv('USE_WEBSITE_SETTINGS', 'SETTINGS_SOURCE_URL', 'SETTINGS_API_TOKEN', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
+    process.env.USE_WEBSITE_SETTINGS = 'true';
+    process.env.SETTINGS_SOURCE_URL = `http://127.0.0.1:${managedIdPort}/appsettings.json`;
+    delete process.env.SETTINGS_API_TOKEN;
+    process.env.AZURE_OPENAI_ENDPOINT = 'https://fallback-env.openai.azure.com/';
+    delete process.env.AZURE_OPENAI_API_KEY;
+    clearCache();
+
+    try {
+      const settings = await getAzureSettings();
+
+      if (settings.source !== 'website') {
+        throw new Error(`Expected source 'website' (Managed Identity path), got '${settings.source}'`);
+      }
+      if (settings.endpoint !== 'https://real-resource.openai.azure.com/') {
+        throw new Error(`Expected website endpoint, got '${settings.endpoint}'`);
+      }
+      if (settings.apiKey !== '') {
+        throw new Error(`Expected empty apiKey for Managed Identity path, got '${settings.apiKey}'`);
+      }
+
+      console.log('✅ PASS: Placeholder API key accepted for Managed Identity (endpoint-only) path');
+      console.log(`   - Source: ${settings.source}, endpoint: ${settings.endpoint}`);
+      testsPassed++;
+    } finally {
+      restore();
+      await new Promise((resolve) => managedIdServer.close(resolve));
     }
   } catch (error) {
     console.log(`❌ FAIL: ${error.message}`);

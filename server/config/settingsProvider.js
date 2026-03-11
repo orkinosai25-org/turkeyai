@@ -107,16 +107,22 @@ async function fetchSettingsFromWebsite() {
     if (configData && configData.AzureOpenAI) {
       const azureConfig = configData.AzureOpenAI;
 
-      // Skip placeholder values that indicate the file has not been populated
-      if (isPlaceholderValue(azureConfig.Endpoint) || isPlaceholderValue(azureConfig.ApiKey)) {
-        console.warn('⚠️ Settings source contains placeholder credentials – skipping');
+      // Skip if endpoint is a placeholder or missing — can't connect without it
+      if (isPlaceholderValue(azureConfig.Endpoint)) {
+        console.warn('⚠️ Settings source contains placeholder endpoint – skipping');
         return null;
+      }
+
+      // Warn but don't skip when only the API key is placeholder/absent:
+      // the caller may be using Managed Identity (no key required)
+      if (isPlaceholderValue(azureConfig.ApiKey)) {
+        console.log('ℹ️ Settings source has no API key – will use Managed Identity / AD token auth');
       }
 
       console.log('✅ Successfully fetched Azure settings from website');
       return {
         endpoint: azureConfig.Endpoint,
-        apiKey: azureConfig.ApiKey,
+        apiKey: isPlaceholderValue(azureConfig.ApiKey) ? '' : azureConfig.ApiKey,
         deploymentName: azureConfig.DeploymentName,
         apiVersion: azureConfig.ApiVersion,
         maxTokens: azureConfig.MaxTokens,
@@ -150,14 +156,18 @@ function getSettingsFromFile() {
     if (!config.AzureOpenAI) return null;
 
     const az = config.AzureOpenAI;
-    if (!az.Endpoint || !az.ApiKey) return null;
+    if (!az.Endpoint) return null;
 
-    console.log('📋 Using Azure settings from local appsettings.json');
+    if (!az.ApiKey) {
+      console.log('📋 Using Azure settings from local appsettings.json (Managed Identity – no API key)');
+    } else {
+      console.log('📋 Using Azure settings from local appsettings.json');
+    }
     return {
       endpoint: az.Endpoint,
-      apiKey: az.ApiKey,
-      deploymentName: az.DeploymentName || 'gpt-4',
-      apiVersion: az.ApiVersion || '2024-02-15-preview',
+      apiKey: az.ApiKey || '',
+      deploymentName: az.DeploymentName || 'gpt-4o',
+      apiVersion: az.ApiVersion || '2024-08-01-preview',
       maxTokens: az.MaxTokens || 800,
       temperature: az.Temperature !== undefined ? az.Temperature : 0.7,
       topP: az.TopP !== undefined ? az.TopP : 0.95,
@@ -178,8 +188,8 @@ function getLocalSettings() {
   return {
     endpoint: process.env.AZURE_OPENAI_ENDPOINT,
     apiKey: process.env.AZURE_OPENAI_API_KEY,
-    deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4',
-    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
+    deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
     maxTokens: parseInt(process.env.AZURE_OPENAI_MAX_TOKENS, 10) || 800,
     temperature: parseFloat(process.env.AZURE_OPENAI_TEMPERATURE) || 0.7,
     topP: parseFloat(process.env.AZURE_OPENAI_TOP_P) || 0.95,
@@ -216,19 +226,23 @@ async function getAzureSettings() {
   }
   
   // Try local appsettings.json next
-  if (!settings || !settings.endpoint || !settings.apiKey) {
+  if (!settings || !settings.endpoint) {
     settings = getSettingsFromFile();
   }
 
   // Fall back to environment variables
-  if (!settings || !settings.endpoint || !settings.apiKey) {
+  if (!settings || !settings.endpoint) {
     console.log('📋 Using local environment variables for Azure settings');
     settings = getLocalSettings();
   }
   
-  // Validate that we have required settings
-  if (!settings.endpoint || !settings.apiKey) {
-    throw new Error('Azure OpenAI credentials not configured. Please set environment variables, appsettings.json, or configure website settings URL.');
+  // Validate that we have at minimum an endpoint
+  if (!settings.endpoint) {
+    throw new Error(
+      'Azure OpenAI endpoint not configured. ' +
+      'Set AZURE_OPENAI_ENDPOINT in Azure App Service Application Settings (or in appsettings.json). ' +
+      'An API key (AZURE_OPENAI_API_KEY) is optional when using Managed Identity.'
+    );
   }
   
   // Cache the settings

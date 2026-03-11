@@ -8,7 +8,9 @@
 #   AZURE_WEBAPP_NAME            – Name of the Azure Web App  (e.g. turkeyai-test)
 #   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
 #
-# Optional GitHub Secrets (used to set App Service Application Settings):
+# Optional GitHub Secrets (applied as App Service Application Settings when AZURE_CREDENTIALS is set):
+#   AZURE_CREDENTIALS            – Azure service principal JSON for az login
+#   SETTINGS_API_TOKEN           – GitHub PAT with contents:read on orkinosai-website (private repo)
 #   AZURE_OPENAI_ENDPOINT
 #   AZURE_OPENAI_API_KEY
 #   AZURE_OPENAI_DEPLOYMENT_NAME
@@ -93,6 +95,37 @@ jobs:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
+
+      # ── Configure App Service Application Settings ──────────────────────────
+      # Runs only when AZURE_CREDENTIALS is configured as a GitHub secret.
+      # Sets Azure OpenAI and settings-provider credentials so the chat agent works.
+      - name: Log in to Azure (for App Settings)
+        if: secrets.AZURE_CREDENTIALS != ''
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Configure App Service Application Settings
+        if: secrets.AZURE_CREDENTIALS != ''
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          app-settings-json: |
+            [
+              { "name": "SETTINGS_API_TOKEN",           "value": "${{ secrets.SETTINGS_API_TOKEN }}",           "slotSetting": false },
+              { "name": "AZURE_OPENAI_ENDPOINT",        "value": "${{ secrets.AZURE_OPENAI_ENDPOINT }}",        "slotSetting": false },
+              { "name": "AZURE_OPENAI_API_KEY",         "value": "${{ secrets.AZURE_OPENAI_API_KEY }}",         "slotSetting": false },
+              { "name": "AZURE_OPENAI_DEPLOYMENT_NAME", "value": "${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}", "slotSetting": false },
+              { "name": "AZURE_OPENAI_API_VERSION",     "value": "${{ secrets.AZURE_OPENAI_API_VERSION }}",     "slotSetting": false },
+              { "name": "AZURE_SEARCH_ENDPOINT",        "value": "${{ secrets.AZURE_SEARCH_ENDPOINT }}",        "slotSetting": false },
+              { "name": "AZURE_SEARCH_API_KEY",         "value": "${{ secrets.AZURE_SEARCH_API_KEY }}",         "slotSetting": false },
+              { "name": "AZURE_SEARCH_INDEX_NAME",      "value": "${{ secrets.AZURE_SEARCH_INDEX_NAME }}",      "slotSetting": false },
+              { "name": "DB_HOST",                      "value": "${{ secrets.DB_HOST }}",                      "slotSetting": false },
+              { "name": "DB_PORT",                      "value": "${{ secrets.DB_PORT }}",                      "slotSetting": false },
+              { "name": "DB_NAME",                      "value": "${{ secrets.DB_NAME }}",                      "slotSetting": false },
+              { "name": "DB_USER",                      "value": "${{ secrets.DB_USER }}",                      "slotSetting": false },
+              { "name": "DB_PASSWORD",                  "value": "${{ secrets.DB_PASSWORD }}",                  "slotSetting": false }
+            ]
 
       # ── Smoke-test: verify the health endpoint ───────────────────────────────
       - name: Smoke test — health endpoint
