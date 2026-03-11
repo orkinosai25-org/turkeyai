@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import HighlightCarousel from '../components/HighlightCarousel';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -81,12 +82,8 @@ function Destinations() {
             </p>
             
             <div style={{ marginBottom: '1rem' }}>
-              <strong style={{ color: 'var(--azure-turquoise)' }}>Highlights:</strong>
-              <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: 'var(--warm-slate-700)' }}>
-                {destination.highlights.map((highlight, idx) => (
-                  <li key={idx}>{highlight}</li>
-                ))}
-              </ul>
+              <strong style={{ color: 'var(--azure-turquoise)', display: 'block', marginBottom: '0.5rem' }}>Highlights:</strong>
+              <HighlightCarousel highlights={destination.highlights} />
             </div>
             
             <div style={{ 
