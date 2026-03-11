@@ -11,6 +11,7 @@ import ResortDeepDive from './pages/ResortDeepDive';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import SearchPage from './pages/SearchPage';
+import KnowledgeManager from './pages/KnowledgeManager';
 import './App.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/resorts/:id/deep-dive" element={<ResortDeepDive />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/knowledge" element={<KnowledgeManager />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
         </Routes>

@@ -156,3 +156,32 @@ CREATE TABLE IF NOT EXISTS service_analytics (
 
 CREATE INDEX IF NOT EXISTS idx_service_analytics_vertical ON service_analytics(service_vertical);
 CREATE INDEX IF NOT EXISTS idx_service_analytics_date ON service_analytics(created_at DESC);
+
+-- ========================================
+-- KNOWLEDGE ITEMS (Agent Learning & Context)
+-- ========================================
+-- Stores documents, URLs, and notes that the AI agent learns from.
+-- Items are indexed into Azure AI Search for semantic retrieval.
+
+CREATE TABLE IF NOT EXISTS knowledge_items (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(500) NOT NULL,
+    content TEXT NOT NULL,
+    source_type VARCHAR(50) NOT NULL CHECK (source_type IN ('file', 'url', 'note')),
+    source_url TEXT,                            -- Original URL (for url type)
+    original_filename VARCHAR(500),             -- Original file name (for file type)
+    location_tags VARCHAR(100)[],               -- e.g., ARRAY['Bodrum', 'Gumbet']
+    content_category VARCHAR(100),              -- e.g., 'local_news', 'hotel_info', 'general'
+    is_indexed BOOLEAN DEFAULT FALSE,           -- Whether the item has been indexed in Azure Search
+    indexed_at TIMESTAMP,
+    created_by VARCHAR(255) DEFAULT 'admin',
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_knowledge_source_type ON knowledge_items(source_type);
+CREATE INDEX IF NOT EXISTS idx_knowledge_location_tags ON knowledge_items USING GIN(location_tags);
+CREATE INDEX IF NOT EXISTS idx_knowledge_active ON knowledge_items(is_active);
+CREATE INDEX IF NOT EXISTS idx_knowledge_indexed ON knowledge_items(is_indexed);
+CREATE INDEX IF NOT EXISTS idx_knowledge_created ON knowledge_items(created_at DESC);

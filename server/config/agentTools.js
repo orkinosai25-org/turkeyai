@@ -663,6 +663,54 @@ async function searchYachts(params) {
 }
 
 /**
+ * Search the live knowledge base for destination-specific or recent information
+ * @param {Object} params - Search parameters
+ * @returns {Promise<Object>} Knowledge search results
+ */
+async function searchKnowledgeBase(params) {
+  const { query, location_tag, top = 5 } = params;
+
+  if (!query) {
+    return { success: false, error: 'query is required for knowledge base search' };
+  }
+
+  try {
+    const { searchKnowledge } = require('./knowledgeSearch');
+    const results = await searchKnowledge(query, { location_tag, top });
+
+    if (results.length === 0) {
+      return {
+        success: true,
+        results: [],
+        count: 0,
+        message: 'No relevant knowledge base entries found for this query.'
+      };
+    }
+
+    return {
+      success: true,
+      results: results.map(r => ({
+        title: r.title,
+        content: r.content,
+        source_type: r.source_type,
+        source_url: r.source_url || null,
+        location_tags: r.location_tags || [],
+        content_category: r.content_category,
+        created_at: r.created_at
+      })),
+      count: results.length
+    };
+  } catch (err) {
+    console.warn('Knowledge base search unavailable:', err.message);
+    return {
+      success: false,
+      error: 'Knowledge base is not available at this time.',
+      details: err.message
+    };
+  }
+}
+
+/**
  * Execute a tool function by name
  * @param {string} functionName - Name of the function to execute
  * @param {Object} args - Arguments for the function
@@ -683,6 +731,7 @@ async function executeTool(functionName, args) {
     searchCruises,
     searchPrivateAviation,
     searchYachts,
+    searchKnowledgeBase,
   };
 
   const tool = tools[functionName];
@@ -710,5 +759,6 @@ module.exports = {
   searchCruises,
   searchPrivateAviation,
   searchYachts,
+  searchKnowledgeBase,
   executeTool
 };
