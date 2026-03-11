@@ -49,6 +49,7 @@ function Header() {
           <Link to="/services">Services</Link>
           <Link to="/trip-planner">Trip Planner</Link>
           <Link to="/chat">AI Travel Agent</Link>
+          <Link to="/knowledge">Knowledge</Link>
         </nav>
         <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginLeft: '1rem' }}>
           {user ? (

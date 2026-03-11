@@ -6,7 +6,7 @@
  */
 
 const { getAgentPrompt, getAgentTools, getToolConfig } = require('../config/agentConfig');
-const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, executeTool } = require('../config/agentTools');
+const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, searchKnowledgeBase, executeTool } = require('../config/agentTools');
 
 console.log('🧪 Testing AI Agent Configuration and Tools\n');
 
@@ -34,7 +34,7 @@ logTest('getAgentPrompt returns string', typeof prompt === 'string' && prompt.le
 logTest('Prompt includes TürkiyeAI', prompt.includes('TürkiyeAI'));
 logTest('Prompt includes OrkinosAI', prompt.includes('OrkinosAI'));
 logTest('getAgentTools returns array', Array.isArray(tools));
-logTest('Tools array has 13 tools', tools.length === 13);
+logTest('Tools array has 14 tools', tools.length === 14);
 logTest('getToolConfig returns object', typeof toolConfig === 'object');
 console.log('');
 
@@ -43,7 +43,7 @@ console.log('Test 2: Tool Definitions Structure');
 const expectedTools = [
   'searchResorts', 'getResort', 'compareResorts', 'buildItinerary',
   'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions',
-  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts'
+  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts', 'searchKnowledgeBase'
 ];
 const actualToolNames = tools.map(t => t.function.name);
 
@@ -105,6 +105,7 @@ logTest('searchCarRentals is a function', typeof searchCarRentals === 'function'
 logTest('searchCruises is a function', typeof searchCruises === 'function');
 logTest('searchPrivateAviation is a function', typeof searchPrivateAviation === 'function');
 logTest('searchYachts is a function', typeof searchYachts === 'function');
+logTest('searchKnowledgeBase is a function', typeof searchKnowledgeBase === 'function');
 logTest('executeTool is a function', typeof executeTool === 'function');
 console.log('');
 
@@ -256,6 +257,18 @@ async function testToolHandlers() {
     // Test executeTool routes to yacht handler
     const yachtExec = await executeTool('searchYachts', { vessel_type: 'Motor Yacht' });
     logTest('executeTool routes searchYachts correctly', yachtExec.success);
+
+    // Test searchKnowledgeBase - missing query returns error
+    const kbMissing = await searchKnowledgeBase({});
+    logTest('searchKnowledgeBase validates missing query', !kbMissing.success && kbMissing.error);
+
+    // Test searchKnowledgeBase - Azure Search unavailable returns graceful failure
+    const kbResult = await searchKnowledgeBase({ query: 'Bodrum beach bars', location_tag: 'Bodrum' });
+    logTest('searchKnowledgeBase returns object with success field', typeof kbResult === 'object' && 'success' in kbResult);
+
+    // Test executeTool routes to knowledge base handler
+    const kbExec = await executeTool('searchKnowledgeBase', { query: 'Gumbet restaurants' });
+    logTest('executeTool routes searchKnowledgeBase correctly', typeof kbExec === 'object' && 'success' in kbExec);
 
     // Test executeTool with invalid function
     const invalidExec = await executeTool('nonExistentTool', {});

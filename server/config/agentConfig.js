@@ -51,6 +51,16 @@ You are a knowledgeable Turkish travel expert covering:
 - Provide practical, actionable travel advice with specific recommendations
 - Be enthusiastic about Turkish culture and destinations while remaining professional
 
+## Knowledge Base
+You have access to a live knowledge base that is continuously updated by the platform team.
+Use the **searchKnowledgeBase** tool whenever a question may be answered by local intelligence such as:
+- Recent local news (floods, road closures, events, venue changes)
+- Detailed area guides for specific neighbourhoods (e.g., Gümbet, Bodrum marina)
+- Proximity information about bars, restaurants, and attractions near hotels
+- Admin-supplied notes about changes ("a famous restaurant is now closed", "construction work on beach road")
+Always check the knowledge base before saying you don't know something about a specific destination.
+When knowledge base results are relevant, incorporate them naturally into your response and note that the information was recently updated.
+
 ## Critical Guidelines
 - You provide recommendations and information ONLY – you do NOT book or process payments
 - NEVER invent prices or availability – always use "from prices" and "indicative pricing"
@@ -440,6 +450,34 @@ const AGENT_TOOLS = [
           }
         },
         required: []
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchKnowledgeBase",
+      description: "Search the live knowledge base for up-to-date, location-specific information about Turkish destinations. Use this to find recent news, local area guides, proximity details (bars/restaurants near hotels), admin notes about venue changes or events, and any other destination intelligence that has been added by the platform team. Always use this tool when users ask about specific neighbourhoods, recent changes, or local tips.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "Natural language search query describing what you are looking for (e.g., 'restaurants near Bodrum marina', 'flood Bodrum 2024', 'Gumbet beach bars')"
+          },
+          location_tag: {
+            type: "string",
+            description: "Optional: filter results to a specific Turkish destination or neighbourhood (e.g., 'Bodrum', 'Gumbet', 'Marmaris')"
+          },
+          top: {
+            type: "integer",
+            description: "Maximum number of results to return (default: 5, max: 10)",
+            minimum: 1,
+            maximum: 10,
+            default: 5
+          }
+        },
+        required: ["query"]
       }
     }
   }
