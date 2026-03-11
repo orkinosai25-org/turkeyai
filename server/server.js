@@ -17,10 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Security headers – explicitly disable browser device-access APIs that the
-// app does not use.  This prevents browsers (especially Microsoft Edge on
-// Azure-hosted origins) from showing unexpected permission prompts such as
-// "Access other apps and services on this device".
+// Security headers – explicitly disable browser device-access and credential
+// APIs that the app does not use.  This prevents browsers (especially
+// Microsoft Edge on Azure-hosted origins) from showing unexpected permission
+// prompts such as "Access other apps and services on this device".
 app.use((_req, res, next) => {
   res.setHeader(
     'Permissions-Policy',
@@ -32,6 +32,13 @@ app.use((_req, res, next) => {
       'hid=()',
       'window-management=()',
       'identity-credentials-get=()',
+      'publickey-credentials-get=()',
+      'publickey-credentials-create=()',
+      'otp-credentials=()',
+      'payment=()',
+      'geolocation=()',
+      'camera=()',
+      'microphone=()',
     ].join(', ')
   );
   next();
