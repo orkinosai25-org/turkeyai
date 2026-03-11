@@ -137,8 +137,9 @@ async function runTests() {
   // Test 5: Missing credentials throw a clear error
   console.log('Test 5: Missing credentials throw a descriptive error');
   try {
-    const restore = saveEnv('USE_WEBSITE_SETTINGS', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
+    const restore = saveEnv('USE_WEBSITE_SETTINGS', 'SETTINGS_SOURCE_URL', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
     process.env.USE_WEBSITE_SETTINGS = 'false';
+    delete process.env.SETTINGS_SOURCE_URL;
     delete process.env.AZURE_OPENAI_ENDPOINT;
     delete process.env.AZURE_OPENAI_API_KEY;
     clearCache();
@@ -282,6 +283,69 @@ async function runTests() {
     console.log(`   - Input:  ${rawUrl}`);
     console.log(`   - Output: ${apiUrl}`);
 
+    testsPassed++;
+  } catch (error) {
+    console.log(`❌ FAIL: ${error.message}`);
+    testsFailed++;
+  }
+  console.log('');
+
+  // Test 9: GitHub raw URL without token produces a specific error mentioning SETTINGS_API_TOKEN
+  console.log('Test 9: GitHub URL without token produces specific error');
+  try {
+    const restore = saveEnv('USE_WEBSITE_SETTINGS', 'SETTINGS_SOURCE_URL', 'SETTINGS_API_TOKEN', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
+    process.env.USE_WEBSITE_SETTINGS = 'true';
+    process.env.SETTINGS_SOURCE_URL = 'https://raw.githubusercontent.com/myorg/myrepo/main/appsettings.json';
+    delete process.env.SETTINGS_API_TOKEN;
+    delete process.env.AZURE_OPENAI_ENDPOINT;
+    delete process.env.AZURE_OPENAI_API_KEY;
+    clearCache();
+
+    let threw = false;
+    let errorMsg = '';
+    try {
+      await getAzureSettings();
+    } catch (err) {
+      threw = true;
+      errorMsg = err.message;
+    }
+
+    if (!threw) {
+      throw new Error('Expected an error when GitHub URL is set without token and no credentials');
+    }
+    if (!errorMsg.includes('SETTINGS_API_TOKEN')) {
+      throw new Error(`Expected error to mention SETTINGS_API_TOKEN, got: ${errorMsg}`);
+    }
+
+    console.log('✅ PASS: GitHub URL without token produces specific error mentioning SETTINGS_API_TOKEN');
+
+    restore();
+    testsPassed++;
+  } catch (error) {
+    console.log(`❌ FAIL: ${error.message}`);
+    testsFailed++;
+  }
+  console.log('');
+
+  // Test 10: Default deployment name is gpt-4o when AZURE_OPENAI_DEPLOYMENT_NAME is not set
+  console.log('Test 10: Default deployment name is gpt-4o');
+  try {
+    const restore = saveEnv('USE_WEBSITE_SETTINGS', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY', 'AZURE_OPENAI_DEPLOYMENT_NAME');
+    process.env.USE_WEBSITE_SETTINGS = 'false';
+    process.env.AZURE_OPENAI_ENDPOINT = 'https://test-default.openai.azure.com/';
+    process.env.AZURE_OPENAI_API_KEY = 'test-key-default';
+    delete process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
+    clearCache();
+
+    const settings = await getAzureSettings();
+
+    if (settings.deploymentName !== 'gpt-4o') {
+      throw new Error(`Expected default deployment 'gpt-4o', got '${settings.deploymentName}'`);
+    }
+
+    console.log('✅ PASS: Default deployment name is gpt-4o');
+
+    restore();
     testsPassed++;
   } catch (error) {
     console.log(`❌ FAIL: ${error.message}`);

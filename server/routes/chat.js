@@ -110,6 +110,14 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error('Chat API Error:', error);
+    // Provide a user-friendly response for configuration errors rather than a raw 500
+    if (error.message && error.message.includes('Azure OpenAI credentials not configured')) {
+      return res.status(500).json({
+        error: 'Azure OpenAI not configured',
+        details: error.message,
+        hint: 'Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY in Azure App Service Application Settings, or configure SETTINGS_SOURCE_URL with SETTINGS_API_TOKEN for a private GitHub settings repository.'
+      });
+    }
     res.status(500).json({ 
       error: 'Failed to process chat message',
       details: error.message 

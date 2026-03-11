@@ -48,10 +48,18 @@ function Chat() {
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      const errorDetail = error.response?.data?.details || error.message || 'Unknown error';
+      const responseData = error.response?.data;
+      let errorContent;
+      if (responseData?.error === 'Azure OpenAI not configured') {
+        const hint = responseData?.hint || 'Please contact the site administrator to configure Azure OpenAI credentials.';
+        errorContent = `The AI travel agent is not yet configured. ${hint}`;
+      } else {
+        const errorDetail = responseData?.details || error.message || 'Unknown error';
+        errorContent = `Sorry, I encountered an error: ${errorDetail}. Please make sure the Azure OpenAI configuration is set up correctly.`;
+      }
       const errorMessage = {
         role: 'ai',
-        content: `Sorry, I encountered an error: ${errorDetail}. Please make sure the Azure OpenAI configuration is set up correctly.`
+        content: errorContent
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {

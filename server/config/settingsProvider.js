@@ -98,6 +98,11 @@ async function fetchSettingsFromWebsite() {
         throw new Error('Unexpected GitHub API response format');
       }
     } else {
+      if (githubApiUrl && !apiToken) {
+        console.warn('⚠️ SETTINGS_SOURCE_URL points to a GitHub repository but SETTINGS_API_TOKEN is not set.');
+        console.warn('   Private repos require a GitHub PAT with contents:read scope set as SETTINGS_API_TOKEN.');
+        console.warn('   Attempting plain HTTP fetch (only works if the repository is public)...');
+      }
       // Plain HTTP fetch (works for public URLs or non-GitHub endpoints)
       console.log(`Fetching Azure settings from: ${websiteUrl}`);
       const response = await axios.get(websiteUrl, { timeout: 5000 });
@@ -152,12 +157,18 @@ function getSettingsFromFile() {
     const az = config.AzureOpenAI;
     if (!az.Endpoint || !az.ApiKey) return null;
 
+    // Skip placeholder values from example/template files
+    if (isPlaceholderValue(az.Endpoint) || isPlaceholderValue(az.ApiKey)) {
+      console.warn('⚠️ appsettings.json contains placeholder credentials – skipping');
+      return null;
+    }
+
     console.log('📋 Using Azure settings from local appsettings.json');
     return {
       endpoint: az.Endpoint,
       apiKey: az.ApiKey,
-      deploymentName: az.DeploymentName || 'gpt-4',
-      apiVersion: az.ApiVersion || '2024-02-15-preview',
+      deploymentName: az.DeploymentName || 'gpt-4o',
+      apiVersion: az.ApiVersion || '2024-08-01-preview',
       maxTokens: az.MaxTokens || 800,
       temperature: az.Temperature !== undefined ? az.Temperature : 0.7,
       topP: az.TopP !== undefined ? az.TopP : 0.95,
@@ -178,8 +189,8 @@ function getLocalSettings() {
   return {
     endpoint: process.env.AZURE_OPENAI_ENDPOINT,
     apiKey: process.env.AZURE_OPENAI_API_KEY,
-    deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4',
-    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
+    deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
     maxTokens: parseInt(process.env.AZURE_OPENAI_MAX_TOKENS, 10) || 800,
     temperature: parseFloat(process.env.AZURE_OPENAI_TEMPERATURE) || 0.7,
     topP: parseFloat(process.env.AZURE_OPENAI_TOP_P) || 0.95,
@@ -228,7 +239,22 @@ async function getAzureSettings() {
   
   // Validate that we have required settings
   if (!settings.endpoint || !settings.apiKey) {
-    throw new Error('Azure OpenAI credentials not configured. Please set environment variables, appsettings.json, or configure website settings URL.');
+    const hasGitHubUrl = process.env.SETTINGS_SOURCE_URL && toGitHubApiUrl(process.env.SETTINGS_SOURCE_URL);
+    const hasToken = !!process.env.SETTINGS_API_TOKEN;
+    if (hasGitHubUrl && !hasToken) {
+      throw new Error(
+        'Azure OpenAI credentials not configured. ' +
+        'SETTINGS_SOURCE_URL points to a GitHub repository but SETTINGS_API_TOKEN is not set. ' +
+        'Set SETTINGS_API_TOKEN to a GitHub PAT with contents:read scope, or set ' +
+        'AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY directly in Azure App Service Application Settings.'
+      );
+    }
+    throw new Error(
+      'Azure OpenAI credentials not configured. ' +
+      'Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY in Azure App Service Application Settings, ' +
+      'or populate AzureOpenAI.Endpoint and AzureOpenAI.ApiKey in appsettings.json, ' +
+      'or configure SETTINGS_SOURCE_URL (and SETTINGS_API_TOKEN for private GitHub repos).'
+    );
   }
   
   // Cache the settings
