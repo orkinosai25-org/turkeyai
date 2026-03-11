@@ -50,10 +50,11 @@ jobs:
       - name: Assemble deployment package
         run: |
           mkdir -p deploy_package
-          cp -r server/* deploy_package/
+          cp index.js deploy_package/
+          cp package.json deploy_package/
+          cp -r server deploy_package/
           mkdir -p deploy_package/client/build
           cp -r client/build/* deploy_package/client/build/
-          cp package.json deploy_package/
           cd deploy_package && zip -r ../deploy.zip .
 
       - name: Upload artifact for deployment job
