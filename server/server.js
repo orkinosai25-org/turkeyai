@@ -17,6 +17,26 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Security headers – explicitly disable browser device-access APIs that the
+// app does not use.  This prevents browsers (especially Microsoft Edge on
+// Azure-hosted origins) from showing unexpected permission prompts such as
+// "Access other apps and services on this device".
+app.use((_req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    [
+      'bluetooth=()',
+      'usb=()',
+      'serial=()',
+      'nfc=()',
+      'hid=()',
+      'window-management=()',
+      'identity-credentials-get=()',
+    ].join(', ')
+  );
+  next();
+});
+
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/chat', require('./routes/chat'));
