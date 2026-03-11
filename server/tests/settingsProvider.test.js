@@ -260,14 +260,16 @@ async function runTests() {
     if (!apiUrl) {
       throw new Error('Expected a converted API URL, got null');
     }
-    if (!apiUrl.includes('api.github.com')) {
-      throw new Error(`Expected api.github.com in URL, got: ${apiUrl}`);
+    // Validate the converted URL by parsing it properly
+    const parsedApiUrl = new URL(apiUrl);
+    if (parsedApiUrl.hostname !== 'api.github.com') {
+      throw new Error(`Expected hostname api.github.com, got: ${parsedApiUrl.hostname}`);
     }
-    if (!apiUrl.includes('ref=main')) {
-      throw new Error(`Expected ref=main in URL, got: ${apiUrl}`);
+    if (parsedApiUrl.searchParams.get('ref') !== 'main') {
+      throw new Error(`Expected ref=main query param, got: ${parsedApiUrl.searchParams.get('ref')}`);
     }
-    if (!apiUrl.includes('myorg/myrepo/contents/path/to/appsettings.json')) {
-      throw new Error(`Expected correct path in URL, got: ${apiUrl}`);
+    if (!parsedApiUrl.pathname.includes('myorg/myrepo/contents/path/to/appsettings.json')) {
+      throw new Error(`Expected correct path in URL, got: ${parsedApiUrl.pathname}`);
     }
 
     // Non-GitHub URL should return null
