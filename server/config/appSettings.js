@@ -69,6 +69,9 @@ function mapSettings(config) {
     setIfMissing('DB_USER', Database.User);
     setIfMissing('DB_PASSWORD', Database.Password);
     setIfMissing('DB_SSL', Database.SSL);
+    if (Database.UseAADAuth !== undefined) {
+      setIfMissing('DB_USE_AAD_AUTH', Database.UseAADAuth);
+    }
   }
 
   // ConnectionStrings.DefaultConnection — parse and apply only the fields that
