@@ -8,7 +8,7 @@
 const Resort = require('../models/Resort');
 const { getSearchClient } = require('./azureSearch');
 const { haversineKm } = require('../utils/geoUtils');
-const { EXCURSION_CATALOG, PACKAGE_CATALOG, AIRPORT_ROUTES } = require('../data/travelCatalogs');
+const { EXCURSION_CATALOG, PACKAGE_CATALOG, AIRPORT_ROUTES, CAR_RENTAL_CATALOG, CRUISE_CATALOG, PRIVATE_AVIATION_CATALOG, YACHT_CATALOG } = require('../data/travelCatalogs');
 
 /**
  * Search for resorts based on filters
@@ -563,6 +563,106 @@ async function getTransferOptions(params) {
 }
 
 /**
+ * Search car rental options at Turkish airports via Carnect GDS
+ */
+async function searchCarRentals(params) {
+  let results = [...CAR_RENTAL_CATALOG];
+  if (params.airport) {
+    const iata = params.airport.toUpperCase();
+    results = results.filter(c => c.available_airports.includes(iata));
+  }
+  if (params.category) {
+    results = results.filter(c => c.category.toLowerCase().includes(params.category.toLowerCase()));
+  }
+  if (params.seats_min) {
+    const min = parseInt(params.seats_min, 10);
+    if (!isNaN(min)) results = results.filter(c => c.seats >= min);
+  }
+
+  return {
+    success: true,
+    cars: results,
+    count: results.length,
+    gds_supplier: 'Carnect',
+    note: 'Prices are indicative per-day rates. Live availability and final pricing via Carnect GDS at booking.',
+  };
+}
+
+/**
+ * Search cruise itineraries departing from or calling at Turkish ports
+ */
+async function searchCruises(params) {
+  let results = [...CRUISE_CATALOG];
+  if (params.departure_port) {
+    results = results.filter(c => c.departure_port.toLowerCase().includes(params.departure_port.toLowerCase()));
+  }
+  if (params.ship_type) {
+    results = results.filter(c => c.ship_type.toLowerCase().includes(params.ship_type.toLowerCase()));
+  }
+  if (params.duration_min) {
+    const min = parseInt(params.duration_min, 10);
+    if (!isNaN(min)) results = results.filter(c => c.duration_nights >= min);
+  }
+  if (params.duration_max) {
+    const max = parseInt(params.duration_max, 10);
+    if (!isNaN(max)) results = results.filter(c => c.duration_nights <= max);
+  }
+
+  return {
+    success: true,
+    cruises: results,
+    count: results.length,
+    note: 'Prices are per person (pp) and indicative. Bookings via licensed cruise operators.',
+  };
+}
+
+/**
+ * Search private aviation charter options to Turkish airports
+ */
+async function searchPrivateAviation(params) {
+  let results = [...PRIVATE_AVIATION_CATALOG];
+  if (params.aircraft_type) {
+    results = results.filter(a => a.aircraft_type.toLowerCase().includes(params.aircraft_type.toLowerCase()));
+  }
+  if (params.max_passengers_min) {
+    const min = parseInt(params.max_passengers_min, 10);
+    if (!isNaN(min)) results = results.filter(a => a.max_passengers >= min);
+  }
+
+  return {
+    success: true,
+    private_aviation: results,
+    count: results.length,
+    note: 'Charter prices are indicative per-sector from prices. Actual quotes vary by date, routing, and operator.',
+  };
+}
+
+/**
+ * Search private boat and yacht charters along the Turkish coast
+ */
+async function searchYachts(params) {
+  let results = [...YACHT_CATALOG];
+  if (params.vessel_type) {
+    results = results.filter(y => y.vessel_type.toLowerCase().includes(params.vessel_type.toLowerCase()));
+  }
+  if (params.home_port) {
+    results = results.filter(y => y.home_port.toLowerCase().includes(params.home_port.toLowerCase()));
+  }
+  if (params.max_guests_min) {
+    const min = parseInt(params.max_guests_min, 10);
+    if (!isNaN(min)) results = results.filter(y => y.max_guests >= min);
+  }
+
+  return {
+    success: true,
+    yachts: results,
+    count: results.length,
+    gds_supplier: 'GRN (Global Resort Network)',
+    note: 'Prices are indicative per-week from prices. Final pricing confirmed with vessel owner/manager.',
+  };
+}
+
+/**
  * Execute a tool function by name
  * @param {string} functionName - Name of the function to execute
  * @param {Object} args - Arguments for the function
@@ -579,6 +679,10 @@ async function executeTool(functionName, args) {
     searchExcursions,
     searchPackages,
     getTransferOptions,
+    searchCarRentals,
+    searchCruises,
+    searchPrivateAviation,
+    searchYachts,
   };
 
   const tool = tools[functionName];
@@ -602,5 +706,9 @@ module.exports = {
   searchExcursions,
   searchPackages,
   getTransferOptions,
+  searchCarRentals,
+  searchCruises,
+  searchPrivateAviation,
+  searchYachts,
   executeTool
 };

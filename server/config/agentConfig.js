@@ -15,9 +15,13 @@ You are powered by OrkinosAI, an Azure-native AI platform.
 ## Your Expertise
 You are a knowledgeable Turkish travel expert covering:
 - Turkish destinations: Bodrum, Marmaris, Fethiye, Antalya, Cappadocia, Istanbul, Izmir, Kusadasi, and more
-- Resort and hotel recommendations with deep AI analysis
+- Resort and hotel recommendations with deep AI analysis (hotel availability via TBO, PROVAB APIs)
 - Hotel proximity learning – understanding which hotels are closest to beaches, airports, cultural sites
 - Travel service verticals: excursions, day trips, transfers, holiday packages, flight routes
+- Car hire at all major Turkish airports via the Carnect GDS
+- Cruises – ocean liners and traditional gulet Blue Voyages around the Turkish coast and Aegean
+- Private aviation – turboprop to large-cabin jet charters between UK and Turkish airports
+- Private boats & yachts – gulets, motor yachts, catamarans, and superyachts (villa/yacht links via GRN)
 - Local experiences, cultural insights, and authentic Turkish traditions
 - Trip planning and itinerary suggestions
 - Weather patterns, best times to visit, and seasonal activities
@@ -40,6 +44,10 @@ You are a knowledgeable Turkish travel expert covering:
   * Search excursions and experiences by destination and type
   * Recommend holiday packages by destination, board basis, and category
   * Provide airport transfer options and indicative pricing
+  * Search car hire options by airport and vehicle category (powered by Carnect GDS)
+  * Discover cruise itineraries departing from or calling at Turkish ports
+  * Explore private aviation charter options to Turkish airports
+  * Browse private boats and yacht charters along the Turkish coast
 - Provide practical, actionable travel advice with specific recommendations
 - Be enthusiastic about Turkish culture and destinations while remaining professional
 
@@ -318,6 +326,120 @@ const AGENT_TOOLS = [
           }
         },
         required: ["duration_days", "primary_region", "traveler_profile"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchCarRentals",
+      description: "Search for car hire options at Turkish airports via the Carnect GDS. Use this when users ask about renting a car, car hire, self-drive options, or getting around Turkey independently.",
+      parameters: {
+        type: "object",
+        properties: {
+          airport: {
+            type: "string",
+            description: "IATA airport code for pickup (e.g. AYT, BJV, IST, DLM, ADB)",
+            enum: ["AYT", "BJV", "DLM", "ADB", "IST", "SAW", "ESB", "GZP"]
+          },
+          category: {
+            type: "string",
+            description: "Car category",
+            enum: ["Economy", "Compact", "SUV", "Luxury", "Minivan / People Carrier"]
+          },
+          seats_min: {
+            type: "integer",
+            description: "Minimum number of seats required",
+            minimum: 1,
+            maximum: 9
+          }
+        },
+        required: []
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchCruises",
+      description: "Search for cruise itineraries departing from or calling at Turkish ports, including ocean cruises and traditional gulet Blue Voyages. Use this when users ask about cruises, sailing holidays, or gulet charters.",
+      parameters: {
+        type: "object",
+        properties: {
+          departure_port: {
+            type: "string",
+            description: "Departure port name or city (e.g. Istanbul, Bodrum, Marmaris)"
+          },
+          ship_type: {
+            type: "string",
+            description: "Type of vessel",
+            enum: ["Ocean Cruise", "Traditional Gulet", "River / Coastal Cruise"]
+          },
+          duration_min: {
+            type: "integer",
+            description: "Minimum cruise duration in nights",
+            minimum: 1
+          },
+          duration_max: {
+            type: "integer",
+            description: "Maximum cruise duration in nights",
+            maximum: 21
+          }
+        },
+        required: []
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchPrivateAviation",
+      description: "Search for private jet and charter aircraft options flying to Turkish airports. Use this when users ask about private jets, charter flights, or private aviation to Turkey.",
+      parameters: {
+        type: "object",
+        properties: {
+          aircraft_type: {
+            type: "string",
+            description: "Type of aircraft",
+            enum: ["Turboprop", "Light Jet", "Mid-Size Jet", "Large Cabin Jet"]
+          },
+          max_passengers_min: {
+            type: "integer",
+            description: "Minimum passenger capacity required",
+            minimum: 1,
+            maximum: 20
+          }
+        },
+        required: []
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchYachts",
+      description: "Search for private boat and yacht charters along the Turkish coast, including gulets, motor yachts, catamarans, and superyachts. Use this when users ask about yacht charters, boat hire, gulet holidays, or private sailing.",
+      parameters: {
+        type: "object",
+        properties: {
+          vessel_type: {
+            type: "string",
+            description: "Type of vessel",
+            enum: ["Gulet", "Motor Yacht", "Superyacht", "Sailing Catamaran"]
+          },
+          home_port: {
+            type: "string",
+            description: "Charter home port",
+            enum: ["Bodrum", "Marmaris", "Göcek", "Fethiye"]
+          },
+          max_guests_min: {
+            type: "integer",
+            description: "Minimum guest capacity required",
+            minimum: 1,
+            maximum: 20
+          }
+        },
+        required: []
       }
     }
   }

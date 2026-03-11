@@ -6,7 +6,7 @@
  */
 
 const { getAgentPrompt, getAgentTools, getToolConfig } = require('../config/agentConfig');
-const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, executeTool } = require('../config/agentTools');
+const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, executeTool } = require('../config/agentTools');
 
 console.log('🧪 Testing AI Agent Configuration and Tools\n');
 
@@ -34,7 +34,7 @@ logTest('getAgentPrompt returns string', typeof prompt === 'string' && prompt.le
 logTest('Prompt includes TürkiyeAI', prompt.includes('TürkiyeAI'));
 logTest('Prompt includes OrkinosAI', prompt.includes('OrkinosAI'));
 logTest('getAgentTools returns array', Array.isArray(tools));
-logTest('Tools array has 9 tools', tools.length === 9);
+logTest('Tools array has 13 tools', tools.length === 13);
 logTest('getToolConfig returns object', typeof toolConfig === 'object');
 console.log('');
 
@@ -42,7 +42,8 @@ console.log('');
 console.log('Test 2: Tool Definitions Structure');
 const expectedTools = [
   'searchResorts', 'getResort', 'compareResorts', 'buildItinerary',
-  'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions'
+  'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions',
+  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts'
 ];
 const actualToolNames = tools.map(t => t.function.name);
 
@@ -100,6 +101,10 @@ logTest('getNearbyResorts is a function', typeof getNearbyResorts === 'function'
 logTest('searchExcursions is a function', typeof searchExcursions === 'function');
 logTest('searchPackages is a function', typeof searchPackages === 'function');
 logTest('getTransferOptions is a function', typeof getTransferOptions === 'function');
+logTest('searchCarRentals is a function', typeof searchCarRentals === 'function');
+logTest('searchCruises is a function', typeof searchCruises === 'function');
+logTest('searchPrivateAviation is a function', typeof searchPrivateAviation === 'function');
+logTest('searchYachts is a function', typeof searchYachts === 'function');
 logTest('executeTool is a function', typeof executeTool === 'function');
 console.log('');
 
@@ -183,6 +188,74 @@ async function testToolHandlers() {
     // Test executeTool with new tool
     const excExec = await executeTool('searchExcursions', { destination: 'Marmaris' });
     logTest('executeTool routes searchExcursions correctly', excExec.success);
+
+    // Test searchCarRentals - no filters returns all
+    const carAll = await searchCarRentals({});
+    logTest('searchCarRentals returns all categories', carAll.success && carAll.count > 0);
+
+    // Test searchCarRentals - filter by airport
+    const carAYT = await searchCarRentals({ airport: 'AYT' });
+    logTest('searchCarRentals filters by airport AYT', carAYT.success && carAYT.count > 0);
+
+    // Test searchCarRentals - filter by category
+    const carSUV = await searchCarRentals({ category: 'SUV' });
+    logTest('searchCarRentals filters by SUV category', carSUV.success && carSUV.count > 0);
+
+    // Test searchCarRentals - filter by seats
+    const carSeats = await searchCarRentals({ seats_min: 7 });
+    logTest('searchCarRentals filters by minimum seats', carSeats.success && carSeats.cars.every(c => c.seats >= 7));
+
+    // Test searchCruises - no filters returns all
+    const cruiseAll = await searchCruises({});
+    logTest('searchCruises returns all cruises', cruiseAll.success && cruiseAll.count > 0);
+
+    // Test searchCruises - filter by departure port
+    const cruiseIst = await searchCruises({ departure_port: 'Istanbul' });
+    logTest('searchCruises filters by Istanbul departure', cruiseIst.success && cruiseIst.count > 0);
+
+    // Test searchCruises - filter by ship type
+    const cruiseGulet = await searchCruises({ ship_type: 'Traditional Gulet' });
+    logTest('searchCruises filters by gulet ship type', cruiseGulet.success && cruiseGulet.count > 0);
+
+    // Test searchPrivateAviation - no filters returns all
+    const pavAll = await searchPrivateAviation({});
+    logTest('searchPrivateAviation returns all aircraft types', pavAll.success && pavAll.count > 0);
+
+    // Test searchPrivateAviation - filter by aircraft type
+    const pavJet = await searchPrivateAviation({ aircraft_type: 'Light Jet' });
+    logTest('searchPrivateAviation filters by Light Jet', pavJet.success && pavJet.count > 0);
+
+    // Test searchPrivateAviation - filter by passenger min
+    const pavLarge = await searchPrivateAviation({ max_passengers_min: 10 });
+    logTest('searchPrivateAviation filters by passenger capacity', pavLarge.success && pavLarge.private_aviation.every(a => a.max_passengers >= 10));
+
+    // Test searchYachts - no filters returns all
+    const yachtAll = await searchYachts({});
+    logTest('searchYachts returns all vessels', yachtAll.success && yachtAll.count > 0);
+
+    // Test searchYachts - filter by vessel type
+    const yachtGulet = await searchYachts({ vessel_type: 'Gulet' });
+    logTest('searchYachts filters by Gulet type', yachtGulet.success && yachtGulet.count > 0);
+
+    // Test searchYachts - filter by home port
+    const yachtBodrum = await searchYachts({ home_port: 'Bodrum' });
+    logTest('searchYachts filters by Bodrum home port', yachtBodrum.success && yachtBodrum.count > 0);
+
+    // Test executeTool routes to new car rental handler
+    const carExec = await executeTool('searchCarRentals', { airport: 'BJV' });
+    logTest('executeTool routes searchCarRentals correctly', carExec.success);
+
+    // Test executeTool routes to new cruise handler
+    const cruiseExec = await executeTool('searchCruises', {});
+    logTest('executeTool routes searchCruises correctly', cruiseExec.success);
+
+    // Test executeTool routes to private aviation handler
+    const pavExec = await executeTool('searchPrivateAviation', {});
+    logTest('executeTool routes searchPrivateAviation correctly', pavExec.success);
+
+    // Test executeTool routes to yacht handler
+    const yachtExec = await executeTool('searchYachts', { vessel_type: 'Motor Yacht' });
+    logTest('executeTool routes searchYachts correctly', yachtExec.success);
 
     // Test executeTool with invalid function
     const invalidExec = await executeTool('nonExistentTool', {});
