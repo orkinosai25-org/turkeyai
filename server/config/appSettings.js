@@ -88,6 +88,9 @@ function mapSettings(config) {
     if (Settings.SettingsSourceUrl) {
       setIfMissing('SETTINGS_SOURCE_URL', Settings.SettingsSourceUrl);
     }
+    if (Settings.SettingsApiToken) {
+      setIfMissing('SETTINGS_API_TOKEN', Settings.SettingsApiToken);
+    }
   }
 }
 

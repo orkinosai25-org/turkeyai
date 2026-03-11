@@ -194,6 +194,101 @@ async function runTests() {
   }
   console.log('');
 
+  // Test 7: Placeholder credentials in website response are skipped
+  console.log('Test 7: Placeholder credentials in fetched settings are skipped, fallback to env vars');
+  try {
+    const http = require('http');
+    // Start a minimal HTTP server that returns placeholder credentials
+    const placeholderServer = http.createServer((_req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        AzureOpenAI: {
+          Endpoint: 'https://your-resource-name.openai.azure.com/',
+          ApiKey: 'your-api-key-here',
+          DeploymentName: 'gpt-4o'
+        }
+      }));
+    });
+
+    await new Promise((resolve) => placeholderServer.listen(0, '127.0.0.1', resolve));
+    const placeholderPort = placeholderServer.address().port;
+
+    const restore = saveEnv('USE_WEBSITE_SETTINGS', 'SETTINGS_SOURCE_URL', 'SETTINGS_API_TOKEN', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
+    process.env.USE_WEBSITE_SETTINGS = 'true';
+    process.env.SETTINGS_SOURCE_URL = `http://127.0.0.1:${placeholderPort}/appsettings.json`;
+    delete process.env.SETTINGS_API_TOKEN;
+    process.env.AZURE_OPENAI_ENDPOINT = 'https://test-fallback.openai.azure.com/';
+    process.env.AZURE_OPENAI_API_KEY = 'test-key-fallback';
+    clearCache();
+
+    try {
+      const settings = await getAzureSettings();
+
+      if (settings.source !== 'local-env') {
+        throw new Error(`Expected fallback to local-env (got '${settings.source}')`);
+      }
+      if (settings.endpoint !== 'https://test-fallback.openai.azure.com/') {
+        throw new Error(`Expected env var endpoint, got '${settings.endpoint}'`);
+      }
+
+      console.log('✅ PASS: Placeholder credentials skipped, fell back to env vars');
+      console.log(`   - Source: ${settings.source}`);
+      testsPassed++;
+    } finally {
+      restore();
+      await new Promise((resolve) => placeholderServer.close(resolve));
+    }
+  } catch (error) {
+    console.log(`❌ FAIL: ${error.message}`);
+    testsFailed++;
+  }
+  console.log('');
+
+  // Test 8: toGitHubApiUrl helper converts raw GitHub URL to API URL
+  console.log('Test 8: GitHub raw URL conversion to API URL');
+  try {
+    // Access the helper via require to test it in isolation
+    const { toGitHubApiUrl } = require('../config/settingsProvider');
+
+    if (typeof toGitHubApiUrl !== 'function') {
+      throw new Error('toGitHubApiUrl is not exported');
+    }
+
+    const rawUrl = 'https://raw.githubusercontent.com/myorg/myrepo/main/path/to/appsettings.json';
+    const apiUrl = toGitHubApiUrl(rawUrl);
+
+    if (!apiUrl) {
+      throw new Error('Expected a converted API URL, got null');
+    }
+    // Validate the converted URL by parsing it properly
+    const parsedApiUrl = new URL(apiUrl);
+    if (parsedApiUrl.hostname !== 'api.github.com') {
+      throw new Error(`Expected hostname api.github.com, got: ${parsedApiUrl.hostname}`);
+    }
+    if (parsedApiUrl.searchParams.get('ref') !== 'main') {
+      throw new Error(`Expected ref=main query param, got: ${parsedApiUrl.searchParams.get('ref')}`);
+    }
+    if (!parsedApiUrl.pathname.includes('myorg/myrepo/contents/path/to/appsettings.json')) {
+      throw new Error(`Expected correct path in URL, got: ${parsedApiUrl.pathname}`);
+    }
+
+    // Non-GitHub URL should return null
+    const nonGithubResult = toGitHubApiUrl('https://example.com/appsettings.json');
+    if (nonGithubResult !== null) {
+      throw new Error(`Expected null for non-GitHub URL, got: ${nonGithubResult}`);
+    }
+
+    console.log('✅ PASS: GitHub raw URL correctly converted to API URL');
+    console.log(`   - Input:  ${rawUrl}`);
+    console.log(`   - Output: ${apiUrl}`);
+
+    testsPassed++;
+  } catch (error) {
+    console.log(`❌ FAIL: ${error.message}`);
+    testsFailed++;
+  }
+  console.log('');
+
   // Test summary
   console.log('═══════════════════════════════════════');
   console.log(`Total Tests: ${testsPassed + testsFailed}`);
