@@ -6,7 +6,7 @@
  */
 
 const { getAgentPrompt, getAgentTools, getToolConfig } = require('../config/agentConfig');
-const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, searchKnowledgeBase, executeTool } = require('../config/agentTools');
+const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, searchKnowledgeBase, analyzeVideo, translateText, analyzeHotelImage, analyzeReviewSentiment, executeTool } = require('../config/agentTools');
 
 console.log('🧪 Testing AI Agent Configuration and Tools\n');
 
@@ -30,21 +30,23 @@ const prompt = getAgentPrompt();
 const tools = getAgentTools();
 const toolConfig = getToolConfig();
 
+const expectedTools = [
+  'searchResorts', 'getResort', 'compareResorts', 'buildItinerary',
+  'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions',
+  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts', 'searchKnowledgeBase',
+  'analyzeVideo', 'translateText', 'analyzeHotelImage', 'analyzeReviewSentiment'
+];
+
 logTest('getAgentPrompt returns string', typeof prompt === 'string' && prompt.length > 0);
 logTest('Prompt includes TürkiyeAI', prompt.includes('TürkiyeAI'));
 logTest('Prompt includes OrkinosAI', prompt.includes('OrkinosAI'));
 logTest('getAgentTools returns array', Array.isArray(tools));
-logTest('Tools array has 14 tools', tools.length === 14);
+logTest('Tools array has 18 tools', tools.length === expectedTools.length);
 logTest('getToolConfig returns object', typeof toolConfig === 'object');
 console.log('');
 
 // Test 2: Tool Definitions Structure
 console.log('Test 2: Tool Definitions Structure');
-const expectedTools = [
-  'searchResorts', 'getResort', 'compareResorts', 'buildItinerary',
-  'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions',
-  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts', 'searchKnowledgeBase'
-];
 const actualToolNames = tools.map(t => t.function.name);
 
 expectedTools.forEach(toolName => {
@@ -106,6 +108,10 @@ logTest('searchCruises is a function', typeof searchCruises === 'function');
 logTest('searchPrivateAviation is a function', typeof searchPrivateAviation === 'function');
 logTest('searchYachts is a function', typeof searchYachts === 'function');
 logTest('searchKnowledgeBase is a function', typeof searchKnowledgeBase === 'function');
+logTest('analyzeVideo is a function', typeof analyzeVideo === 'function');
+logTest('translateText is a function', typeof translateText === 'function');
+logTest('analyzeHotelImage is a function', typeof analyzeHotelImage === 'function');
+logTest('analyzeReviewSentiment is a function', typeof analyzeReviewSentiment === 'function');
 logTest('executeTool is a function', typeof executeTool === 'function');
 console.log('');
 
@@ -269,6 +275,59 @@ async function testToolHandlers() {
     // Test executeTool routes to knowledge base handler
     const kbExec = await executeTool('searchKnowledgeBase', { query: 'Gumbet restaurants' });
     logTest('executeTool routes searchKnowledgeBase correctly', typeof kbExec === 'object' && 'success' in kbExec);
+
+    // Test analyzeVideo - missing URL returns error
+    const videoMissing = await analyzeVideo({});
+    logTest('analyzeVideo validates missing video_url', !videoMissing.success && videoMissing.error);
+
+    // Test analyzeVideo - unavailable service returns graceful failure
+    const videoResult = await analyzeVideo({ video_url: 'https://www.youtube.com/watch?v=test', language: 'tr' });
+    logTest('analyzeVideo returns object with success field', typeof videoResult === 'object' && 'success' in videoResult);
+
+    // Test translateText - missing text returns error
+    const transNoText = await translateText({});
+    logTest('translateText validates missing text', !transNoText.success && transNoText.error);
+
+    // Test translateText - missing to returns error
+    const transNoTo = await translateText({ text: 'Merhaba' });
+    logTest('translateText validates missing target language', !transNoTo.success && transNoTo.error);
+
+    // Test translateText - unavailable service returns graceful failure
+    const transResult = await translateText({ text: 'Merhaba', to: 'en' });
+    logTest('translateText returns object with success field', typeof transResult === 'object' && 'success' in transResult);
+
+    // Test analyzeHotelImage - missing URL returns error
+    const imgMissing = await analyzeHotelImage({});
+    logTest('analyzeHotelImage validates missing image_url', !imgMissing.success && imgMissing.error);
+
+    // Test analyzeHotelImage - unavailable service returns graceful failure
+    const imgResult = await analyzeHotelImage({ image_url: 'https://example.com/hotel.jpg' });
+    logTest('analyzeHotelImage returns object with success field', typeof imgResult === 'object' && 'success' in imgResult);
+
+    // Test analyzeReviewSentiment - missing reviews returns error
+    const sentMissing = await analyzeReviewSentiment({});
+    logTest('analyzeReviewSentiment validates missing reviews', !sentMissing.success && sentMissing.error);
+
+    // Test analyzeReviewSentiment - empty array returns error
+    const sentEmpty = await analyzeReviewSentiment({ reviews: [] });
+    logTest('analyzeReviewSentiment validates empty reviews array', !sentEmpty.success && sentEmpty.error);
+
+    // Test analyzeReviewSentiment - unavailable service returns graceful failure
+    const sentResult = await analyzeReviewSentiment({ reviews: ['Great hotel!', 'Amazing view.'] });
+    logTest('analyzeReviewSentiment returns object with success field', typeof sentResult === 'object' && 'success' in sentResult);
+
+    // Test executeTool routes to new handlers
+    const videoExec = await executeTool('analyzeVideo', { video_url: 'https://example.com/video' });
+    logTest('executeTool routes analyzeVideo correctly', typeof videoExec === 'object' && 'success' in videoExec);
+
+    const transExec = await executeTool('translateText', { text: 'Bodrum', to: 'en' });
+    logTest('executeTool routes translateText correctly', typeof transExec === 'object' && 'success' in transExec);
+
+    const imgExec = await executeTool('analyzeHotelImage', { image_url: 'https://example.com/img.jpg' });
+    logTest('executeTool routes analyzeHotelImage correctly', typeof imgExec === 'object' && 'success' in imgExec);
+
+    const sentExec = await executeTool('analyzeReviewSentiment', { reviews: ['Good!'] });
+    logTest('executeTool routes analyzeReviewSentiment correctly', typeof sentExec === 'object' && 'success' in sentExec);
 
     // Test executeTool with invalid function
     const invalidExec = await executeTool('nonExistentTool', {});

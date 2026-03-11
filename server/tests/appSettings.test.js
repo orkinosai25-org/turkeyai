@@ -188,6 +188,74 @@ function runTests() {
   }
   console.log('');
 
+  // ── Test 7: New Azure AI service sections mapped ──────────────────────────
+  console.log('Test 7: New Azure AI service sections mapped to process.env');
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'appsettings-test-'));
+    const keysToDelete = [
+      'AZURE_VIDEO_INDEXER_ACCOUNT_ID', 'AZURE_VIDEO_INDEXER_LOCATION', 'AZURE_VIDEO_INDEXER_API_KEY',
+      'AZURE_VIDEO_INDEXER_SUBSCRIPTION_ID', 'AZURE_VIDEO_INDEXER_RESOURCE_GROUP', 'AZURE_VIDEO_INDEXER_ACCOUNT_NAME',
+      'AZURE_SPEECH_KEY', 'AZURE_SPEECH_REGION',
+      'AZURE_TRANSLATOR_ENDPOINT', 'AZURE_TRANSLATOR_KEY', 'AZURE_TRANSLATOR_REGION',
+      'AZURE_LANGUAGE_ENDPOINT', 'AZURE_LANGUAGE_KEY',
+      'AZURE_VISION_ENDPOINT', 'AZURE_VISION_KEY',
+      'AZURE_ML_ENDPOINT', 'AZURE_ML_API_KEY', 'AZURE_ML_SUBSCRIPTION_ID',
+      'AZURE_ML_RESOURCE_GROUP', 'AZURE_ML_WORKSPACE_NAME',
+    ];
+    keysToDelete.forEach(k => delete process.env[k]);
+
+    loadWithConfig({
+      AzureVideoIndexer: {
+        AccountId: 'vi-account-id',
+        Location: 'trial',
+        ApiKey: 'vi-api-key',
+        SubscriptionId: 'sub-id',
+        ResourceGroup: 'rg-test',
+        AccountName: 'vi-account-name',
+      },
+      AzureSpeech: { SubscriptionKey: 'speech-key', Region: 'eastus' },
+      AzureTranslator: {
+        Endpoint: 'https://api.cognitive.microsofttranslator.com/',
+        ApiKey: 'translator-key',
+        Region: 'westeurope',
+      },
+      AzureLanguage: { Endpoint: 'https://lang.cognitiveservices.azure.com/', ApiKey: 'lang-key' },
+      AzureVision: { Endpoint: 'https://vision.cognitiveservices.azure.com/', ApiKey: 'vision-key' },
+      AzureMachineLearning: {
+        Endpoint: 'https://ml.azureml.net',
+        ApiKey: 'ml-key',
+        SubscriptionId: 'ml-sub-id',
+        ResourceGroup: 'ml-rg',
+        WorkspaceName: 'ml-ws',
+      },
+    }, dir);
+
+    assert(process.env.AZURE_VIDEO_INDEXER_ACCOUNT_ID === 'vi-account-id', 'AZURE_VIDEO_INDEXER_ACCOUNT_ID set');
+    assert(process.env.AZURE_VIDEO_INDEXER_LOCATION === 'trial', 'AZURE_VIDEO_INDEXER_LOCATION set');
+    assert(process.env.AZURE_VIDEO_INDEXER_API_KEY === 'vi-api-key', 'AZURE_VIDEO_INDEXER_API_KEY set');
+    assert(process.env.AZURE_VIDEO_INDEXER_SUBSCRIPTION_ID === 'sub-id', 'AZURE_VIDEO_INDEXER_SUBSCRIPTION_ID set');
+    assert(process.env.AZURE_VIDEO_INDEXER_RESOURCE_GROUP === 'rg-test', 'AZURE_VIDEO_INDEXER_RESOURCE_GROUP set');
+    assert(process.env.AZURE_VIDEO_INDEXER_ACCOUNT_NAME === 'vi-account-name', 'AZURE_VIDEO_INDEXER_ACCOUNT_NAME set');
+    assert(process.env.AZURE_SPEECH_KEY === 'speech-key', 'AZURE_SPEECH_KEY set');
+    assert(process.env.AZURE_SPEECH_REGION === 'eastus', 'AZURE_SPEECH_REGION set');
+    assert(process.env.AZURE_TRANSLATOR_ENDPOINT === 'https://api.cognitive.microsofttranslator.com/', 'AZURE_TRANSLATOR_ENDPOINT set');
+    assert(process.env.AZURE_TRANSLATOR_KEY === 'translator-key', 'AZURE_TRANSLATOR_KEY set');
+    assert(process.env.AZURE_TRANSLATOR_REGION === 'westeurope', 'AZURE_TRANSLATOR_REGION set');
+    assert(process.env.AZURE_LANGUAGE_ENDPOINT === 'https://lang.cognitiveservices.azure.com/', 'AZURE_LANGUAGE_ENDPOINT set');
+    assert(process.env.AZURE_LANGUAGE_KEY === 'lang-key', 'AZURE_LANGUAGE_KEY set');
+    assert(process.env.AZURE_VISION_ENDPOINT === 'https://vision.cognitiveservices.azure.com/', 'AZURE_VISION_ENDPOINT set');
+    assert(process.env.AZURE_VISION_KEY === 'vision-key', 'AZURE_VISION_KEY set');
+    assert(process.env.AZURE_ML_ENDPOINT === 'https://ml.azureml.net', 'AZURE_ML_ENDPOINT set');
+    assert(process.env.AZURE_ML_API_KEY === 'ml-key', 'AZURE_ML_API_KEY set');
+    assert(process.env.AZURE_ML_SUBSCRIPTION_ID === 'ml-sub-id', 'AZURE_ML_SUBSCRIPTION_ID set');
+    assert(process.env.AZURE_ML_RESOURCE_GROUP === 'ml-rg', 'AZURE_ML_RESOURCE_GROUP set');
+    assert(process.env.AZURE_ML_WORKSPACE_NAME === 'ml-ws', 'AZURE_ML_WORKSPACE_NAME set');
+
+    fs.rmSync(dir, { recursive: true });
+    keysToDelete.forEach(k => delete process.env[k]);
+  }
+  console.log('');
+
   // ── Summary ───────────────────────────────────────────────────────────────
   console.log('═══════════════════════════════════════');
   console.log(`Total Tests: ${passed + failed}`);
