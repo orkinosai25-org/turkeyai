@@ -19,7 +19,6 @@ node_modules/
 .env.production.local
 
 # appsettings files (may contain secrets) — keep only the .example template
-appsettings.json
 appsettings.*.json
 !appsettings.example.json
 

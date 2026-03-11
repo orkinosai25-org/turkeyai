@@ -48,9 +48,10 @@ function Chat() {
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Chat error:', error);
+      const errorDetail = error.response?.data?.details || error.message || 'Unknown error';
       const errorMessage = {
         role: 'ai',
-        content: 'Sorry, I encountered an error. Please make sure the Azure OpenAI configuration is set up correctly.'
+        content: `Sorry, I encountered an error: ${errorDetail}. Please make sure the Azure OpenAI configuration is set up correctly.`
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
