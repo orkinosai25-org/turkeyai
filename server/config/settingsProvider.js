@@ -13,7 +13,59 @@ let lastFetchTime = null;
 const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
- * Fetch Azure OpenAI settings from the website
+ * Known placeholder credential values used in example/template files.
+ * If a fetched settings source contains any of these exact strings, the
+ * credentials are treated as unconfigured and the next source is tried.
+ */
+const PLACEHOLDER_VALUES = new Set([
+  'your-api-key-here',
+  'your-openai-api-key',
+  'your-api-key',
+  'https://your-resource.openai.azure.com/',
+  'https://your-resource-name.openai.azure.com/',
+]);
+
+/**
+ * Return true if the value is empty/null or is an exact match for a known
+ * unfilled placeholder string from the example configuration files.
+ */
+function isPlaceholderValue(value) {
+  if (!value || typeof value !== 'string') return true;
+  return PLACEHOLDER_VALUES.has(value.trim());
+}
+
+/**
+ * Convert a raw.githubusercontent.com URL to a GitHub API contents URL so
+ * that an optional bearer token can be used to access private repositories.
+ *
+ * Input:  https://raw.githubusercontent.com/{owner}/{repo}/{ref}/{path...}
+ * Output: https://api.github.com/repos/{owner}/{repo}/contents/{path...}?ref={ref}
+ *
+ * Returns null when the URL is not a raw GitHub URL.
+ */
+function toGitHubApiUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    if (url.hostname !== 'raw.githubusercontent.com') return null;
+
+    // pathname: /{owner}/{repo}/{ref}/{path...}
+    const parts = url.pathname.replace(/^\//, '').split('/');
+    if (parts.length < 4) return null;
+
+    const [owner, repo, ref, ...pathParts] = parts;
+    const filePath = pathParts.join('/');
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${ref}`;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch Azure OpenAI settings from the website.
+ * Supports both plain HTTP endpoints and GitHub raw content URLs.
+ * When SETTINGS_API_TOKEN is set and the URL is a GitHub raw URL, the
+ * request is automatically upgraded to the GitHub Contents API so that
+ * private repository files can be retrieved.
  */
 async function fetchSettingsFromWebsite() {
   const websiteUrl = process.env.SETTINGS_SOURCE_URL;
@@ -22,14 +74,46 @@ async function fetchSettingsFromWebsite() {
     return null;
   }
 
+  const apiToken = process.env.SETTINGS_API_TOKEN;
+  const githubApiUrl = toGitHubApiUrl(websiteUrl);
+
   try {
-    console.log(`Fetching Azure settings from website: ${websiteUrl}`);
-    const response = await axios.get(websiteUrl, { timeout: 5000 });
-    
-    if (response.data && response.data.AzureOpenAI) {
-      const azureConfig = response.data.AzureOpenAI;
+    let configData;
+
+    if (githubApiUrl && apiToken) {
+      // Use the authenticated GitHub Contents API for private repositories
+      console.log(`Fetching Azure settings via GitHub API: ${githubApiUrl}`);
+      const response = await axios.get(githubApiUrl, {
+        timeout: 5000,
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28'
+        }
+      });
+      if (response.data && response.data.content) {
+        const decoded = Buffer.from(response.data.content, 'base64').toString('utf8');
+        configData = JSON.parse(decoded);
+      } else {
+        throw new Error('Unexpected GitHub API response format');
+      }
+    } else {
+      // Plain HTTP fetch (works for public URLs or non-GitHub endpoints)
+      console.log(`Fetching Azure settings from: ${websiteUrl}`);
+      const response = await axios.get(websiteUrl, { timeout: 5000 });
+      configData = response.data;
+    }
+
+    if (configData && configData.AzureOpenAI) {
+      const azureConfig = configData.AzureOpenAI;
+
+      // Skip placeholder values that indicate the file has not been populated
+      if (isPlaceholderValue(azureConfig.Endpoint) || isPlaceholderValue(azureConfig.ApiKey)) {
+        console.warn('⚠️ Settings source contains placeholder credentials – skipping');
+        return null;
+      }
+
       console.log('✅ Successfully fetched Azure settings from website');
-      
       return {
         endpoint: azureConfig.Endpoint,
         apiKey: azureConfig.ApiKey,
@@ -43,7 +127,7 @@ async function fetchSettingsFromWebsite() {
         source: 'website'
       };
     }
-    
+
     throw new Error('Invalid settings format from website');
   } catch (error) {
     console.warn('⚠️ Failed to fetch settings from website:', error.message);
@@ -164,5 +248,6 @@ function clearCache() {
 
 module.exports = {
   getAzureSettings,
-  clearCache
+  clearCache,
+  toGitHubApiUrl
 };
