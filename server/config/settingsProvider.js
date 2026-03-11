@@ -16,8 +16,12 @@ const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
  * Fetch Azure OpenAI settings from the website
  */
 async function fetchSettingsFromWebsite() {
-  const websiteUrl = process.env.SETTINGS_SOURCE_URL || 'https://raw.githubusercontent.com/orkinosai25-org/orkinosai-website/main/src/orkinosaiCMS.Server/appsettings.json';
-  
+  const websiteUrl = process.env.SETTINGS_SOURCE_URL;
+
+  if (!websiteUrl) {
+    return null;
+  }
+
   try {
     console.log(`Fetching Azure settings from website: ${websiteUrl}`);
     const response = await axios.get(websiteUrl, { timeout: 5000 });
@@ -104,7 +108,8 @@ function getLocalSettings() {
 /**
  * Get Azure OpenAI settings with caching.
  * Resolution order:
- *   1. Website (remote appsettings.json via SETTINGS_SOURCE_URL)
+ *   1. Website (remote appsettings.json via SETTINGS_SOURCE_URL env var, only when
+ *      USE_WEBSITE_SETTINGS is not 'false' AND SETTINGS_SOURCE_URL is non-empty)
  *   2. Local appsettings.json / appsettings.<env>.json
  *   3. Environment variables (.env or host settings)
  */
