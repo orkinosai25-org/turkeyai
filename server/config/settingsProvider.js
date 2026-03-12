@@ -23,6 +23,7 @@ const PLACEHOLDER_VALUES = new Set([
   'your-api-key',
   'https://your-resource.openai.azure.com/',
   'https://your-resource-name.openai.azure.com/',
+  'https://your-resource.services.ai.azure.com/api/projects/your-project-name',
 ]);
 
 /**
@@ -157,7 +158,7 @@ function getSettingsFromFile() {
       endpoint: az.Endpoint,
       apiKey: az.ApiKey,
       deploymentName: az.DeploymentName || 'gpt-4o',
-      apiVersion: az.ApiVersion || '2024-08-01-preview',
+      apiVersion: az.ApiVersion || '2024-12-01-preview',
       maxTokens: az.MaxTokens || 800,
       temperature: az.Temperature !== undefined ? az.Temperature : 0.7,
       topP: az.TopP !== undefined ? az.TopP : 0.95,
@@ -179,7 +180,7 @@ function getLocalSettings() {
     endpoint: process.env.AZURE_OPENAI_ENDPOINT,
     apiKey: process.env.AZURE_OPENAI_API_KEY,
     deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
-    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
+    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-12-01-preview',
     maxTokens: parseInt(process.env.AZURE_OPENAI_MAX_TOKENS, 10) || 800,
     temperature: parseFloat(process.env.AZURE_OPENAI_TEMPERATURE) || 0.7,
     topP: parseFloat(process.env.AZURE_OPENAI_TOP_P) || 0.95,
