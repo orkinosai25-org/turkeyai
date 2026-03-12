@@ -503,7 +503,7 @@ function getAgentTools() {
 function getToolConfig() {
   return {
     tools: AGENT_TOOLS,
-    toolChoice: "auto" // Let the model decide when to use tools
+    tool_choice: "auto" // Let the model decide when to use tools
   };
 }
 

@@ -33,11 +33,15 @@ router.post('/', async (req, res) => {
     const optionsWithTools = {
       ...chatOptions,
       tools: agentTools,
-      toolChoice: "auto" // Let the model decide when to use tools
+      tool_choice: "auto" // Let the model decide when to use tools
     };
 
     // Get completion from Azure OpenAI
-    let result = await client.getChatCompletions(deploymentName, messages, optionsWithTools);
+    let result = await client.chat.completions.create({
+      model: deploymentName,
+      messages,
+      ...optionsWithTools
+    });
     let responseMessage = result.choices[0]?.message;
     
     // Handle function calls
@@ -96,7 +100,11 @@ router.post('/', async (req, res) => {
       }
 
       // Get final response from the model with tool results
-      const finalResult = await client.getChatCompletions(deploymentName, messages, optionsWithTools);
+      const finalResult = await client.chat.completions.create({
+        model: deploymentName,
+        messages,
+        ...optionsWithTools
+      });
       finalResponse = finalResult.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
     }
 
