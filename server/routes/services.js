@@ -164,7 +164,7 @@ router.get('/transfers', (req, res) => {
 
   if (airport) {
     routes = routes.filter(r =>
-      r.from.toLowerCase() === airport.toUpperCase()
+      r.from.toUpperCase() === airport.toUpperCase()
     );
   }
   if (destination) {
