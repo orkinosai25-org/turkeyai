@@ -7,18 +7,30 @@ let currentApiKey = null;
 let currentApiVersion = null;
 
 /**
- * Initialize Azure OpenAI client with dynamic settings
+ * Returns true when the cached client needs to be recreated because the
+ * relevant settings have changed since the last initialisation.
  */
-async function getAzureOpenAIClient() {
-  const settings = await getAzureSettings();
-  
-  // Recreate client if settings have changed
-  if (
+function hasSettingsChanged(settings) {
+  return (
     !client ||
     currentEndpoint !== settings.endpoint ||
     currentApiKey !== settings.apiKey ||
     currentApiVersion !== settings.apiVersion
-  ) {
+  );
+}
+
+/**
+ * Initialize Azure OpenAI client with dynamic settings
+ */
+async function getAzureOpenAIClient() {
+  const settings = await getAzureSettings();
+
+  if (!settings.endpoint || !settings.apiKey || !settings.apiVersion) {
+    throw new Error('Azure OpenAI configuration is incomplete: endpoint, apiKey, and apiVersion are required.');
+  }
+
+  // Recreate client if settings have changed
+  if (hasSettingsChanged(settings)) {
     console.log('🔄 Initializing Azure OpenAI client with updated settings');
     client = new AzureOpenAI({
       endpoint: settings.endpoint,
