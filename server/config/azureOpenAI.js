@@ -1,4 +1,8 @@
+<<<<<<< copilot/fix-chat-again
+const { AzureOpenAI } = require("openai");
+=======
 const { AzureOpenAI } = require("@azure/openai");
+>>>>>>> main
 const { getAzureSettings } = require("./settingsProvider");
 
 let client = null;
