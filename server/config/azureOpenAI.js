@@ -14,7 +14,11 @@ async function getAzureOpenAIClient() {
   // Recreate client if settings have changed
   if (!client || currentEndpoint !== settings.endpoint || currentApiKey !== settings.apiKey) {
     console.log('🔄 Initializing Azure OpenAI client with updated settings');
-    client = new OpenAIClient(settings.endpoint, new AzureKeyCredential(settings.apiKey));
+    client = new OpenAIClient(
+      settings.endpoint,
+      new AzureKeyCredential(settings.apiKey),
+      { apiVersion: settings.apiVersion }
+    );
     currentEndpoint = settings.endpoint;
     currentApiKey = settings.apiKey;
   }
