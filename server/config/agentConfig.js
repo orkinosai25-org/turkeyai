@@ -28,6 +28,10 @@ You are a knowledgeable Turkish travel expert covering:
 - Transportation options within Turkey
 - Turkish cuisine and dining experiences
 - Historical sites and cultural landmarks
+- Video content analysis – extracting transcripts and insights from Turkish/English travel videos via Azure AI Video Indexer
+- Image analysis – visual recognition of hotels, resorts, and destinations via Azure Computer Vision
+- Review sentiment analysis – understanding guest sentiment from reviews in Turkish and English
+- Real-time translation – seamless Turkish ↔ English communication via Azure AI Translator
 
 ## Your Role and Behaviour
 - Act as a warm, enthusiastic, and knowledgeable Turkish travel expert
@@ -48,6 +52,10 @@ You are a knowledgeable Turkish travel expert covering:
   * Discover cruise itineraries departing from or calling at Turkish ports
   * Explore private aviation charter options to Turkish airports
   * Browse private boats and yacht charters along the Turkish coast
+  * Analyse video URLs (YouTube or other public links) in Turkish or English to extract travel insights
+  * Translate content between Turkish and English for multilingual guests
+  * Analyse resort/hotel images for visual insights (tags, descriptions, detected objects)
+  * Analyse guest review sentiment to provide balanced recommendations
 - Provide practical, actionable travel advice with specific recommendations
 - Be enthusiastic about Turkish culture and destinations while remaining professional
 
@@ -478,6 +486,103 @@ const AGENT_TOOLS = [
           }
         },
         required: ["query"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "analyzeVideo",
+      description: "Submit a publicly accessible video URL (e.g. a YouTube link about a Turkish resort or destination) to Azure AI Video Indexer. Returns the extracted transcript, key phrases, and content insights in Turkish or English. Use this when a user shares a video link and wants to learn about its content, or when video intelligence is needed to enrich destination knowledge.",
+      parameters: {
+        type: "object",
+        properties: {
+          video_url: {
+            type: "string",
+            description: "Publicly accessible video URL to analyse (e.g. a YouTube or Vimeo link)"
+          },
+          language: {
+            type: "string",
+            description: "Primary spoken language in the video",
+            enum: ["tr", "en"],
+            default: "tr"
+          },
+          name: {
+            type: "string",
+            description: "Optional display name for the video (e.g. 'Bodrum Resort Review')"
+          }
+        },
+        required: ["video_url"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "translateText",
+      description: "Translate text between Turkish and English using Azure AI Translator. Use this when a user asks for a translation, when content is in one language and the user prefers another, or when you need to present bilingual information about destinations and hotels.",
+      parameters: {
+        type: "object",
+        properties: {
+          text: {
+            type: "string",
+            description: "The text to translate"
+          },
+          to: {
+            type: "string",
+            description: "Target language code",
+            enum: ["en", "tr", "de", "fr", "es", "ar", "ru"]
+          },
+          from: {
+            type: "string",
+            description: "Source language code (omit for automatic detection)",
+            enum: ["en", "tr", "de", "fr", "es", "ar", "ru"]
+          }
+        },
+        required: ["text", "to"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "analyzeHotelImage",
+      description: "Analyse a resort or hotel image URL using Azure Computer Vision. Returns a caption, visual tags, and detected objects. Use this when a user shares an image of a hotel or when you want to provide visual context about a resort's appearance, facilities, or surroundings.",
+      parameters: {
+        type: "object",
+        properties: {
+          image_url: {
+            type: "string",
+            description: "Publicly accessible URL of the hotel or resort image to analyse"
+          }
+        },
+        required: ["image_url"]
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "analyzeReviewSentiment",
+      description: "Analyse the sentiment of one or more guest reviews using Azure AI Language. Returns an overall sentiment (positive/negative/neutral/mixed) with opinion mining details. Use this when users ask about what guests think of a specific hotel or resort, or when comparing guest satisfaction across properties.",
+      parameters: {
+        type: "object",
+        properties: {
+          reviews: {
+            type: "array",
+            description: "Array of guest review texts to analyse",
+            items: { type: "string" },
+            minItems: 1,
+            maxItems: 10
+          },
+          language: {
+            type: "string",
+            description: "Language of the reviews",
+            enum: ["tr", "en"],
+            default: "en"
+          }
+        },
+        required: ["reviews"]
       }
     }
   }

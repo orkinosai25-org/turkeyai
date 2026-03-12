@@ -30,7 +30,11 @@ function setIfMissing(key, value) {
 function mapSettings(config) {
   if (!config || typeof config !== 'object') return;
 
-  const { App, AzureOpenAI, AzureSearch, Database, ConnectionStrings, Settings } = config;
+  const {
+    App, AzureOpenAI, AzureSearch,
+    AzureVideoIndexer, AzureSpeech, AzureTranslator, AzureLanguage, AzureVision, AzureMachineLearning,
+    Database, ConnectionStrings, Settings
+  } = config;
 
   // App / server settings
   if (App) {
@@ -59,6 +63,50 @@ function mapSettings(config) {
     setIfMissing('AZURE_SEARCH_ENDPOINT', AzureSearch.Endpoint);
     setIfMissing('AZURE_SEARCH_API_KEY', AzureSearch.ApiKey);
     setIfMissing('AZURE_SEARCH_INDEX_NAME', AzureSearch.IndexName);
+  }
+
+  // Azure AI Video Indexer
+  if (AzureVideoIndexer) {
+    setIfMissing('AZURE_VIDEO_INDEXER_ACCOUNT_ID', AzureVideoIndexer.AccountId);
+    setIfMissing('AZURE_VIDEO_INDEXER_LOCATION', AzureVideoIndexer.Location);
+    setIfMissing('AZURE_VIDEO_INDEXER_API_KEY', AzureVideoIndexer.ApiKey);
+    setIfMissing('AZURE_VIDEO_INDEXER_SUBSCRIPTION_ID', AzureVideoIndexer.SubscriptionId);
+    setIfMissing('AZURE_VIDEO_INDEXER_RESOURCE_GROUP', AzureVideoIndexer.ResourceGroup);
+    setIfMissing('AZURE_VIDEO_INDEXER_ACCOUNT_NAME', AzureVideoIndexer.AccountName);
+  }
+
+  // Azure Cognitive Services – Speech
+  if (AzureSpeech) {
+    setIfMissing('AZURE_SPEECH_KEY', AzureSpeech.SubscriptionKey);
+    setIfMissing('AZURE_SPEECH_REGION', AzureSpeech.Region);
+  }
+
+  // Azure AI Translator
+  if (AzureTranslator) {
+    setIfMissing('AZURE_TRANSLATOR_ENDPOINT', AzureTranslator.Endpoint);
+    setIfMissing('AZURE_TRANSLATOR_KEY', AzureTranslator.ApiKey);
+    setIfMissing('AZURE_TRANSLATOR_REGION', AzureTranslator.Region);
+  }
+
+  // Azure Cognitive Services – Language
+  if (AzureLanguage) {
+    setIfMissing('AZURE_LANGUAGE_ENDPOINT', AzureLanguage.Endpoint);
+    setIfMissing('AZURE_LANGUAGE_KEY', AzureLanguage.ApiKey);
+  }
+
+  // Azure Computer Vision
+  if (AzureVision) {
+    setIfMissing('AZURE_VISION_ENDPOINT', AzureVision.Endpoint);
+    setIfMissing('AZURE_VISION_KEY', AzureVision.ApiKey);
+  }
+
+  // Azure Machine Learning
+  if (AzureMachineLearning) {
+    setIfMissing('AZURE_ML_ENDPOINT', AzureMachineLearning.Endpoint);
+    setIfMissing('AZURE_ML_API_KEY', AzureMachineLearning.ApiKey);
+    setIfMissing('AZURE_ML_SUBSCRIPTION_ID', AzureMachineLearning.SubscriptionId);
+    setIfMissing('AZURE_ML_RESOURCE_GROUP', AzureMachineLearning.ResourceGroup);
+    setIfMissing('AZURE_ML_WORKSPACE_NAME', AzureMachineLearning.WorkspaceName);
   }
 
   // Database — individual fields take precedence over the connection string

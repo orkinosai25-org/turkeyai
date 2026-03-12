@@ -9,6 +9,15 @@ const Resort = require('../models/Resort');
 const { getSearchClient } = require('./azureSearch');
 const { haversineKm } = require('../utils/geoUtils');
 const { EXCURSION_CATALOG, PACKAGE_CATALOG, AIRPORT_ROUTES, CAR_RENTAL_CATALOG, CRUISE_CATALOG, PRIVATE_AVIATION_CATALOG, YACHT_CATALOG } = require('../data/travelCatalogs');
+const { indexVideoUrl, getVideoInsights, extractTranscript, extractKeywords } = require('./azureVideoIndexer');
+const { translateOne } = require('./azureTranslator');
+const { analyzeImageUrl, extractCaption, extractTags } = require('./azureVision');
+const { analyzeSentiment } = require('./azureLanguage');
+
+// Limits for AI tool response payloads (avoids overwhelming the model's context window)
+const MAX_TRANSCRIPT_LENGTH = 2000; // characters – keeps video transcripts within token budget
+const MAX_VIDEO_KEYWORDS = 20;       // top keywords to return from Video Indexer
+const MAX_IMAGE_TAGS = 15;           // top visual tags to return from Computer Vision
 
 /**
  * Search for resorts based on filters
@@ -711,6 +720,164 @@ async function searchKnowledgeBase(params) {
 }
 
 /**
+ * Analyse a video URL using Azure AI Video Indexer.
+ * Submits the video for indexing and returns transcript + key insights.
+ *
+ * @param {Object} params
+ * @param {string} params.video_url – Publicly accessible video URL
+ * @param {string} [params.language='tr'] – Primary language of the video ('tr' or 'en')
+ * @param {string} [params.name] – Optional display name for the video
+ * @returns {Promise<Object>}
+ */
+async function analyzeVideo(params) {
+  const { video_url, language = 'tr', name } = params || {};
+
+  if (!video_url) {
+    return { success: false, error: 'video_url is required' };
+  }
+
+  try {
+    const video = await indexVideoUrl(video_url, name, language);
+    const videoId = video?.id;
+    if (!videoId) {
+      return { success: false, error: 'Video indexing did not return a video ID' };
+    }
+
+    const insights = await getVideoInsights(videoId, language);
+    const transcript = extractTranscript(insights);
+    const keywords = extractKeywords(insights);
+    const state = insights?.state ?? 'Processing';
+
+    return {
+      success: true,
+      video_id: videoId,
+      name: video.name,
+      state,
+      language,
+      transcript: transcript.slice(0, MAX_TRANSCRIPT_LENGTH),
+      keywords: keywords.slice(0, MAX_VIDEO_KEYWORDS),
+    };
+  } catch (err) {
+    console.warn('analyzeVideo error:', err.message);
+    return {
+      success: false,
+      error: 'Video analysis is not available at this time.',
+      details: err.message,
+    };
+  }
+}
+
+/**
+ * Translate text between Turkish and English using Azure AI Translator.
+ *
+ * @param {Object} params
+ * @param {string} params.text – Text to translate
+ * @param {string} params.to   – Target language code (e.g. 'en', 'tr')
+ * @param {string} [params.from] – Source language code (omit for auto-detect)
+ * @returns {Promise<Object>}
+ */
+async function translateText(params) {
+  const { text, to, from } = params || {};
+
+  if (!text) return { success: false, error: 'text is required' };
+  if (!to) return { success: false, error: 'to (target language) is required' };
+
+  try {
+    const translated = await translateOne(text, to, from);
+    return {
+      success: true,
+      original: text,
+      translated,
+      target_language: to,
+      source_language: from || 'auto-detected',
+    };
+  } catch (err) {
+    console.warn('translateText error:', err.message);
+    return {
+      success: false,
+      error: 'Translation service is not available at this time.',
+      details: err.message,
+    };
+  }
+}
+
+/**
+ * Analyse a hotel or resort image URL using Azure Computer Vision.
+ *
+ * @param {Object} params
+ * @param {string} params.image_url – Publicly accessible image URL
+ * @returns {Promise<Object>}
+ */
+async function analyzeHotelImage(params) {
+  const { image_url } = params || {};
+
+  if (!image_url) return { success: false, error: 'image_url is required' };
+
+  try {
+    const result = await analyzeImageUrl(image_url);
+    return {
+      success: true,
+      image_url,
+      caption: extractCaption(result),
+      tags: extractTags(result).slice(0, MAX_IMAGE_TAGS),
+    };
+  } catch (err) {
+    console.warn('analyzeHotelImage error:', err.message);
+    return {
+      success: false,
+      error: 'Image analysis is not available at this time.',
+      details: err.message,
+    };
+  }
+}
+
+/**
+ * Analyse the sentiment of guest reviews using Azure AI Language.
+ *
+ * @param {Object} params
+ * @param {string[]} params.reviews  – Array of review text strings
+ * @param {string}   [params.language='en'] – Language of the reviews ('en' or 'tr')
+ * @returns {Promise<Object>}
+ */
+async function analyzeReviewSentiment(params) {
+  const { reviews, language = 'en' } = params || {};
+
+  if (!reviews || !Array.isArray(reviews) || reviews.length === 0) {
+    return { success: false, error: 'reviews array is required' };
+  }
+
+  try {
+    const documents = reviews.map((text, i) => ({ id: String(i + 1), text, language }));
+    const results = await analyzeSentiment(documents);
+
+    const summary = results.map((r, i) => ({
+      review_index: i + 1,
+      sentiment: r.sentiment,
+      confidence: r.confidenceScores,
+    }));
+
+    const sentimentCounts = summary.reduce((acc, s) => {
+      acc[s.sentiment] = (acc[s.sentiment] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      success: true,
+      total_reviews: reviews.length,
+      sentiment_breakdown: sentimentCounts,
+      details: summary,
+    };
+  } catch (err) {
+    console.warn('analyzeReviewSentiment error:', err.message);
+    return {
+      success: false,
+      error: 'Sentiment analysis is not available at this time.',
+      details: err.message,
+    };
+  }
+}
+
+/**
  * Execute a tool function by name
  * @param {string} functionName - Name of the function to execute
  * @param {Object} args - Arguments for the function
@@ -732,6 +899,10 @@ async function executeTool(functionName, args) {
     searchPrivateAviation,
     searchYachts,
     searchKnowledgeBase,
+    analyzeVideo,
+    translateText,
+    analyzeHotelImage,
+    analyzeReviewSentiment,
   };
 
   const tool = tools[functionName];
@@ -760,5 +931,9 @@ module.exports = {
   searchPrivateAviation,
   searchYachts,
   searchKnowledgeBase,
+  analyzeVideo,
+  translateText,
+  analyzeHotelImage,
+  analyzeReviewSentiment,
   executeTool
 };
