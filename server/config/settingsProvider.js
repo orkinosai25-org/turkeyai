@@ -156,8 +156,8 @@ function getSettingsFromFile() {
     return {
       endpoint: az.Endpoint,
       apiKey: az.ApiKey,
-      deploymentName: az.DeploymentName || 'gpt-4',
-      apiVersion: az.ApiVersion || '2024-02-15-preview',
+      deploymentName: az.DeploymentName || 'gpt-4o',
+      apiVersion: az.ApiVersion || '2024-08-01-preview',
       maxTokens: az.MaxTokens || 800,
       temperature: az.Temperature !== undefined ? az.Temperature : 0.7,
       topP: az.TopP !== undefined ? az.TopP : 0.95,
@@ -178,8 +178,8 @@ function getLocalSettings() {
   return {
     endpoint: process.env.AZURE_OPENAI_ENDPOINT,
     apiKey: process.env.AZURE_OPENAI_API_KEY,
-    deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4',
-    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-02-15-preview',
+    deploymentName: process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+    apiVersion: process.env.AZURE_OPENAI_API_VERSION || '2024-08-01-preview',
     maxTokens: parseInt(process.env.AZURE_OPENAI_MAX_TOKENS, 10) || 800,
     temperature: parseFloat(process.env.AZURE_OPENAI_TEMPERATURE) || 0.7,
     topP: parseFloat(process.env.AZURE_OPENAI_TOP_P) || 0.95,

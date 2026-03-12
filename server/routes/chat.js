@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
     const optionsWithTools = {
       ...chatOptions,
       tools: agentTools,
-      tool_choice: "auto" // Let the model decide when to use tools
+      toolChoice: "auto" // Let the model decide when to use tools
     };
 
     // Get completion from Azure OpenAI
