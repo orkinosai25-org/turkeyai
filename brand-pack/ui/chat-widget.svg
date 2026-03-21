@@ -34,7 +34,7 @@
   
   <!-- Header text -->
   <text x="65" y="33" font-family="Inter, sans-serif" font-size="18" font-weight="600" fill="#FFFFFF">
-    TürkiyeAI Assistant
+    TurkiyAI Holidays Assistant
   </text>
   <text x="65" y="53" font-family="Inter, sans-serif" font-size="13" font-weight="400" fill="#FFFFFF" opacity="0.9">
     Online · Typically replies instantly

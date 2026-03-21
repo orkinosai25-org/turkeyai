@@ -38,7 +38,7 @@
     
     <!-- Brand text -->
     <text x="65" y="32" font-family="Inter, sans-serif" font-size="32" font-weight="700" fill="#F8F9F7" letter-spacing="-0.5">
-      TürkiyeAI
+      TurkiyAI Holidays
     </text>
   </g>
   
@@ -55,7 +55,7 @@
       Perfect Trip
     </text>
     <text x="0" y="140" font-family="Inter, sans-serif" font-size="64" font-weight="700" fill="#2FA4A9" letter-spacing="-1">
-      to Türkiye
+      to Turkey
     </text>
     
     <!-- Decorative element -->

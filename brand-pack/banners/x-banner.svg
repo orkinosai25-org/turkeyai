@@ -35,12 +35,12 @@
     
     <!-- Brand wordmark -->
     <text x="70" y="35" font-family="Inter, sans-serif" font-size="56" font-weight="700" fill="#F8F9F7" letter-spacing="-1">
-      TürkiyeAI
+      TurkiyAI Holidays
     </text>
     
     <!-- Tagline -->
     <text x="0" y="85" font-family="Inter, sans-serif" font-size="28" font-weight="400" fill="#F8F9F7" opacity="0.95" letter-spacing="0.5">
-      Your AI Travel Expert for Türkiye
+      AI Knows Turkey Better
     </text>
     
     <!-- Highlights -->
