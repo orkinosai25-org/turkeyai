@@ -5,7 +5,7 @@ import axios from 'axios';
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
 const DESTINATIONS = ['Bodrum', 'Antalya', 'Cappadocia', 'Marmaris', 'Fethiye', 'Istanbul', 'Kusadasi', 'Izmir'];
-const CATEGORIES = ['All', 'Resorts & Hotels', 'Excursions', 'Holiday Packages', 'Transfers'];
+const CATEGORIES = ['All', 'Resorts & Hotels', 'Excursions', 'Holiday Packages', 'Transfers', 'Cars', 'Flights'];
 
 const QUICK_SEARCHES = [
   { label: 'Beach resorts Bodrum', icon: '🏖️' },
@@ -14,9 +14,87 @@ const QUICK_SEARCHES = [
   { label: 'Family hotel Marmaris', icon: '👨‍👩‍👧‍👦' },
   { label: 'Cooking class Istanbul', icon: '🍽️' },
   { label: 'All-inclusive packages', icon: '✈️' },
+  { label: 'Car hire Antalya', icon: '🚗' },
+  { label: 'Airport transfer Bodrum', icon: '🚌' },
+  { label: 'Flights to Istanbul', icon: '🛫' },
 ];
 
+function CarResultCard({ result }) {
+  return (
+    <div style={{ background: 'white', borderRadius: '12px', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '1.5rem' }}>{result.icon || '🚗'}</span>
+        <span style={{ background: '#e8f0fe', color: '#1a56db', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>Car Hire</span>
+      </div>
+      <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.25rem', fontSize: '1rem' }}>{result.category}</h3>
+      <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+        {result.example_model} · {result.seats} seats · {result.transmission} · {result.ac ? 'A/C' : 'No A/C'}
+      </p>
+      <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.78rem', marginBottom: '0.75rem' }}>
+        ✈️ {(result.available_airports || []).join(', ')}
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ color: 'var(--aegean-blue)', fontWeight: 700 }}>
+          From €{result.price_from_per_day_eur}<span style={{ fontSize: '0.75rem', fontWeight: 400, color: 'var(--warm-slate-500)' }}>/day</span>
+        </span>
+        <Link to="/services" style={{ color: 'var(--aegean-blue)', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>View →</Link>
+      </div>
+    </div>
+  );
+}
+
+function TransferResultCard({ result }) {
+  const cheapestVehicle = (result.vehicles || []).reduce((min, v) => (!min || v.price_eur < min.price_eur ? v : min), null);
+  return (
+    <div style={{ background: 'white', borderRadius: '12px', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '1.5rem' }}>🚌</span>
+        <span style={{ background: '#f0fdf4', color: '#15803d', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>Transfer</span>
+      </div>
+      <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.25rem', fontSize: '1rem' }}>
+        {result.from} → {result.destination}
+      </h3>
+      <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+        {result.distance_km} km · {(result.vehicles || []).length} vehicle options
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {cheapestVehicle && (
+          <span style={{ color: 'var(--aegean-blue)', fontWeight: 700 }}>
+            From €{cheapestVehicle.price_eur}
+          </span>
+        )}
+        <Link to="/services" style={{ color: 'var(--aegean-blue)', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>View →</Link>
+      </div>
+    </div>
+  );
+}
+
+function FlightRouteCard({ result }) {
+  return (
+    <div style={{ background: 'white', borderRadius: '12px', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '1.5rem' }}>✈️</span>
+        <span style={{ background: '#fff7ed', color: '#c2410c', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>Flight Route</span>
+      </div>
+      <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.25rem', fontSize: '1rem' }}>
+        {result.from} → {result.to}
+      </h3>
+      <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.8rem', marginBottom: '0.4rem' }}>
+        ⏱ {result.approx_flight_time}
+      </p>
+      <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.78rem', marginBottom: '0.75rem' }}>
+        {(result.airlines || []).join(' · ')}
+      </p>
+      <Link to="/services" style={{ color: 'var(--aegean-blue)', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>View details →</Link>
+    </div>
+  );
+}
+
 function SearchResultCard({ result, category }) {
+  if (result._source === 'car') return <CarResultCard result={result} />;
+  if (result._source === 'transfer') return <TransferResultCard result={result} />;
+  if (result._source === 'flight') return <FlightRouteCard result={result} />;
+
   const isExcursion = result.type && result.price_from;
   const isPackage = result.price_from_pp;
 
@@ -151,6 +229,57 @@ function SearchPage() {
         }
       }
 
+      // Transfers
+      if (searchCategory === 'All' || searchCategory === 'Transfers') {
+        try {
+          const res = await axios.get(`${API_BASE}/api/services/transfers`, {
+            params: searchDest ? { destination: searchDest } : {},
+          });
+          const q = searchQuery.toLowerCase();
+          const transfers = (res.data.transfers || []).filter(t =>
+            t.from.toLowerCase().includes(q) ||
+            t.destination.toLowerCase().includes(q) ||
+            q.includes('transfer') || q.includes('airport')
+          );
+          allResults.push(...transfers.map(t => ({ ...t, _source: 'transfer' })));
+        } catch (tErr) {
+          console.warn('Transfer search unavailable:', tErr.message);
+        }
+      }
+
+      // Cars
+      if (searchCategory === 'All' || searchCategory === 'Cars') {
+        try {
+          const res = await axios.get(`${API_BASE}/api/services/cars`);
+          const q = searchQuery.toLowerCase();
+          const cars = (res.data.cars || []).filter(c =>
+            c.category.toLowerCase().includes(q) ||
+            c.example_model.toLowerCase().includes(q) ||
+            q.includes('car') || q.includes('hire') || q.includes('rental') || q.includes('rent')
+          );
+          allResults.push(...cars.map(c => ({ ...c, _source: 'car' })));
+        } catch (carErr) {
+          console.warn('Car search unavailable:', carErr.message);
+        }
+      }
+
+      // Flights
+      if (searchCategory === 'All' || searchCategory === 'Flights') {
+        try {
+          const res = await axios.get(`${API_BASE}/api/services/flights`);
+          const q = searchQuery.toLowerCase();
+          const routes = (res.data.popular_uk_routes || []).filter(r =>
+            r.from.toLowerCase().includes(q) ||
+            r.to.toLowerCase().includes(q) ||
+            (r.airlines || []).some(a => a.toLowerCase().includes(q)) ||
+            q.includes('flight') || q.includes('fly')
+          );
+          allResults.push(...routes.map((r, idx) => ({ ...r, _source: 'flight', id: `flight-${idx}-${r.from}-${r.to}` })));
+        } catch (flightErr) {
+          console.warn('Flight search unavailable:', flightErr.message);
+        }
+      }
+
       setResults(allResults);
     } catch (err) {
       setError('Search failed. Please try again.');
@@ -265,6 +394,9 @@ function SearchPage() {
                 { title: 'Resorts', icon: '🏨', desc: 'Find your perfect hotel', href: '/destinations' },
                 { title: 'Excursions', icon: '🎒', desc: 'Day trips & experiences', href: '/services' },
                 { title: 'Packages', icon: '✈️', desc: 'All-inclusive deals', href: '/services' },
+                { title: 'Cars', icon: '🚗', desc: 'Car hire at airports', href: '/services' },
+                { title: 'Transfers', icon: '🚌', desc: 'Airport transfers', href: '/services' },
+                { title: 'Flights', icon: '🛫', desc: 'UK to Turkey routes', href: '/services' },
                 { title: 'AI Deep Dive', icon: '🤖', desc: 'Resort intelligence', href: '/destinations' },
               ].map(f => (
                 <Link
