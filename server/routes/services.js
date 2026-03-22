@@ -10,6 +10,7 @@ const {
   CRUISE_CATALOG,
   PRIVATE_AVIATION_CATALOG,
   YACHT_CATALOG,
+  HOTEL_RESORT_CATALOG,
 } = require('../data/travelCatalogs');
 
 /**
@@ -98,6 +99,69 @@ router.get('/', (req, res) => {
         supplier_note: 'Yacht and villa connections via GRN (Global Resort Network).',
       },
     ],
+  });
+});
+
+/**
+ * GET /api/services/hotels
+ * Browse the hotel & resort catalog.
+ * Query params: region, location, family_friendly, adults_only, min_rating, board_basis
+ */
+router.get('/hotels', (req, res) => {
+  const { region, location, family_friendly, adults_only, min_rating, board_basis } = req.query;
+
+  let results = [...HOTEL_RESORT_CATALOG];
+
+  if (region) {
+    results = results.filter(h =>
+      h.region.toLowerCase() === region.toLowerCase()
+    );
+  }
+  if (location) {
+    results = results.filter(h =>
+      h.location && h.location.toLowerCase().includes(location.toLowerCase())
+    );
+  }
+  if (family_friendly !== undefined) {
+    const val = family_friendly === 'true';
+    results = results.filter(h => h.family_friendly === val);
+  }
+  if (adults_only !== undefined) {
+    const val = adults_only === 'true';
+    results = results.filter(h => h.adults_only === val);
+  }
+  if (min_rating) {
+    const min = parseInt(min_rating, 10);
+    if (!isNaN(min)) results = results.filter(h => (h.star_rating || 0) >= min);
+  }
+  if (board_basis) {
+    results = results.filter(h =>
+      h.board_basis && h.board_basis.toLowerCase().includes(board_basis.toLowerCase())
+    );
+  }
+
+  res.json({
+    hotels: results,
+    count: results.length,
+    filters: { region, location, family_friendly, adults_only, min_rating, board_basis },
+    brand: 'TürkiyeAI – Powered by OrkinosAI',
+    disclaimer: 'Hotel rates shown are indicative from prices per person. Live availability and final pricing are confirmed with licensed travel providers at booking.',
+  });
+});
+
+/**
+ * GET /api/services/hotels/:id
+ * Single hotel detail
+ */
+router.get('/hotels/:id', (req, res) => {
+  const hotel = HOTEL_RESORT_CATALOG.find(h => h.id === req.params.id);
+  if (!hotel) {
+    return res.status(404).json({ error: 'Hotel not found', id: req.params.id });
+  }
+  res.json({
+    hotel,
+    brand: 'TürkiyeAI – Powered by OrkinosAI',
+    disclaimer: 'TürkiyeAI is an AI discovery platform. Bookings are completed via licensed travel providers.',
   });
 });
 
