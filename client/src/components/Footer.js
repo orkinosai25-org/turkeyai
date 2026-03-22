@@ -8,11 +8,11 @@ function Footer() {
           <div className="footer-brand">
             <img 
               src="/logo-mark.svg" 
-              alt="TürkiyeAI" 
+              alt="TurkiyAI Holidays" 
               style={{ width: '40px', height: '40px', marginBottom: '0.5rem' }}
             />
-            <h3>TürkiyeAI</h3>
-            <p className="footer-tagline">Your AI Travel Expert for Türkiye</p>
+            <h3>TurkiyAI Holidays</h3>
+            <p className="footer-tagline">AI Knows Turkey Better</p>
             <img 
               src="/powered-by-orkinosai.svg" 
               alt="Powered by OrkinosAI" 
@@ -24,7 +24,7 @@ function Footer() {
         <div className="footer-section">
           <h4>About</h4>
           <p className="footer-text">
-            TürkiyeAI is an AI-powered travel discovery platform by OrkinosAI Ltd.
+            TurkiyAI Holidays is an AI-powered travel discovery platform by OrkinosAI Ltd.
           </p>
         </div>
         
@@ -40,7 +40,7 @@ function Footer() {
         <div className="footer-section">
           <h4>Legal</h4>
           <p className="footer-disclaimer">
-            TürkiyeAI is an AI-powered travel discovery platform by OrkinosAI Ltd.
+            TurkiyAI Holidays is an AI-powered travel discovery platform by OrkinosAI Ltd.
             We do not sell travel products directly. Bookings are completed with 
             licensed third-party providers.
           </p>

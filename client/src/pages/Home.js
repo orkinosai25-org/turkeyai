@@ -7,8 +7,8 @@ function Home() {
   return (
     <div className="page">
       <div className="hero">
-        <h1>🇹🇷 Welcome to TürkiyeAI</h1>
-        <p>Your AI Travel Expert for Türkiye</p>
+        <h1>🇹🇷 Welcome to TurkiyAI Holidays</h1>
+        <p>AI Knows Turkey Better</p>
         <p style={{ fontSize: '1rem', color: 'var(--warm-slate-500)', marginBottom: '3rem' }}>
           Discover the beauty of Turkey with AI-powered travel recommendations
         </p>
@@ -31,7 +31,7 @@ function Home() {
 
       <div style={{ marginTop: '4rem' }}>
         <h2 style={{ textAlign: 'center', color: 'var(--aegean-blue)', marginBottom: '2rem' }}>
-          About TürkiyeAI
+          About TurkiyAI Holidays
         </h2>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
@@ -151,7 +151,7 @@ function Home() {
         <p>
           <strong>Brand Story:</strong> Orkinos means "tuna" in Turkish – symbolising intelligence, 
           speed, and navigation. Built on Microsoft Azure, inspired by azure/Aegean waves. 
-          TürkiyeAI represents intelligent navigation through Turkish travel using AI.
+          TurkiyAI Holidays represents intelligent navigation through Turkish travel using AI.
         </p>
       </div>
     </div>

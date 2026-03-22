@@ -249,8 +249,8 @@ function Register() {
         {/* Header */}
         <div style={{ background: 'linear-gradient(135deg, var(--aegean-blue) 0%, var(--azure-turquoise) 100%)', padding: '2rem', textAlign: 'center', color: 'white' }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>🇹🇷</div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Join TürkiyeAI</h1>
-          <p style={{ opacity: 0.9, fontSize: '0.9rem', margin: 0 }}>Your AI travel companion for Türkiye</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Join TurkiyAI Holidays</h1>
+          <p style={{ opacity: 0.9, fontSize: '0.9rem', margin: 0 }}>AI Knows Turkey Better</p>
         </div>
 
         <div style={{ padding: '2rem' }}>
@@ -272,7 +272,7 @@ function Register() {
           {step === 1 && (
             <>
               <h2 style={{ color: 'var(--aegean-blue)', marginBottom: '0.25rem', fontSize: '1.1rem' }}>Account Details</h2>
-              <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Create your TürkiyeAI account</p>
+              <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Create your TurkiyAI Holidays account</p>
 
               <SocialButtons onSocial={handleSocial} loading={loading} />
 
@@ -436,7 +436,7 @@ function Register() {
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem', cursor: 'pointer', fontSize: '0.875rem', color: 'var(--warm-slate-700)' }}>
                   <input type="checkbox" checked={newsletter} onChange={e => setNewsletter(e.target.checked)} style={{ marginTop: '0.15rem', flexShrink: 0 }} />
-                  Send me inspiration, travel deals, and TürkiyeAI updates (unsubscribe any time)
+                  Send me inspiration, travel deals, and TurkiyAI Holidays updates (unsubscribe any time)
                 </label>
               </div>
 

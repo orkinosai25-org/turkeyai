@@ -81,7 +81,7 @@ function Login() {
         <div style={{ background: 'linear-gradient(135deg, var(--aegean-blue) 0%, var(--azure-turquoise) 100%)', padding: '2rem', textAlign: 'center', color: 'white' }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>🇹🇷</div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, margin: '0 0 0.25rem' }}>Welcome Back</h1>
-          <p style={{ opacity: 0.9, fontSize: '0.9rem', margin: 0 }}>Sign in to TürkiyeAI</p>
+          <p style={{ opacity: 0.9, fontSize: '0.9rem', margin: 0 }}>Sign in to TurkiyAI Holidays</p>
         </div>
 
         <div style={{ padding: '2rem' }}>

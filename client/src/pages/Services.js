@@ -231,7 +231,7 @@ function Services() {
           Everything you need for your perfect Turkish holiday – excursions, transfers, packages and more.
         </p>
         <p style={{ fontSize: '0.85rem', color: 'var(--warm-slate-500)', background: 'var(--soft-beige)', padding: '0.5rem 1rem', borderRadius: '8px', display: 'inline-block' }}>
-          ℹ️ TürkiyeAI is an AI discovery platform. All bookings are completed via licensed travel providers.
+          ℹ️ TurkiyAI Holidays is an AI discovery platform. All bookings are completed via licensed travel providers.
         </p>
       </div>
 
@@ -360,7 +360,7 @@ function Services() {
       <div style={{ marginTop: '3rem', padding: '2rem', background: 'var(--soft-beige)', borderRadius: '12px', textAlign: 'center' }}>
         <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.5rem' }}>🤖 Let AI Help You Plan</h3>
         <p style={{ color: 'var(--warm-slate-700)', marginBottom: '1.5rem' }}>
-          Ask the TürkiyeAI travel agent to find excursions, compare packages, and build a complete itinerary for you.
+          Ask the TurkiyAI Holidays travel agent to find excursions, compare packages, and build a complete itinerary for you.
         </p>
         <button className="btn btn-primary" onClick={() => navigate('/chat')}>
           Chat with AI Travel Agent

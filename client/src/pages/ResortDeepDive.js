@@ -300,7 +300,7 @@ function ResortDeepDive() {
       <div style={{ background: 'var(--soft-beige)', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
         <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.5rem' }}>🤖 Ask AI About This Resort</h3>
         <p style={{ color: 'var(--warm-slate-700)', marginBottom: '1rem' }}>
-          Get personalised recommendations and answers from the TürkiyeAI travel agent.
+          Get personalised recommendations and answers from the TurkiyAI Holidays travel agent.
         </p>
         <button className="btn btn-primary" onClick={() => navigate('/chat')}>
           Chat with AI Travel Agent
