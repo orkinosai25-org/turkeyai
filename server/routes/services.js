@@ -20,6 +20,112 @@ const {
  *         cruises, private aviation, private boats & yachts
  */
 
+/**
+ * Supplier / API registry used by the services overview and the
+ * dedicated /api/services/suppliers endpoint.
+ *
+ * Each entry documents:
+ *   - vertical    : which travel service this supplier powers
+ *   - supplier    : commercial name of the GDS / API / affiliate
+ *   - integration : current integration status
+ *   - data_provided : what information the supplier delivers
+ *   - gbp_support : whether GBP pricing is natively available
+ *   - uk_compliance : headline UK-compliance notes
+ *   - portal_url  : developer / partner portal
+ */
+const SUPPLIER_REGISTRY = [
+  {
+    vertical: 'hotels',
+    supplier: 'TBO (Travel Boutique Online)',
+    integration: 'contracted – live activation pending',
+    data_provided: ['Hotel availability', 'Live rates', 'Room types', 'Cancellation policies'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-aware; data processing agreement required',
+    portal_url: 'https://www.tbo.com',
+  },
+  {
+    vertical: 'hotels',
+    supplier: 'PROVAB',
+    integration: 'contracted – live activation pending',
+    data_provided: ['Hotel availability', 'Net rates', 'Static content'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-aware; data processing agreement required',
+    portal_url: 'https://www.provab.com',
+  },
+  {
+    vertical: 'hotels',
+    supplier: 'Hotelbeds API',
+    integration: 'recommended – not yet integrated',
+    data_provided: ['180,000+ properties globally', 'Turkish Riviera depth', 'Live rates', 'Transfers API', 'Static content API'],
+    gbp_support: true,
+    uk_compliance: 'UK-registered entity; GDPR-compliant; widely used by ATOL holders',
+    portal_url: 'https://developer.hotelbeds.com',
+  },
+  {
+    vertical: 'flights',
+    supplier: 'Amadeus GDS',
+    integration: 'referenced – live Amadeus Self-Service API activation pending',
+    data_provided: ['Flight offers search', 'Live pricing', 'Seat availability', 'Airport/city lookup', 'Flight inspiration'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; standard B2B data processing agreement',
+    portal_url: 'https://developers.amadeus.com',
+  },
+  {
+    vertical: 'cars',
+    supplier: 'Carnect GDS',
+    integration: 'referenced – static catalog; live search activation pending',
+    data_provided: ['Car rental categories', 'Indicative daily rates (EUR/GBP)', 'Airport availability', 'Supplier aggregation (Hertz, Avis, Sixt, Enterprise)'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; standard B2B data processing',
+    portal_url: 'https://www.carnect.com/en/for-partners',
+  },
+  {
+    vertical: 'transfers',
+    supplier: 'Hotelbeds Transfers API',
+    integration: 'recommended – not yet integrated',
+    data_provided: ['Airport-to-resort transfers', 'Private and shared options', 'Live pricing'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; same contract as Hotelbeds Hotels',
+    portal_url: 'https://developer.hotelbeds.com',
+  },
+  {
+    vertical: 'excursions',
+    supplier: 'Viator (TripAdvisor)',
+    integration: 'recommended – not yet integrated',
+    data_provided: ['Turkish excursions & tours', 'Live availability', '8% affiliate commission', 'Deep-link & embedded booking'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; ICO-registered',
+    portal_url: 'https://partnerresources.viator.com',
+  },
+  {
+    vertical: 'packages',
+    supplier: 'Jet2holidays (affiliate)',
+    integration: 'recommended – not yet integrated',
+    data_provided: ['ATOL-protected UK packages', 'Turkish resort packages', 'Affiliate deep-links'],
+    gbp_support: true,
+    uk_compliance: 'ATOL-licensed; fully compliant with Package Travel Regulations 2018',
+    portal_url: 'https://www.jet2holidays.com',
+  },
+  {
+    vertical: 'packages',
+    supplier: 'TUI UK (affiliate)',
+    integration: 'recommended – not yet integrated',
+    data_provided: ['ATOL-protected UK packages', 'Turkish all-inclusive resorts', 'Affiliate programme'],
+    gbp_support: true,
+    uk_compliance: 'ATOL-licensed; Package Travel Regulations 2018 compliant',
+    portal_url: 'https://www.tui.co.uk',
+  },
+  {
+    vertical: 'yachts',
+    supplier: 'GRN (Global Resort Network)',
+    integration: 'referenced – static catalog; live availability pending',
+    data_provided: ['Villa & yacht accommodation', 'Turkish coast charter inventory'],
+    gbp_support: true,
+    uk_compliance: 'Standard B2B data processing agreement required',
+    portal_url: 'https://www.grn.com',
+  },
+];
+
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 /**
@@ -29,6 +135,7 @@ const {
 router.get('/', (req, res) => {
   res.json({
     brand: 'TürkiyeAI – Powered by OrkinosAI',
+    suppliers_overview: `${SUPPLIER_REGISTRY.length} supplier/API integrations registered. See GET /api/services/suppliers for full details.`,
     service_verticals: [
       {
         vertical: 'hotels',
@@ -98,6 +205,34 @@ router.get('/', (req, res) => {
         supplier_note: 'Yacht and villa connections via GRN (Global Resort Network).',
       },
     ],
+  });
+});
+
+/**
+ * GET /api/services/suppliers
+ * Full registry of all API/GDS supplier integrations for TürkiyeAI.
+ * Documents current integration status, data provided, GBP support,
+ * UK compliance notes, and developer portal URLs.
+ * Query params: vertical (filter by service vertical)
+ */
+router.get('/suppliers', (req, res) => {
+  const { vertical } = req.query;
+
+  let results = [...SUPPLIER_REGISTRY];
+
+  if (vertical) {
+    results = results.filter(s =>
+      s.vertical.toLowerCase() === vertical.toLowerCase()
+    );
+  }
+
+  res.json({
+    suppliers: results,
+    count: results.length,
+    filters: { vertical },
+    documentation: '/docs/API_SOURCES_AND_RECOMMENDATIONS.md',
+    brand: 'TürkiyeAI – Powered by OrkinosAI',
+    note: 'See docs/API_SOURCES_AND_RECOMMENDATIONS.md for full analysis and UK SaaS recommendations.',
   });
 });
 
