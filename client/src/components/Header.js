@@ -30,13 +30,13 @@ function Header() {
             <div className="brand-logo">
               <img 
                 src="/logo-mark.svg" 
-                alt="TürkiyeAI Logo" 
+                alt="TurkiyAI Holidays Logo" 
                 className="logo-icon"
                 style={{ width: '40px', height: '40px' }}
               />
               <div className="brand-text">
-                <h1>TürkiyeAI</h1>
-                <p className="brand-tagline">Your AI Travel Expert for Türkiye</p>
+                <h1>TurkiyAI Holidays</h1>
+                <p className="brand-tagline">AI Knows Turkey Better</p>
               </div>
             </div>
             <p className="brand-powered">Powered by OrkinosAI</p>

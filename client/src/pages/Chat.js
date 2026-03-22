@@ -5,7 +5,7 @@ function Chat() {
   const [messages, setMessages] = useState([
     {
       role: 'ai',
-      content: 'Merhaba 👋 I\'m TürkiyeAI. Tell me what kind of trip you\'re dreaming of to Türkiye, and I\'ll help you plan the perfect adventure!'
+      content: 'Merhaba 👋 I\'m TurkiyAI Holidays. Tell me what kind of trip you\'re dreaming of to Turkey, and I\'ll help you plan the perfect adventure!'
     }
   ]);
   const [input, setInput] = useState('');
@@ -83,7 +83,7 @@ function Chat() {
               className={`message ${message.role}`}
             >
               <strong style={{ display: 'block', marginBottom: '0.5rem' }}>
-                {message.role === 'user' ? 'You' : 'TürkiyeAI'}
+                {message.role === 'user' ? 'You' : 'TurkiyAI Holidays'}
               </strong>
               {message.content}
             </div>
@@ -91,7 +91,7 @@ function Chat() {
           {loading && (
             <div className="message ai">
               <strong style={{ display: 'block', marginBottom: '0.5rem' }}>
-                TürkiyeAI
+                TurkiyAI Holidays
               </strong>
               Thinking...
             </div>

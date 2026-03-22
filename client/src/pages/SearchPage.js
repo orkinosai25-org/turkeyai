@@ -175,7 +175,7 @@ function SearchPage() {
       <div style={{ background: 'linear-gradient(135deg, var(--aegean-blue) 0%, var(--azure-turquoise) 100%)', padding: '3rem 1.5rem' }}>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
           <h1 style={{ color: 'white', fontSize: '2rem', fontWeight: 700, marginBottom: '0.5rem' }}>
-            🇹🇷 Search Türkiye Travel
+            🇹🇷 Search Turkey Travel
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.85)', marginBottom: '1.75rem', fontSize: '1.05rem' }}>
             Resorts, excursions, packages, and transfers — all in one place
@@ -287,7 +287,7 @@ function SearchPage() {
         {loading && (
           <div style={{ textAlign: 'center', padding: '3rem' }}>
             <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔍</div>
-            <p style={{ color: 'var(--warm-slate-500)' }}>Searching Türkiye travel options…</p>
+            <p style={{ color: 'var(--warm-slate-500)' }}>Searching Turkey travel options…</p>
           </div>
         )}
 
@@ -318,7 +318,7 @@ function SearchPage() {
                 <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.5rem' }}>No matching results</h3>
                 <p style={{ color: 'var(--warm-slate-500)', marginBottom: '1.5rem' }}>Try a different search term, or ask the AI agent for personalised recommendations.</p>
                 <Link to="/chat" style={{ padding: '0.7rem 1.5rem', background: 'var(--aegean-blue)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem' }}>
-                  Ask TürkiyeAI →
+                  Ask TurkiyAI Holidays →
                 </Link>
               </div>
             ) : (
@@ -333,7 +333,7 @@ function SearchPage() {
             <div style={{ background: 'linear-gradient(135deg, var(--aegean-blue) 0%, var(--azure-turquoise) 100%)', borderRadius: '12px', padding: '1.5rem 2rem', marginTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
                 <h3 style={{ color: 'white', margin: '0 0 0.25rem', fontSize: '1.05rem' }}>Not quite what you're looking for?</h3>
-                <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0, fontSize: '0.875rem' }}>TürkiyeAI's smart agent can help plan your perfect Türkiye trip.</p>
+                <p style={{ color: 'rgba(255,255,255,0.85)', margin: 0, fontSize: '0.875rem' }}>TurkiyAI Holidays' smart agent can help plan your perfect Turkey trip.</p>
               </div>
               <Link to="/chat" style={{ padding: '0.7rem 1.5rem', background: 'white', color: 'var(--aegean-blue)', borderRadius: '8px', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0 }}>
                 🤖 Ask the AI Agent
