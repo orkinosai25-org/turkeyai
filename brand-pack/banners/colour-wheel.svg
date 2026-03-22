@@ -1,0 +1,141 @@
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- TurkiyAI Holidays — Mediterranean Colour Wheel Reference -->
+  <!-- Showcases the full brand palette: Aegean, Turquoise, Terracotta, Bougainvillea, Pine, Sand -->
+
+  <defs>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#F8F9F7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E6D3B1;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="800" fill="#F8F9F7"/>
+
+  <!-- Title -->
+  <text x="400" y="44" font-family="Inter, sans-serif" font-size="22" font-weight="700"
+        fill="#1F1D1B" text-anchor="middle" letter-spacing="-0.3">TurkiyAI Holidays — Colour Wheel</text>
+  <text x="400" y="70" font-family="Inter, sans-serif" font-size="13" font-weight="400"
+        fill="#7A7267" text-anchor="middle" letter-spacing="0.2">Mediterranean · Bodrum · Aegean Palette</text>
+
+  <!-- ── Outer ring: primary + accent colours ── -->
+  <!-- Each segment is a 45° slice of the wheel centred at (400, 420) r=220 -->
+
+  <!-- 1. Aegean Blue  0°–45° -->
+  <path d="M400,420 L620,420 A220,220 0 0,1 555.6,575.6 Z" fill="#1F6FAF"/>
+  <!-- 2. Azure Turquoise  45°–90° -->
+  <path d="M400,420 L555.6,575.6 A220,220 0 0,1 400,640 Z" fill="#2FA4A9"/>
+  <!-- 3. Olive/Pine Green  90°–135° -->
+  <path d="M400,420 L400,640 A220,220 0 0,1 244.4,575.6 Z" fill="#6F7F4C"/>
+  <!-- 4. Sage Green  135°–180° -->
+  <path d="M400,420 L244.4,575.6 A220,220 0 0,1 180,420 Z" fill="#A8B7A0"/>
+  <!-- 5. Warm Sand  180°–225° -->
+  <path d="M400,420 L180,420 A220,220 0 0,1 244.4,264.4 Z" fill="#E6D3B1"/>
+  <!-- 6. Terracotta Clay  225°–270° -->
+  <path d="M400,420 L244.4,264.4 A220,220 0 0,1 400,200 Z" fill="#C56A3A"/>
+  <!-- 7. Bougainvillea Pink  270°–315° -->
+  <path d="M400,420 L400,200 A220,220 0 0,1 555.6,264.4 Z" fill="#C93A6A"/>
+  <!-- 8. Soft Coral  315°–360° -->
+  <path d="M400,420 L555.6,264.4 A220,220 0 0,1 620,420 Z" fill="#F2A38A"/>
+
+  <!-- ── Middle ring: lighter tints ── -->
+  <!-- 1 Aegean Blue tint -->
+  <path d="M400,420 L560,420 A160,160 0 0,1 513.1,533.1 Z" fill="#5D9CC9"/>
+  <!-- 2 Azure Turquoise tint -->
+  <path d="M400,420 L513.1,533.1 A160,160 0 0,1 400,580 Z" fill="#66C1C5"/>
+  <!-- 3 Olive tint -->
+  <path d="M400,420 L400,580 A160,160 0 0,1 286.9,533.1 Z" fill="#9BAA76"/>
+  <!-- 4 Sage tint -->
+  <path d="M400,420 L286.9,533.1 A160,160 0 0,1 240,420 Z" fill="#C4CFC0"/>
+  <!-- 5 Warm Sand tint -->
+  <path d="M400,420 L240,420 A160,160 0 0,1 286.9,306.9 Z" fill="#F0E9D6"/>
+  <!-- 6 Terracotta tint -->
+  <path d="M400,420 L286.9,306.9 A160,160 0 0,1 400,260 Z" fill="#D9956A"/>
+  <!-- 7 Bougainvillea tint -->
+  <path d="M400,420 L400,260 A160,160 0 0,1 513.1,306.9 Z" fill="#DB7295"/>
+  <!-- 8 Soft Coral tint -->
+  <path d="M400,420 L513.1,306.9 A160,160 0 0,1 560,420 Z" fill="#F7C4B0"/>
+
+  <!-- ── Inner circle: base tones ── -->
+  <circle cx="400" cy="420" r="100" fill="url(#centerGlow)"/>
+  <!-- mini swatches -->
+  <circle cx="400" cy="344" r="22" fill="#1F1D1B"/><!-- Warm Charcoal -->
+  <circle cx="456" cy="365" r="22" fill="#5C5550"/><!-- Slate 600 -->
+  <circle cx="478" cy="420" r="22" fill="#A39A8E"/><!-- Slate 400 -->
+  <circle cx="456" cy="475" r="22" fill="#D4CEC5"/><!-- Slate 300 -->
+  <circle cx="400" cy="496" r="22" fill="#F8F9F7"/><!-- Limestone White -->
+  <circle cx="344" cy="475" r="22" fill="#E8E4DF"/><!-- Slate 200 -->
+  <circle cx="322" cy="420" r="22" fill="#FFFFFF" stroke="#E8E4DF" stroke-width="1.5"/><!-- Pure White -->
+  <circle cx="344" cy="365" r="22" fill="#F5F1E8"/><!-- Soft Beige -->
+
+  <!-- ── Segment labels (outer) ── -->
+  <g font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="#F8F9F7" text-anchor="middle">
+    <text x="564" y="424" transform="rotate(0,564,424)">Aegean Blue</text>
+    <text x="510" y="588" transform="rotate(45,510,588)">Turquoise</text>
+    <text x="300" y="588" transform="rotate(-45,300,588)">Pine Green</text>
+    <text x="236" y="424" transform="rotate(0,236,424)">Sage Green</text>
+    <text x="290" y="260" transform="rotate(45,290,260)">Warm Sand</text>
+    <text x="400" y="196" transform="rotate(0,400,196)">Terracotta</text>
+    <text x="510" y="260" transform="rotate(-45,510,260)">Bougainvillea</text>
+    <text x="588" y="310" transform="rotate(0,588,310)">Soft Coral</text>
+  </g>
+
+  <!-- ── Hex codes legend ── -->
+  <g font-family="Inter, sans-serif" font-size="12">
+    <!-- Left column -->
+    <rect x="40" y="680" width="16" height="16" rx="3" fill="#1F6FAF"/>
+    <text x="62" y="693" fill="#1F1D1B" font-weight="600">Aegean Blue</text>
+    <text x="62" y="707" fill="#7A7267" font-size="10">#1F6FAF</text>
+
+    <rect x="40" y="718" width="16" height="16" rx="3" fill="#2FA4A9"/>
+    <text x="62" y="731" fill="#1F1D1B" font-weight="600">Azure Turquoise</text>
+    <text x="62" y="745" fill="#7A7267" font-size="10">#2FA4A9</text>
+
+    <rect x="40" y="756" width="16" height="16" rx="3" fill="#6F7F4C"/>
+    <text x="62" y="769" fill="#1F1D1B" font-weight="600">Pine / Olive Green</text>
+    <text x="62" y="783" fill="#7A7267" font-size="10">#6F7F4C</text>
+
+    <!-- Middle column -->
+    <rect x="230" y="680" width="16" height="16" rx="3" fill="#C56A3A"/>
+    <text x="252" y="693" fill="#1F1D1B" font-weight="600">Terracotta Clay</text>
+    <text x="252" y="707" fill="#7A7267" font-size="10">#C56A3A</text>
+
+    <rect x="230" y="718" width="16" height="16" rx="3" fill="#C93A6A"/>
+    <text x="252" y="731" fill="#1F1D1B" font-weight="600">Bougainvillea Pink</text>
+    <text x="252" y="745" fill="#7A7267" font-size="10">#C93A6A</text>
+
+    <rect x="230" y="756" width="16" height="16" rx="3" fill="#F2A38A"/>
+    <text x="252" y="769" fill="#1F1D1B" font-weight="600">Soft Coral / Sunset</text>
+    <text x="252" y="783" fill="#7A7267" font-size="10">#F2A38A</text>
+
+    <!-- Right column -->
+    <rect x="420" y="680" width="16" height="16" rx="3" fill="#E6D3B1"/>
+    <text x="442" y="693" fill="#1F1D1B" font-weight="600">Warm Sand</text>
+    <text x="442" y="707" fill="#7A7267" font-size="10">#E6D3B1</text>
+
+    <rect x="420" y="718" width="16" height="16" rx="3" fill="#A8B7A0"/>
+    <text x="442" y="731" fill="#1F1D1B" font-weight="600">Sage Green</text>
+    <text x="442" y="745" fill="#7A7267" font-size="10">#A8B7A0</text>
+
+    <rect x="420" y="756" width="16" height="16" rx="3" fill="#F4C430"/>
+    <text x="442" y="769" fill="#1F1D1B" font-weight="600">Orange Blossom</text>
+    <text x="442" y="783" fill="#7A7267" font-size="10">#F4C430</text>
+
+    <!-- Far-right column -->
+    <rect x="610" y="680" width="16" height="16" rx="3" fill="#1F1D1B"/>
+    <text x="632" y="693" fill="#1F1D1B" font-weight="600">Warm Charcoal</text>
+    <text x="632" y="707" fill="#7A7267" font-size="10">#1F1D1B</text>
+
+    <rect x="610" y="718" width="16" height="16" rx="3" fill="#5C5550"/>
+    <text x="632" y="731" fill="#1F1D1B" font-weight="600">Slate Text</text>
+    <text x="632" y="745" fill="#7A7267" font-size="10">#5C5550</text>
+
+    <rect x="610" y="756" width="16" height="16" rx="3" fill="#F8F9F7" stroke="#D4CEC5" stroke-width="1"/>
+    <text x="632" y="769" fill="#1F1D1B" font-weight="600">Limestone White</text>
+    <text x="632" y="783" fill="#7A7267" font-size="10">#F8F9F7</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="400" y="795" font-family="Inter, sans-serif" font-size="10" fill="#A39A8E"
+        text-anchor="middle">TurkiyAI Holidays · AI Knows Turkey Better · Powered by OrkinosAI</text>
+</svg>

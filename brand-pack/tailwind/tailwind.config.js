@@ -1,10 +1,10 @@
 /**
- * TürkiyeAI - Tailwind CSS Configuration
+ * TurkiyAI Holidays - Tailwind CSS Configuration
  * 
  * Mediterranean-inspired design system for AI-powered Turkish travel platform
  * Powered by OrkinosAI
  * 
- * This configuration extends Tailwind with TürkiyeAI brand tokens.
+ * This configuration extends Tailwind with TurkiyAI Holidays brand tokens.
  * Usage: Import this config in your tailwind.config.js
  */
 

@@ -1,4 +1,4 @@
-# TürkiyeAI Brand Guidelines
+# TurkiyAI Holidays Brand Guidelines
 
 **Version 1.0 | January 2024**  
 **Powered by OrkinosAI**
@@ -24,13 +24,13 @@
 
 ## 🎯 Brand Overview
 
-**Brand Name:** TürkiyeAI  
+**Brand Name:** TurkiyAI Holidays  
 **Domain:** turkiyeai.travel  
-**Tagline:** Your AI Travel Expert for Türkiye  
+**Tagline:** AI Knows Turkey Better  
 **Endorsement:** Powered by OrkinosAI
 
 ### What We Are
-TürkiyeAI is an AI-powered Turkish travel discovery and planning platform. We provide intelligent, personalized travel recommendations for destinations across Türkiye, focusing on the Mediterranean coast and iconic locations like Bodrum, Antalya, Cappadocia, Fethiye, and Marmaris.
+TurkiyAI Holidays is an AI-powered Turkish travel discovery and planning platform. We provide intelligent, personalized travel recommendations for destinations across Türkiye, focusing on the Mediterranean coast and iconic locations like Bodrum, Antalya, Cappadocia, Fethiye, and Marmaris.
 
 ### What We Are NOT
 - ❌ Not a tour operator or travel agency
@@ -62,7 +62,7 @@ TürkiyeAI is an AI-powered Turkish travel discovery and planning platform. We p
 - **Speed:** Rapid movement through water
 - **Navigation:** Natural wayfinding abilities across vast oceans
 
-Just as the tuna navigates the azure Aegean waves, TürkiyeAI helps travelers intelligently navigate their journey through Türkiye.
+Just as the tuna navigates the azure Aegean waves, TurkiyAI Holidays helps travelers intelligently navigate their journey through Türkiye.
 
 ### Azure Inspiration
 
@@ -547,7 +547,7 @@ Color: Warm Slate 500
 **Subheadline:** "AI-powered recommendations for destinations, experiences, and itineraries across Türkiye."
 
 #### Option 3: Problem-Solution
-**Headline:** "Your AI Travel Expert for Türkiye"  
+**Headline:** "AI Knows Turkey Better"  
 **Subheadline:** "Get personalized recommendations, instant answers, and intelligent planning help for your Turkish adventure."
 
 ### Value Propositions
@@ -650,5 +650,5 @@ OrkinosAI Ltd
 **Last Updated:** January 2024  
 **Maintained by:** OrkinosAI Brand Team
 
-*TürkiyeAI – Your AI Travel Expert for Türkiye*  
+*TurkiyAI Holidays – AI Knows Turkey Better*  
 *Powered by OrkinosAI*

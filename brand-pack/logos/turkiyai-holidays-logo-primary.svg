@@ -1,0 +1,53 @@
+<svg viewBox="0 0 480 140" xmlns="http://www.w3.org/2000/svg">
+  <!-- TurkiyAI Holidays — Primary Logo (Aegean Mosaic) -->
+  <!-- Mark: mosaic compass + wave; Wordmark: TurkiyAI Holidays; Slogan: AI Knows Turkey Better -->
+
+  <defs>
+    <linearGradient id="markGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2FA4A9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- ── Mark: Mosaic Compass ── -->
+  <g id="mark" transform="translate(10, 10)">
+    <!-- Outer compass diamond -->
+    <polygon points="60,8 88,36 60,64 32,36" fill="#1F6FAF" opacity="0.18"/>
+    <!-- Mosaic tiles -->
+    <rect x="48" y="8"  width="24" height="24" rx="4" fill="#1F6FAF"/>
+    <rect x="74" y="24" width="22" height="22" rx="4" fill="#2FA4A9"/>
+    <rect x="48" y="48" width="24" height="24" rx="4" fill="#2FA4A9" opacity="0.85"/>
+    <rect x="22" y="24" width="22" height="22" rx="4" fill="#1F6FAF" opacity="0.85"/>
+    <!-- Diagonal accent tiles -->
+    <rect x="74" y="8"  width="14" height="14" rx="3" fill="#C93A6A" opacity="0.75"/>
+    <rect x="28" y="50" width="14" height="14" rx="3" fill="#C56A3A" opacity="0.75"/>
+    <!-- Centre gem -->
+    <rect x="50" y="26" width="20" height="20" rx="4" fill="#F8F9F7"/>
+    <circle cx="60" cy="36" r="7" fill="#2FA4A9"/>
+    <!-- Wave below mark -->
+    <path d="M 22 82 Q 35 75, 48 82 T 74 82 T 100 82"
+          stroke="url(#markGrad)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M 22 90 Q 35 83, 48 90 T 74 90 T 100 90"
+          stroke="#2FA4A9" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <!-- ── Wordmark ── -->
+  <g id="wordmark" transform="translate(130, 22)">
+    <text font-family="Inter, sans-serif" font-size="44" font-weight="700"
+          fill="#1F1D1B" letter-spacing="-1">
+      Turkiy<tspan fill="#2FA4A9">AI</tspan>
+    </text>
+    <text y="42" font-family="Inter, sans-serif" font-size="18" font-weight="600"
+          fill="#C56A3A" letter-spacing="4">HOLIDAYS</text>
+  </g>
+
+  <!-- ── Slogan ── -->
+  <text x="130" y="108" font-family="Inter, sans-serif" font-size="13" font-weight="400"
+        fill="#7A7267" letter-spacing="0.5">AI Knows Turkey Better</text>
+
+  <!-- ── Endorsement ── -->
+  <text x="130" y="128" font-family="Inter, sans-serif" font-size="10" font-weight="500"
+        fill="#A39A8E" letter-spacing="0.3">
+    POWERED BY <tspan fill="#1F6FAF">ORKINOSAI</tspan>
+  </text>
+</svg>

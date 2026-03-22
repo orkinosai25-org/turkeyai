@@ -1,0 +1,133 @@
+<svg viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- TurkiyAI Holidays — Mosaic-Theme Logo Banner (1200x400) -->
+  <!-- Inspired by Byzantine & Aegean mosaics, Bodrum whites, terracotta, bougainvillea -->
+
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1F6FAF;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#2FA4A9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C56A3A;stop-opacity:0.85" />
+    </linearGradient>
+    <linearGradient id="shimmer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F8F9F7;stop-opacity:0.08" />
+      <stop offset="50%" style="stop-color:#F8F9F7;stop-opacity:0.02" />
+      <stop offset="100%" style="stop-color:#F8F9F7;stop-opacity:0.08" />
+    </linearGradient>
+    <pattern id="mosaicTile" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <!-- 2×2 mosaic grid -->
+      <rect x="1"  y="1"  width="12" height="12" rx="2" fill="#F8F9F7" opacity="0.06"/>
+      <rect x="15" y="1"  width="12" height="12" rx="2" fill="#F8F9F7" opacity="0.04"/>
+      <rect x="1"  y="15" width="12" height="12" rx="2" fill="#F8F9F7" opacity="0.04"/>
+      <rect x="15" y="15" width="12" height="12" rx="2" fill="#F8F9F7" opacity="0.06"/>
+    </pattern>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="1200" height="400" fill="url(#bgGrad)"/>
+  <rect width="1200" height="400" fill="url(#mosaicTile)"/>
+  <rect width="1200" height="400" fill="url(#shimmer)"/>
+
+  <!-- ── Decorative mosaic accent strip — left edge ── -->
+  <g opacity="0.85">
+    <!-- Column of mosaic tiles, terracotta + coral accents -->
+    <rect x="0"  y="0"   width="60" height="60" fill="#C56A3A" opacity="0.55"/>
+    <rect x="0"  y="62"  width="60" height="60" fill="#2FA4A9" opacity="0.45"/>
+    <rect x="0"  y="124" width="60" height="60" fill="#C93A6A" opacity="0.50"/>
+    <rect x="0"  y="186" width="60" height="60" fill="#1F6FAF" opacity="0.55"/>
+    <rect x="0"  y="248" width="60" height="60" fill="#F2A38A" opacity="0.45"/>
+    <rect x="0"  y="310" width="60" height="60" fill="#6F7F4C" opacity="0.50"/>
+    <rect x="0"  y="372" width="60" height="28" fill="#C56A3A" opacity="0.55"/>
+
+    <!-- Second sub-column -->
+    <rect x="32" y="0"   width="28" height="28" fill="#F8F9F7" opacity="0.12"/>
+    <rect x="32" y="32"  width="28" height="28" fill="#C93A6A" opacity="0.30"/>
+    <rect x="32" y="93"  width="28" height="28" fill="#F8F9F7" opacity="0.12"/>
+    <rect x="32" y="155" width="28" height="28" fill="#2FA4A9" opacity="0.30"/>
+    <rect x="32" y="217" width="28" height="28" fill="#F8F9F7" opacity="0.12"/>
+    <rect x="32" y="279" width="28" height="28" fill="#C56A3A" opacity="0.30"/>
+    <rect x="32" y="341" width="28" height="28" fill="#F8F9F7" opacity="0.12"/>
+  </g>
+
+  <!-- ── Decorative mosaic accent strip — right edge ── -->
+  <g opacity="0.85">
+    <rect x="1140" y="0"   width="60" height="60" fill="#2FA4A9" opacity="0.55"/>
+    <rect x="1140" y="62"  width="60" height="60" fill="#C56A3A" opacity="0.45"/>
+    <rect x="1140" y="124" width="60" height="60" fill="#1F6FAF" opacity="0.50"/>
+    <rect x="1140" y="186" width="60" height="60" fill="#C93A6A" opacity="0.55"/>
+    <rect x="1140" y="248" width="60" height="60" fill="#6F7F4C" opacity="0.45"/>
+    <rect x="1140" y="310" width="60" height="60" fill="#F2A38A" opacity="0.50"/>
+    <rect x="1140" y="372" width="60" height="28" fill="#2FA4A9" opacity="0.55"/>
+  </g>
+
+  <!-- ── Mosaic mark / compass rose (centre-left) ── -->
+  <g transform="translate(130, 200)">
+    <!-- Outer ring of mosaic tiles forming a compass -->
+    <polygon points="0,-52 14,-14 52,0 14,14 0,52 -14,14 -52,0 -14,-14" fill="#F8F9F7" opacity="0.15"/>
+    <!-- Cardinal tiles -->
+    <rect x="-10" y="-52" width="20" height="20" rx="4" fill="#F8F9F7" opacity="0.7"/>
+    <rect x="32"  y="-10" width="20" height="20" rx="4" fill="#F2A38A" opacity="0.9"/>
+    <rect x="-10" y="32"  width="20" height="20" rx="4" fill="#F8F9F7" opacity="0.7"/>
+    <rect x="-52" y="-10" width="20" height="20" rx="4" fill="#C93A6A" opacity="0.9"/>
+    <!-- Diagonal tiles -->
+    <rect x="20"  y="-40" width="16" height="16" rx="3" fill="#2FA4A9" opacity="0.8"/>
+    <rect x="20"  y="24"  width="16" height="16" rx="3" fill="#C56A3A" opacity="0.8"/>
+    <rect x="-36" y="24"  width="16" height="16" rx="3" fill="#2FA4A9" opacity="0.8"/>
+    <rect x="-36" y="-40" width="16" height="16" rx="3" fill="#C56A3A" opacity="0.8"/>
+    <!-- Centre tile -->
+    <rect x="-12" y="-12" width="24" height="24" rx="5" fill="#F8F9F7" opacity="0.95"/>
+    <circle cx="0" cy="0" r="7" fill="#2FA4A9"/>
+  </g>
+
+  <!-- ── Bougainvillea flower cluster (top-right) ── -->
+  <g transform="translate(1040, 60)" opacity="0.55">
+    <circle cx="0"   cy="0"   r="18" fill="#C93A6A"/>
+    <circle cx="24"  cy="-10" r="15" fill="#E89BA5"/>
+    <circle cx="14"  cy="20"  r="13" fill="#F2A38A"/>
+    <circle cx="-20" cy="12"  r="12" fill="#C93A6A"/>
+    <circle cx="-14" cy="-18" r="10" fill="#E89BA5"/>
+    <!-- Leaves -->
+    <ellipse cx="35"  cy="18"  rx="10" ry="6"  fill="#6F7F4C" transform="rotate(-30,35,18)"/>
+    <ellipse cx="-30" cy="25"  rx="9"  ry="5"  fill="#6F7F4C" transform="rotate(20,-30,25)"/>
+  </g>
+
+  <!-- ── Pine silhouette (bottom-right) ── -->
+  <g transform="translate(1080, 330)" opacity="0.35">
+    <polygon points="0,-80 18,0 -18,0"  fill="#6F7F4C"/>
+    <polygon points="0,-60 22,10 -22,10" fill="#6F7F4C"/>
+    <rect x="-5" y="10" width="10" height="18" fill="#C56A3A"/>
+  </g>
+
+  <!-- ── Wave (sea) at bottom ── -->
+  <path d="M 80 360 Q 200 340, 320 360 T 560 360 T 800 360 T 1040 360 T 1200 360 L 1200 400 L 80 400 Z"
+        fill="#F8F9F7" opacity="0.10"/>
+  <path d="M 80 375 Q 200 358, 320 375 T 560 375 T 800 375 T 1040 375 T 1200 375 L 1200 400 L 80 400 Z"
+        fill="#F8F9F7" opacity="0.08"/>
+
+  <!-- ── Main wordmark ── -->
+  <g transform="translate(220, 155)">
+    <text font-family="Inter, sans-serif" font-size="86" font-weight="800"
+          fill="#F8F9F7" letter-spacing="-2">
+      Turkiy<tspan fill="#F2A38A">AI</tspan>
+    </text>
+    <text y="72" font-family="Inter, sans-serif" font-size="38" font-weight="600"
+          fill="#F8F9F7" letter-spacing="6" opacity="0.95">HOLIDAYS</text>
+  </g>
+
+  <!-- ── Slogan ── -->
+  <text x="220" y="296" font-family="Inter, sans-serif" font-size="22" font-weight="400"
+        fill="#F8F9F7" letter-spacing="1.5" opacity="0.90">
+    " AI Knows Turkey Better "
+  </text>
+
+  <!-- ── Destination tags ── -->
+  <g transform="translate(220, 330)" font-family="Inter, sans-serif" font-size="14"
+     font-weight="500" fill="#F8F9F7" opacity="0.75">
+    <text>Bodrum · Antalya · Cappadocia · Fethiye · Marmaris · Pamukkale</text>
+  </g>
+
+  <!-- ── Footer ── -->
+  <text x="220" y="382" font-family="Inter, sans-serif" font-size="12" font-weight="500"
+        fill="#F8F9F7" opacity="0.65" letter-spacing="0.5">
+    Powered by OrkinosAI
+  </text>
+</svg>

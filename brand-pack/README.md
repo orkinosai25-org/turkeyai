@@ -1,15 +1,16 @@
-# 🎨 TürkiyeAI Brand Pack
+# 🎨 TurkiyAI Holidays Brand Pack
 
-**Version 1.0 | January 2024**  
+**Version 2.0 | March 2024**  
 **Powered by OrkinosAI**
 
-Complete brand identity system for TürkiyeAI, the AI-powered Turkish travel platform.
+Complete brand identity system for **TurkiyAI Holidays**, the AI-powered Turkish travel platform.  
+**Slogan:** *"AI Knows Turkey Better"*
 
 ---
 
 ## 📦 What's Included
 
-This brand pack contains everything you need to implement the TürkiyeAI brand across digital and print media:
+This brand pack contains everything you need to implement the TurkiyAI Holidays brand across digital and print media:
 
 ### 📁 Directory Structure
 
@@ -26,16 +27,19 @@ brand-pack/
 │   └── tailwind.config.js             # Tailwind CSS configuration
 │
 ├── logos/
-│   ├── turkiyeai-logo-primary.svg     # Primary logo (full wordmark + mark)
-│   ├── turkiyeai-logo-mono.svg        # Monochrome version
-│   ├── turkiyeai-mark.svg             # Icon/mark only
+│   ├── turkiyai-holidays-logo-primary.svg  # ★ NEW primary logo (TurkiyAI Holidays)
+│   ├── turkiyeai-logo-primary.svg          # Legacy primary logo (updated wordmark)
+│   ├── turkiyeai-logo-mono.svg             # Monochrome version
+│   ├── turkiyeai-mark.svg                  # Icon/mark only
 │   ├── turkiyeai-logo-concept-2-bougainvillea.svg
 │   ├── turkiyeai-logo-concept-3-olive-wave.svg
 │   ├── turkiyeai-logo-concept-4-ancient-seal.svg
 │   ├── turkiyeai-logo-concept-5-horizon-spark.svg
-│   └── powered-by-orkinosai-lockup.svg # Endorsement lockup
+│   └── powered-by-orkinosai-lockup.svg     # Endorsement lockup
 │
 ├── banners/
+│   ├── mosaic-logo-banner.svg         # ★ NEW mosaic-themed banner (1200x400)
+│   ├── colour-wheel.svg               # ★ NEW Mediterranean colour wheel reference (800x800)
 │   ├── hero-banner-landing.svg        # Website hero (1200x600)
 │   ├── linkedin-banner.svg            # LinkedIn cover (1200x627)
 │   └── x-banner.svg                   # X/Twitter cover (1500x500)
@@ -462,10 +466,10 @@ brand@turkiyeai.travel
 
 © 2024 OrkinosAI Ltd. All rights reserved.
 
-**TürkiyeAI brand assets** are proprietary to OrkinosAI Ltd and are provided for use in connection with the TürkiyeAI platform only.
+**TurkiyAI Holidays brand assets** are proprietary to OrkinosAI Ltd and are provided for use in connection with the TurkiyAI Holidays platform only.
 
 **Permitted Use:**
-- ✅ TürkiyeAI website and applications
+- ✅ TurkiyAI Holidays website and applications
 - ✅ Official marketing materials
 - ✅ Partner integrations (with approval)
 - ✅ Press and media coverage
@@ -480,5 +484,5 @@ For licensing inquiries: legal@orkinosai.com
 
 ---
 
-**TürkiyeAI** – Your AI Travel Expert for Türkiye  
+**TurkiyAI Holidays** – AI Knows Turkey Better  
 **Powered by OrkinosAI** 🌊

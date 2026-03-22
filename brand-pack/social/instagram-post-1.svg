@@ -44,7 +44,7 @@
     
     <!-- Tags/Keywords -->
     <text x="0" y="100" font-family="Inter, sans-serif" font-size="20" font-weight="500" fill="#2FA4A9">
-      #TürkiyeAI #Bodrum #TravelTurkey #AITravel
+      #TurkiyAIHolidays #Bodrum #TravelTurkey #AITravel
     </text>
   </g>
   
@@ -59,12 +59,12 @@
     
     <!-- Brand text -->
     <text x="65" y="32" font-family="Inter, sans-serif" font-size="36" font-weight="700" fill="#F8F9F7" letter-spacing="-0.5">
-      TürkiyeAI
+      TurkiyAI Holidays
     </text>
     
     <!-- Tagline -->
     <text x="260" y="32" font-family="Inter, sans-serif" font-size="18" font-weight="400" fill="#F8F9F7" opacity="0.9">
-      Your AI Travel Expert
+      AI Knows Turkey Better
     </text>
   </g>
   
