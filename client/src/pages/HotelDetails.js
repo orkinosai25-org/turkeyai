@@ -185,8 +185,12 @@ function HotelChatWidget({ hotel }) {
         conversationHistory: history,
       });
       setMessages(prev => [...prev, { role: 'ai', content: res.data.response }]);
-    } catch (_err) {
-      setMessages(prev => [...prev, { role: 'ai', content: "Sorry, I couldn't reach the AI agent right now. Please try again." }]);
+    } catch (err) {
+      const isServiceUnavailable = err.response?.status === 503;
+      const errMsg = isServiceUnavailable
+        ? "The AI assistant is currently unavailable. Please try again later."
+        : "Sorry, I couldn't reach the AI agent right now. Please try again.";
+      setMessages(prev => [...prev, { role: 'ai', content: errMsg }]);
     } finally {
       setLoading(false);
     }

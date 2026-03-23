@@ -118,8 +118,11 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error('Chat API Error:', error);
-    res.status(500).json({ 
-      error: 'Failed to process chat message',
+    const isConfigError = error.message && error.message.includes('Azure OpenAI credentials not configured');
+    res.status(isConfigError ? 503 : 500).json({ 
+      error: isConfigError
+        ? 'AI service is not available. Please configure Azure OpenAI credentials.'
+        : 'Failed to process chat message',
       details: error.message 
     });
   }
