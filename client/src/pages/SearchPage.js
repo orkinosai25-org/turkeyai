@@ -27,6 +27,22 @@ function isoDate(daysFromNow = 0) {
   return d.toISOString().split('T')[0];
 }
 
+// Pre-built word-boundary regexes for each destination to avoid repeated computation
+const DESTINATION_PATTERNS = DESTINATIONS.reduce((map, dest) => {
+  map[dest] = new RegExp(`\\b${dest}\\b`, 'i');
+  return map;
+}, {});
+
+/**
+ * Detect a known Turkish destination mentioned in a free-text query.
+ * Uses word-boundary matching to avoid false positives (e.g. a query
+ * containing "Istanbul" should not match a hypothetical destination "Stan").
+ * Returns the matching destination name or an empty string if none found.
+ */
+function detectDestinationFromText(text) {
+  return DESTINATIONS.find(d => DESTINATION_PATTERNS[d].test(text)) || '';
+}
+
 const QUICK_SEARCHES = [
   { label: 'Beach resorts Bodrum', icon: '🏖️' },
   { label: 'Luxury spa Antalya', icon: '💆' },
@@ -369,14 +385,19 @@ function SearchPage() {
 
   function handleSearch(e) {
     e.preventDefault();
-    const destCode = destination ? HOTELBEDS_DEST_CODES[destination] : null;
+    // If no destination selected from dropdown, try to detect it from the query text
+    const resolvedDest = destination || detectDestinationFromText(query);
+    const destCode = resolvedDest ? HOTELBEDS_DEST_CODES[resolvedDest] : null;
     const hotelParams = destCode ? { destCode, checkIn, checkOut, adults, children, rooms } : null;
-    runSearch(query, category, destination, hotelParams);
+    runSearch(query, category, resolvedDest, hotelParams);
   }
 
   function handleQuickSearch(label) {
     setQuery(label);
-    runSearch(label, 'All', '', null);
+    const resolvedDest = detectDestinationFromText(label);
+    const destCode = resolvedDest ? HOTELBEDS_DEST_CODES[resolvedDest] : null;
+    const hotelParams = destCode ? { destCode, checkIn, checkOut, adults, children, rooms } : null;
+    runSearch(label, 'All', resolvedDest, hotelParams);
   }
 
   return (
