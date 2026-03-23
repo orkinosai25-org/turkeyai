@@ -55,6 +55,7 @@ app.use('/api/resorts', require('./routes/resorts'));
 app.use('/api/resorts', require('./routes/proximity'));
 app.use('/api/services', require('./routes/services'));
 app.use('/api/knowledge', require('./routes/knowledge'));
+app.use('/api/hotels', require('./routes/hotels'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
