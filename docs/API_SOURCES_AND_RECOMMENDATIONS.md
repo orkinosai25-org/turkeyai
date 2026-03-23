@@ -7,16 +7,151 @@
 
 ## Table of Contents
 
-1. [Current API Integrations in the Codebase](#1-current-api-integrations-in-the-codebase)
-2. [Integration Locations & Data Provided](#2-integration-locations--data-provided)
-3. [Reference Implementation: LAR System (OrkinosAI)](#3-reference-implementation-lar-system-orkinosai)
-4. [Recommended APIs for UK Turkish Holiday SaaS](#4-recommended-apis-for-uk-turkish-holiday-saas)
-5. [UK Compliance & Regulatory Considerations](#5-uk-compliance--regulatory-considerations)
-6. [Integration Roadmap Suggestions](#6-integration-roadmap-suggestions)
+1. [How to Make Money with TürkiyeAI (Affiliate-First Strategy)](#1-how-to-make-money-with-türkiyeai-affiliate-first-strategy)
+2. [Current API Integrations in the Codebase](#2-current-api-integrations-in-the-codebase)
+3. [Integration Locations & Data Provided](#3-integration-locations--data-provided)
+4. [Reference Implementation: LAR System (OrkinosAI)](#4-reference-implementation-lar-system-orkinosai)
+5. [Recommended APIs for UK Turkish Holiday SaaS](#5-recommended-apis-for-uk-turkish-holiday-saas)
+6. [UK Compliance & Regulatory Considerations](#6-uk-compliance--regulatory-considerations)
+7. [Integration Roadmap Suggestions](#7-integration-roadmap-suggestions)
 
 ---
 
-## 1. Current API Integrations in the Codebase
+## 1. How to Make Money with TürkiyeAI (Affiliate-First Strategy)
+
+> **Bottom line:** The fastest, cheapest, and lowest-risk way to earn revenue is the **affiliate/referral model**. You recommend travel products, users click your link and book on a licensed operator's site, and you earn a commission. **No ATOL licence. No B2B contract. No upfront cost. Start today.**
+
+---
+
+### 1.1 How It Works (The Business Model)
+
+```
+User asks TürkiyeAI AI chatbot:
+  "Find me a 5-star hotel in Bodrum for 2 adults, 7 nights in August"
+
+TürkiyeAI recommends hotels → Shows prices → Provides affiliate booking link
+  ↓
+User clicks → lands on Booking.com / Jet2 / TUI (the ATOL-licensed provider)
+  ↓
+User books and pays on their site (NOT yours)
+  ↓
+You earn commission (typically paid 30–90 days after check-in)
+```
+
+**Why this is the right model to start with:**
+- ✅ **No ATOL licence** – You are not selling the holiday, you are referring the customer. The ATOL-licensed operator takes all regulatory responsibility.
+- ✅ **No Package Travel Regulations obligations** – You don't bundle flight + hotel in a single transaction.
+- ✅ **No financial risk** – You never hold customer money or manage cancellations.
+- ✅ **Free to join** – All programmes below are free to sign up to.
+- ✅ **Instant start** – Most affiliate programmes approve within 24–48 hours.
+- ✅ **Scales with AI** – Your AI chatbot can recommend and link to hundreds of products simultaneously, 24/7.
+
+---
+
+### 1.2 Best Affiliate Programmes to Join Right Now
+
+Ranked by **ease of joining + earning potential** for a UK Turkish holiday platform:
+
+#### 🥇 Tier 1 — Join These First (Highest Earning + Easiest)
+
+| Programme | Product | Commission | Avg Booking Value | Est. Earning/Booking | Join Via |
+|---|---|---|---|---|---|
+| **Jet2holidays** | All-inclusive Turkish packages | ~2–3% | £2,000–6,000 (family) | **£40–180** | [Awin](https://www.awin.com) |
+| **TUI UK** | Turkish all-inclusive & hotels | ~2–3% | £1,800–5,000 | **£36–150** | [Awin](https://www.awin.com) |
+| **On the Beach** | Turkey beach holidays | ~2–3% | £1,200–4,000 | **£24–120** | [Awin](https://www.awin.com) |
+| **Love Holidays** | Turkey (very popular brand) | ~2–3% | £1,000–3,500 | **£20–105** | [Awin](https://www.awin.com) |
+| **Booking.com** | Hotels everywhere in Turkey | 4–6% of their commission (≈ 25% of Booking.com's commission, ~£8–30/booking) | £300–600/stay | **£8–30** | [Booking.com Partner](https://www.booking.com/affiliate-program.html) |
+| **Viator / TripAdvisor** | Turkish tours & excursions | **8%** | £50–200 per activity | **£4–16** | [Viator Affiliate](https://partnerresources.viator.com) |
+| **GetYourGuide** | Turkish tours & activities | **8%** | £40–180 per activity | **£3–14** | [GYG Affiliate](https://partner.getyourguide.com) |
+| **Rentalcars.com** | Car hire at Turkish airports | **6%** | £150–400/week | **£9–24** | [Rentalcars Affiliate](https://www.rentalcars.com/affiliates) |
+
+> **How the earnings are calculated:** Est. earning = avg booking value × commission rate. Package operators (Jet2/TUI/OTB/Love Holidays) all pay ~2–3% but have different typical booking values — a family of 4 with Jet2 (all-inclusive 10 nights) easily reaches £4,000–6,000, while a couple booking last-minute via Love Holidays may spend £1,000–2,000. The upper and lower bounds reflect this booking-value range, not different commission rates.
+
+> **Key insight:** A single Jet2holidays booking earns you more than 5 individual hotel bookings via Booking.com. Prioritise package operators.
+
+#### 🥈 Tier 2 — Add Once Tier 1 is Running
+
+| Programme | Product | Commission | Notes |
+|---|---|---|---|
+| **Skyscanner** | Flights to Turkey | CPC (£0.30–1.50 per click) or CPA | Lower per-booking but high volume; useful for flight inspiration feature |
+| **easyJet Holidays** | Turkey beach packages | ~2% | Good secondary option |
+| **lastminute.com** | Turkey hotels & packages | ~4–5% | Strong last-minute market |
+| **Hotels.com** | Hotels in Turkey | ~4–5% of net booking | Part of Expedia group; easy sign-up via CJ Affiliate |
+| **Expedia Affiliate Network** | Hotels, packages, cars | ~4–6% | Covers all verticals in one programme |
+| **Hoppa / HolidayTaxis** | Airport transfers Turkey | ~8–10% | Short booking, quick commission |
+
+---
+
+### 1.3 Revenue Model — What You Can Realistically Earn
+
+#### Conservative Scenario (Early Stage: 500 sessions/month → 50 bookings)
+
+| Vertical | Bookings/month | Avg Commission | Monthly Earnings |
+|---|---|---|---|
+| Package holidays (Jet2/TUI) | 10 | £80 | **£800** |
+| Hotels (Booking.com) | 20 | £15 *(midpoint of £8–30 range)* | **£300** |
+| Excursions (Viator/GYG) | 15 | £8 | **£120** |
+| Car hire (Rentalcars.com) | 5 | £15 | **£75** |
+| **Total** | **50** | | **~£1,295/month** |
+
+#### Growth Scenario (5,000 sessions/month → 300 bookings)
+
+| Vertical | Bookings/month | Avg Commission | Monthly Earnings |
+|---|---|---|---|
+| Package holidays | 60 | £80 | **£4,800** |
+| Hotels | 150 | £15 *(midpoint of £8–30 range)* | **£2,250** |
+| Excursions | 60 | £8 | **£480** |
+| Car hire | 30 | £15 | **£450** |
+| **Total** | **300** | | **~£7,980/month** |
+
+> **Typical affiliate cookie window:** 30–90 days. A user who clicks your link and books weeks later still earns you commission.
+
+---
+
+### 1.4 How to Implement Affiliate Links in TürkiyeAI
+
+**Step 1: Join the Awin Network**
+- Register at [awin.com](https://www.awin.com) (free; ~£5 deposit refunded on first payment)
+- Apply to: Jet2holidays, TUI, On the Beach, Love Holidays, easyJet Holidays from a single dashboard
+
+**Step 2: Join Booking.com Partner Programme**
+- Register at [booking.com/affiliate-program](https://www.booking.com/affiliate-program.html)
+- Get your unique affiliate tracking ID
+- Use the Booking.com deep-link builder to create property-specific URLs
+
+**Step 3: Join Viator & GetYourGuide Affiliate**
+- Viator: [partnerresources.viator.com](https://partnerresources.viator.com)
+- GetYourGuide: [partner.getyourguide.com](https://partner.getyourguide.com)
+- Both provide a product search API you can use to generate dynamic affiliate links
+
+**Step 4: Inject affiliate links into AI responses**
+When the TürkiyeAI AI recommends a hotel, package, or activity, append your affiliate tracking parameter to the booking URL:
+```
+https://www.jet2holidays.com/...?awinaffid=YOUR_ID
+https://www.booking.com/hotel/tr/...?aid=YOUR_BOOKING_AID
+https://www.viator.com/...?mcid=YOUR_VIATOR_ID
+```
+
+**Step 5: Track performance**
+- Use Awin, Booking.com, and Viator dashboards to see clicks, conversions, and earnings
+- The AI can be tuned to recommend higher-converting products once data accumulates
+
+---
+
+### 1.5 Future Upsells (When You're Ready to Invest More)
+
+Once affiliate income is stable, these can increase margins significantly:
+
+| Upgrade | What it adds | When to consider |
+|---|---|---|
+| **Hotelbeds B2B contract** | Direct wholesale rates (15–25%+ margin vs 4–6% affiliate) | When doing 50+ hotel bookings/month |
+| **RateHawk white-label** | Your own branded hotel booking engine | When you want full control of the checkout |
+| **Carnect live car hire** | Direct rates; higher margin than Rentalcars.com affiliate | Already in codebase; when ready |
+| **Viator affiliate → API** | Embedded booking without leaving your site | When excursion volume justifies API access |
+
+---
+
+## 2. Current API Integrations in the Codebase
 
 The following external APIs and GDS (Global Distribution System) suppliers are referenced in the TürkiyeAI codebase. At this stage, integrations are documented as **planned/contracted** rather than live HTTP connections – the platform uses static catalog data backed by these named suppliers.
 
@@ -40,9 +175,9 @@ The following external APIs and GDS (Global Distribution System) suppliers are r
 
 ---
 
-## 2. Integration Locations & Data Provided
+## 3. Integration Locations & Data Provided
 
-### 2.1 Hotels & Resorts
+### 3.1 Hotels & Resorts
 
 **Files:**
 - `server/routes/services.js` – Service overview endpoint lists hotels vertical with `supplier_note: 'Hotel availability via TBO, PROVAB contracted supplier APIs.'`
@@ -56,7 +191,7 @@ Resort name, slug, description, star rating, address, geo-coordinates, phone, em
 
 ---
 
-### 2.2 Car Hire
+### 3.2 Car Hire
 
 **Files:**
 - `server/routes/services.js` – Car hire route with Carnect GDS note (`gds_supplier: 'Carnect'`)
@@ -70,7 +205,7 @@ Vehicle category, example model, seat count, door count, transmission, A/C, lugg
 
 ---
 
-### 2.3 Flights
+### 3.3 Flights
 
 **Files:**
 - `server/routes/services.js` – Flights route with `gds_supplier: 'Amadeus'` and a list of popular UK–Turkey routes
@@ -83,7 +218,7 @@ Airport codes, popular UK departure routes, approximate flight times, key airlin
 
 ---
 
-### 2.4 Transfers
+### 3.4 Transfers
 
 **Files:**
 - `server/routes/services.js` – Transfers route
@@ -96,7 +231,7 @@ Transfer type, vehicle, capacity, base price (EUR), distance (km), calculated pr
 
 ---
 
-### 2.5 Cruises, Private Aviation & Yachts
+### 3.5 Cruises, Private Aviation & Yachts
 
 **Files:**
 - `server/routes/services.js` – Dedicated routes for each vertical
@@ -109,12 +244,12 @@ Cruise itineraries with ports of call, duration, board basis, indicative prices 
 
 ---
 
-## 3. Reference Implementation: LAR System (OrkinosAI)
+## 4. Reference Implementation: LAR System (OrkinosAI)
 
 > **Source repository:** [orkinosai25-org/lar_system](https://github.com/orkinosai25-org/lar_system)  
 > OrkinosAI has developed and audited the **Luxury Africa Resorts (LAR)** platform – a production-grade, multi-vertical travel booking system running on PHP / CodeIgniter with the same core supplier APIs as TürkiyeAI. The LAR system provides a validated, real-world blueprint for integrating these APIs at scale.
 
-### 3.1 LAR System Overview
+### 4.1 LAR System Overview
 
 LAR is a B2C + B2B luxury travel platform covering:
 
@@ -127,7 +262,7 @@ LAR is a B2C + B2B luxury travel platform covering:
 
 ---
 
-### 3.2 Confirmed Supplier API Integrations in LAR
+### 4.2 Confirmed Supplier API Integrations in LAR
 
 The LAR system's `services/webservices/application/config/constants.php` defines explicit booking-source constants for every supplier integrated in the platform. This confirms which APIs are production-tested within the OrkinosAI ecosystem:
 
@@ -167,7 +302,7 @@ The LAR system's `services/webservices/application/config/constants.php` defines
 
 ---
 
-### 3.3 LAR Architecture Patterns Applicable to TürkiyeAI
+### 4.3 LAR Architecture Patterns Applicable to TürkiyeAI
 
 #### "Blender" Aggregation Pattern
 
@@ -218,7 +353,7 @@ LAR defines every supplier as a named constant (`CARNECT_CAR_BOOKING_SOURCE`, `A
 
 ---
 
-### 3.4 Gaps Identified in LAR (Lessons for TürkiyeAI)
+### 4.4 Gaps Identified in LAR (Lessons for TürkiyeAI)
 
 The OrkinosAI audit of LAR ([AUDIT_REPORT.md](https://github.com/orkinosai25-org/lar_system/blob/main/AUDIT_REPORT.md)) identified issues that TürkiyeAI should proactively avoid:
 
@@ -234,7 +369,7 @@ The OrkinosAI audit of LAR ([AUDIT_REPORT.md](https://github.com/orkinosai25-org
 
 ---
 
-## 4. Recommended APIs for UK Turkish Holiday SaaS
+## 5. Recommended APIs for UK Turkish Holiday SaaS
 
 The following recommendations are evaluated against five criteria important to a UK-focused Turkish resort holiday platform:
 
@@ -246,7 +381,7 @@ The following recommendations are evaluated against five criteria important to a
 
 ---
 
-### 3.1 Hotels & Resorts — Recommended APIs
+### 5.1 Hotels & Resorts — Recommended APIs
 
 #### 🥇 1. Hotelbeds API *(Primary Recommendation)*
 
@@ -307,7 +442,7 @@ The following recommendations are evaluated against five criteria important to a
 
 ---
 
-### 3.2 Flights — Recommended APIs
+### 5.2 Flights — Recommended APIs
 
 #### 🥇 1. Amadeus Self-Service APIs *(Already Referenced – Activate Live)*
 
@@ -342,7 +477,7 @@ The following recommendations are evaluated against five criteria important to a
 
 ---
 
-### 3.3 Car Hire — Recommended APIs
+### 5.3 Car Hire — Recommended APIs
 
 #### 🥇 1. Carnect GDS *(Already Referenced – Activate Live)*
 
@@ -372,7 +507,7 @@ The following recommendations are evaluated against five criteria important to a
 
 ---
 
-### 3.4 Transfers — Recommended APIs
+### 5.4 Transfers — Recommended APIs
 
 #### 🥇 1. Hotelbeds Transfers API *(Best Fit for Consolidation)*
 
@@ -391,7 +526,7 @@ The following recommendations are evaluated against five criteria important to a
 
 ---
 
-### 3.5 Holiday Packages — Recommended APIs
+### 5.5 Holiday Packages — Recommended APIs
 
 For a UK-facing Turkish resort holiday platform, **package holidays** (combining flight + hotel) trigger ATOL/Package Travel Regulations obligations if TürkiyeAI facilitates the booking. Recommended approaches:
 
@@ -412,7 +547,7 @@ Combining Hotelbeds + Amadeus into a self-assembled package requires ATOL protec
 
 ---
 
-### 3.6 Excursions & Tours — Recommended APIs
+### 5.6 Excursions & Tours — Recommended APIs
 
 #### 🥇 1. Viator (TripAdvisor) API
 
@@ -438,7 +573,7 @@ Combining Hotelbeds + Amadeus into a self-assembled package requires ATOL protec
 
 ---
 
-### 3.7 Summary Recommendation Matrix
+### 5.7 Summary Recommendation Matrix
 
 | Vertical | Primary Recommendation | Secondary | Already in Codebase |
 |---|---|---|---|
@@ -454,9 +589,9 @@ Combining Hotelbeds + Amadeus into a self-assembled package requires ATOL protec
 
 ---
 
-## 5. UK Compliance & Regulatory Considerations
+## 6. UK Compliance & Regulatory Considerations
 
-### 4.1 GDPR / UK GDPR
+### 6.1 GDPR / UK GDPR
 
 All API integrations must comply with the **UK GDPR** (retained EU law post-Brexit) and the **Data Protection Act 2018**:
 
@@ -466,7 +601,7 @@ All API integrations must comply with the **UK GDPR** (retained EU law post-Brex
 - **Privacy Policy:** Update to name all third-party data processors.
 - **ICO Registration:** Register with the Information Commissioner's Office (ICO) if processing personal data.
 
-### 4.2 ATOL (Air Travel Organisers' Licensing)
+### 6.2 ATOL (Air Travel Organisers' Licensing)
 
 Managed by the **Civil Aviation Authority (CAA)**:
 
@@ -474,31 +609,50 @@ Managed by the **Civil Aviation Authority (CAA)**:
 - **Required** if TürkiyeAI takes payment for flight + hotel packages in a single transaction.
 - **Recommendation:** Phase 1 should remain an affiliate/referral model to avoid ATOL obligations. Display the ATOL number of partner operators when redirecting.
 
-### 4.3 Package Travel and Linked Travel Arrangements Regulations 2018
+### 6.3 Package Travel and Linked Travel Arrangements Regulations 2018
 
 - If two or more travel services (flight + hotel, hotel + car) are sold together or offered for a combined price, they may constitute a **Package** or **Linked Travel Arrangement (LTA)** requiring specific consumer protections and insolvency cover.
 - **Recommendation:** Legal review required before implementing a "Book Package" checkout within TürkiyeAI.
 
-### 4.4 Financial Conduct Authority (FCA)
+### 6.4 Financial Conduct Authority (FCA)
 
 - If TürkiyeAI introduces travel insurance or financial products, FCA authorisation (or an appointed representative arrangement) will be required.
 - Standard holiday discovery and referral does not require FCA authorisation.
 
-### 4.5 Consumer Duty (FCA, 2023)
+### 6.5 Consumer Duty (FCA, 2023)
 
 - Even as a non-regulated platform, following FCA Consumer Duty principles (fair value, good outcomes) is best practice and builds trust with UK consumers.
 
-### 4.6 Currency – GBP Support
+### 6.6 Currency – GBP Support
 
 All five primary recommended suppliers (Hotelbeds, Amadeus, Carnect, Viator, Jet2) natively support **GBP pricing**, which is essential for UK consumers to see transparent costs without FX confusion.
 
-### 4.7 Accessibility (WCAG 2.2 / EN 301 549)
+### 6.7 Accessibility (WCAG 2.2 / EN 301 549)
 
 - Recommended: Ensure the UI meets **WCAG 2.2 Level AA** – increasingly expected under UK public sector obligations and good practice for any consumer-facing SaaS.
 
 ---
 
-## 6. Integration Roadmap Suggestions
+## 7. Integration Roadmap Suggestions
+
+### Phase 0 – Earn Today (0–2 weeks): Join Affiliate Programmes
+
+> **No code changes required for Phase 0.** The AI chatbot already generates recommendations — just ensure booking links include your affiliate tracking IDs.
+
+| Task | Programme | Cost | Expected Earning |
+|---|---|---|---|
+| Join Awin network | Awin.com | Free (£5 refundable deposit) | Gateway to Jet2, TUI, OTB, Love Holidays |
+| Apply to Jet2holidays on Awin | Jet2holidays | Free | £40–180/package booking |
+| Apply to TUI UK on Awin | TUI UK | Free | £36–150/package booking |
+| Apply to On the Beach on Awin | On the Beach | Free | £24–120/booking |
+| Apply to Love Holidays on Awin | Love Holidays | Free | £20–105/booking |
+| Join Booking.com Partner | booking.com/affiliate-program | Free | £8–30/hotel booking |
+| Join Viator Affiliate | partnerresources.viator.com | Free | 8% = ~£4–16/excursion |
+| Join GetYourGuide Affiliate | partner.getyourguide.com | Free | 8% = ~£3–14/excursion |
+| Join Rentalcars.com Affiliate | rentalcars.com/affiliates | Free | 6% = ~£9–24/rental |
+| **Inject tracking IDs into AI response links** | All | Dev time only | Unlock all commissions above |
+
+---
 
 ### Phase 1 – Immediate (0–3 months): Activate Existing Named Integrations
 

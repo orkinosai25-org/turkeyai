@@ -25,18 +25,140 @@ const {
  * dedicated /api/services/suppliers endpoint.
  *
  * Each entry documents:
- *   - vertical    : which travel service this supplier powers
- *   - supplier    : commercial name of the GDS / API / affiliate
- *   - integration : current integration status
- *   - data_provided : what information the supplier delivers
- *   - gbp_support : whether GBP pricing is natively available
- *   - uk_compliance : headline UK-compliance notes
- *   - portal_url  : developer / partner portal
+ *   - vertical        : which travel service this supplier powers
+ *   - supplier        : commercial name of the GDS / API / affiliate
+ *   - model           : 'affiliate' (earn commission, no licence needed) or
+ *                       'b2b' (direct API, B2B contract required)
+ *   - integration     : current integration status
+ *   - commission_rate : affiliate commission rate (where applicable)
+ *   - avg_commission  : estimated earnings per booking (affiliate programmes)
+ *   - data_provided   : what information the supplier delivers
+ *   - gbp_support     : whether GBP pricing is natively available
+ *   - uk_compliance   : headline UK-compliance notes
+ *   - portal_url      : developer / partner portal
+ *   - lar_validated   : true if confirmed live in OrkinosAI LAR reference system
  */
 const SUPPLIER_REGISTRY = [
+  // ─── AFFILIATE PROGRAMMES (Start earning today – no licence, no B2B contract) ───
+  {
+    vertical: 'packages',
+    supplier: 'Jet2holidays (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Awin to activate',
+    commission_rate: '2–3%',
+    avg_commission_gbp: '£40–180 per booking',
+    data_provided: ['ATOL-protected UK packages', 'Turkish all-inclusive resorts', 'Family holidays', 'Affiliate deep-links via Awin'],
+    gbp_support: true,
+    uk_compliance: 'ATOL-licensed; Package Travel Regulations 2018 compliant; YOU need no ATOL as referrer',
+    portal_url: 'https://www.awin.com',
+    affiliate_network: 'Awin',
+  },
+  {
+    vertical: 'packages',
+    supplier: 'TUI UK (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Awin to activate',
+    commission_rate: '2–3%',
+    avg_commission_gbp: '£36–150 per booking',
+    data_provided: ['ATOL-protected UK packages', 'Turkish all-inclusive resorts', 'Affiliate programme'],
+    gbp_support: true,
+    uk_compliance: 'ATOL-licensed; Package Travel Regulations 2018 compliant; YOU need no ATOL as referrer',
+    portal_url: 'https://www.tui.co.uk',
+    affiliate_network: 'Awin',
+  },
+  {
+    vertical: 'packages',
+    supplier: 'On the Beach (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Awin to activate',
+    commission_rate: '2–3%',
+    avg_commission_gbp: '£24–120 per booking',
+    data_provided: ['Beach holidays to Turkey', 'ATOL-protected packages', 'Flight + hotel combinations'],
+    gbp_support: true,
+    uk_compliance: 'ATOL-licensed; no licence needed from you as referrer',
+    portal_url: 'https://www.onthebeach.co.uk',
+    affiliate_network: 'Awin',
+  },
+  {
+    vertical: 'packages',
+    supplier: 'Love Holidays (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Awin to activate',
+    commission_rate: '2–3%',
+    avg_commission_gbp: '£20–105 per booking',
+    data_provided: ['Very popular UK holiday brand', 'Turkish resorts', 'Competitive pricing'],
+    gbp_support: true,
+    uk_compliance: 'ATOL-licensed; no licence needed from you as referrer',
+    portal_url: 'https://www.loveholidays.com',
+    affiliate_network: 'Awin',
+  },
+  {
+    vertical: 'hotels',
+    supplier: 'Booking.com (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Booking.com Partner to activate',
+    commission_rate: '~25% of Booking.com commission (approx 4–6% of booking value)',
+    avg_commission_gbp: '£8–30 per hotel booking',
+    data_provided: ['Every Turkish hotel and resort', 'Real-time availability', 'Instant deep-links per property', 'Consumer-trusted brand'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; ICO-registered; Booking.com is the ATOL/ABTA holder',
+    portal_url: 'https://www.booking.com/affiliate-program.html',
+    affiliate_network: 'Booking.com Partner',
+  },
+  {
+    vertical: 'excursions',
+    supplier: 'Viator (TripAdvisor) affiliate',
+    model: 'affiliate',
+    integration: 'recommended – join Viator Affiliate to activate',
+    commission_rate: '8%',
+    avg_commission_gbp: '£4–16 per excursion booking',
+    data_provided: ['Thousands of Turkish excursions & tours', 'Live availability', 'Deep-link & embedded booking'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; ICO-registered; no licence needed from you',
+    portal_url: 'https://partnerresources.viator.com',
+    // lar_validated applies to the B2B sightseeing API integration confirmed in LAR (see B2B section)
+  },
+  {
+    vertical: 'excursions',
+    supplier: 'GetYourGuide (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join GYG Affiliate to activate',
+    commission_rate: '8%',
+    avg_commission_gbp: '£3–14 per activity booking',
+    data_provided: ['Turkish tours & activities', 'Instant booking', 'GBP pricing'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; EU-headquartered',
+    portal_url: 'https://partner.getyourguide.com',
+  },
+  {
+    vertical: 'cars',
+    supplier: 'Rentalcars.com (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Rentalcars.com affiliate to activate',
+    commission_rate: '6%',
+    avg_commission_gbp: '£9–24 per rental',
+    data_provided: ['All major Turkish airports', 'Top suppliers (Hertz, Avis, Sixt)', 'Consumer-trusted brand'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; no licence needed from you',
+    portal_url: 'https://www.rentalcars.com/affiliates',
+  },
+  {
+    vertical: 'transfers',
+    supplier: 'Hoppa / HolidayTaxis (affiliate)',
+    model: 'affiliate',
+    integration: 'recommended – join Hoppa affiliate to activate',
+    commission_rate: '8–10%',
+    avg_commission_gbp: '£5–20 per transfer',
+    data_provided: ['Turkish airport transfers', 'Private and shared options', 'Live pricing'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; UK brand trusted by UK holidaymakers',
+    portal_url: 'https://www.hoppa.com/en/partners',
+  },
+  // ─── B2B APIs (Higher margin; require contract/registration) ──────────────────
   {
     vertical: 'hotels',
     supplier: 'TBO (Travel Boutique Online)',
+    model: 'b2b',
     integration: 'contracted – live activation pending',
     data_provided: ['Hotel availability', 'Live rates', 'Room types', 'Cancellation policies'],
     gbp_support: true,
@@ -46,6 +168,7 @@ const SUPPLIER_REGISTRY = [
   {
     vertical: 'hotels',
     supplier: 'PROVAB',
+    model: 'b2b',
     integration: 'contracted – live activation pending',
     data_provided: ['Hotel availability', 'Net rates', 'Static content'],
     gbp_support: true,
@@ -55,6 +178,7 @@ const SUPPLIER_REGISTRY = [
   {
     vertical: 'hotels',
     supplier: 'Hotelbeds API',
+    model: 'b2b',
     integration: 'recommended – not yet integrated',
     data_provided: ['180,000+ properties globally', 'Turkish Riviera depth', 'Live rates', 'Transfers API', 'Static content API'],
     gbp_support: true,
@@ -65,6 +189,7 @@ const SUPPLIER_REGISTRY = [
   {
     vertical: 'hotels',
     supplier: 'RateHawk / WorldOta',
+    model: 'b2b',
     integration: 'recommended – not yet integrated',
     data_provided: ['Strong Turkish hotel inventory', 'All-inclusive & resort properties', 'Affiliate/white-label programme', 'Live rates'],
     gbp_support: true,
@@ -75,6 +200,7 @@ const SUPPLIER_REGISTRY = [
   {
     vertical: 'flights',
     supplier: 'Amadeus GDS',
+    model: 'b2b',
     integration: 'referenced – live Amadeus Self-Service API activation pending',
     data_provided: ['Flight offers search', 'Live pricing', 'Seat availability', 'Airport/city lookup', 'Flight inspiration'],
     gbp_support: true,
@@ -85,6 +211,7 @@ const SUPPLIER_REGISTRY = [
   {
     vertical: 'cars',
     supplier: 'Carnect GDS',
+    model: 'b2b',
     integration: 'referenced – static catalog; live search activation pending',
     data_provided: ['Car rental categories', 'Indicative daily rates (EUR/GBP)', 'Airport availability', 'Supplier aggregation (Hertz, Avis, Sixt, Enterprise)'],
     gbp_support: true,
@@ -93,8 +220,17 @@ const SUPPLIER_REGISTRY = [
     lar_validated: true, // confirmed live in OrkinosAI LAR reference system
   },
   {
-    vertical: 'transfers',
-    supplier: 'Hotelbeds Transfers API',
+    vertical: 'excursions',
+    supplier: 'Viator (TripAdvisor) sightseeing API',
+    model: 'b2b',
+    integration: 'referenced – B2B API activation pending',
+    data_provided: ['Turkish excursions & tours', 'Live availability', 'Embedded booking flow'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; ICO-registered',
+    portal_url: 'https://partnerresources.viator.com',
+    lar_validated: true, // confirmed live in OrkinosAI LAR reference system (sightseeing + transfers)
+  },
+  {
     integration: 'recommended – not yet integrated',
     data_provided: ['Airport-to-resort transfers', 'Private and shared options', 'Live pricing'],
     gbp_support: true,
@@ -102,36 +238,9 @@ const SUPPLIER_REGISTRY = [
     portal_url: 'https://developer.hotelbeds.com',
   },
   {
-    vertical: 'excursions',
-    supplier: 'Viator (TripAdvisor)',
-    integration: 'recommended – not yet integrated',
-    data_provided: ['Turkish excursions & tours', 'Live availability', '8% affiliate commission', 'Deep-link & embedded booking'],
-    gbp_support: true,
-    uk_compliance: 'GDPR-compliant; ICO-registered',
-    portal_url: 'https://partnerresources.viator.com',
-    lar_validated: true, // confirmed live in OrkinosAI LAR reference system (sightseeing + transfers)
-  },
-  {
-    vertical: 'packages',
-    supplier: 'Jet2holidays (affiliate)',
-    integration: 'recommended – not yet integrated',
-    data_provided: ['ATOL-protected UK packages', 'Turkish resort packages', 'Affiliate deep-links'],
-    gbp_support: true,
-    uk_compliance: 'ATOL-licensed; fully compliant with Package Travel Regulations 2018',
-    portal_url: 'https://www.jet2holidays.com',
-  },
-  {
-    vertical: 'packages',
-    supplier: 'TUI UK (affiliate)',
-    integration: 'recommended – not yet integrated',
-    data_provided: ['ATOL-protected UK packages', 'Turkish all-inclusive resorts', 'Affiliate programme'],
-    gbp_support: true,
-    uk_compliance: 'ATOL-licensed; Package Travel Regulations 2018 compliant',
-    portal_url: 'https://www.tui.co.uk',
-  },
-  {
     vertical: 'yachts',
     supplier: 'GRN (Global Resort Network)',
+    model: 'b2b',
     integration: 'referenced – static catalog; live availability pending',
     data_provided: ['Villa & yacht accommodation', 'Turkish coast charter inventory'],
     gbp_support: true,
@@ -148,9 +257,17 @@ const SUPPLIER_REGISTRY = [
  * Overview of all available service verticals
  */
 router.get('/', (req, res) => {
+  const affiliateCount = SUPPLIER_REGISTRY.filter(s => s.model === 'affiliate').length;
+  const b2bCount = SUPPLIER_REGISTRY.filter(s => s.model === 'b2b').length;
   res.json({
     brand: 'TürkiyeAI – Powered by OrkinosAI',
-    suppliers_overview: `${SUPPLIER_REGISTRY.length} supplier/API integrations registered. See GET /api/services/suppliers for full details.`,
+    monetisation: {
+      strategy: 'Affiliate-first (no ATOL licence required)',
+      summary: `${affiliateCount} affiliate programmes registered. Join Awin + Booking.com Partner + Viator to start earning commissions today without any travel licence.`,
+      affiliate_programmes: `GET /api/services/suppliers?model=affiliate`,
+      revenue_guide: '/docs/API_SOURCES_AND_RECOMMENDATIONS.md#1-how-to-make-money-with-türkiyeai-affiliate-first-strategy',
+    },
+    suppliers_overview: `${SUPPLIER_REGISTRY.length} supplier/API integrations registered (${affiliateCount} affiliate, ${b2bCount} B2B). See GET /api/services/suppliers for full details.`,
     service_verticals: [
       {
         vertical: 'hotels',
@@ -230,17 +347,24 @@ router.get('/', (req, res) => {
  * UK compliance notes, and developer portal URLs.
  * Query params:
  *   vertical     (string)  – filter by service vertical
+ *   model        (string)  – 'affiliate' or 'b2b' – filter by integration model
  *   lar_validated (boolean) – when 'true', return only suppliers confirmed
  *                             live in the OrkinosAI LAR reference system
  */
 router.get('/suppliers', (req, res) => {
-  const { vertical, lar_validated } = req.query;
+  const { vertical, model, lar_validated } = req.query;
 
   let results = [...SUPPLIER_REGISTRY];
 
   if (vertical) {
     results = results.filter(s =>
       s.vertical.toLowerCase() === vertical.toLowerCase()
+    );
+  }
+
+  if (model) {
+    results = results.filter(s =>
+      (s.model || '').toLowerCase() === model.toLowerCase()
     );
   }
 
@@ -253,11 +377,11 @@ router.get('/suppliers', (req, res) => {
   res.json({
     suppliers: results,
     count: results.length,
-    filters: { vertical, lar_validated },
+    filters: { vertical, model, lar_validated },
     documentation: '/docs/API_SOURCES_AND_RECOMMENDATIONS.md',
     lar_reference: 'https://github.com/orkinosai25-org/lar_system',
     brand: 'TürkiyeAI – Powered by OrkinosAI',
-    note: 'Suppliers marked lar_validated:true are confirmed live in the OrkinosAI LAR reference implementation. See docs/API_SOURCES_AND_RECOMMENDATIONS.md for full analysis.',
+    note: 'Use ?model=affiliate to see programmes you can join for free today (no ATOL or B2B contract needed). Suppliers marked lar_validated:true are confirmed live in the OrkinosAI LAR reference system.',
   });
 });
 
