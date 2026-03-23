@@ -4,6 +4,7 @@ const https = require('https');
 const http = require('http');
 const { URL } = require('url');
 const { getConfig, getAuthHeaders, isConfigured } = require('../config/hotelbeds');
+const { ensureHotelBedsConfigured } = require('../config/settingsProvider');
 
 /**
  * Make an HTTP/HTTPS request to the HotelBeds API.
@@ -71,7 +72,8 @@ function hotelbedsRequest(method, path, body) {
  *   rooms        {number}  Number of rooms             (default 1)
  */
 router.post('/availability', async (req, res) => {
-  if (!isConfigured()) {
+  const configured = await ensureHotelBedsConfigured();
+  if (!configured) {
     return res.status(503).json({
       error: 'HotelBeds API is not configured',
       message: 'Set HOTELBEDS_API_KEY and HOTELBEDS_API_SECRET in appsettings.json or environment variables.',
@@ -159,7 +161,8 @@ router.post('/availability', async (req, res) => {
  * Retrieve static hotel details from HotelBeds Hotel Content API.
  */
 router.get('/:code', async (req, res) => {
-  if (!isConfigured()) {
+  const configured = await ensureHotelBedsConfigured();
+  if (!configured) {
     return res.status(503).json({
       error: 'HotelBeds API is not configured',
       message: 'Set HOTELBEDS_API_KEY and HOTELBEDS_API_SECRET in appsettings.json or environment variables.',

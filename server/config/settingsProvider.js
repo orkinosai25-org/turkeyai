@@ -62,11 +62,41 @@ function toGitHubApiUrl(rawUrl) {
 }
 
 /**
+ * Apply a single setting to process.env if the key is not already set and
+ * the value is a non-empty, non-placeholder string.
+ */
+function setEnvIfMissing(envKey, value) {
+  if (!value || typeof value !== 'string') return;
+  if (process.env[envKey] !== undefined) return;
+  if (PLACEHOLDER_VALUES.has(value.trim())) return;
+  process.env[envKey] = value;
+}
+
+/**
+ * Apply HotelBeds settings from a raw config object to process.env.
+ * Mirrors the mapping in server/config/appSettings.js but works on an
+ * object that was fetched at runtime (e.g. from the remote settings URL).
+ */
+function applyHotelBedsEnvVars(config) {
+  if (!config || !config.HotelBeds) return;
+  const hb = config.HotelBeds;
+  setEnvIfMissing('HOTELBEDS_API_KEY',    hb.ApiKey);
+  setEnvIfMissing('HOTELBEDS_API_SECRET', hb.ApiSecret);
+  setEnvIfMissing('HOTELBEDS_BASE_URL',   hb.BaseUrl);
+  setEnvIfMissing('HOTELBEDS_LANGUAGE',   hb.Language);
+  setEnvIfMissing('HOTELBEDS_CURRENCY',   hb.Currency);
+}
+
+/**
  * Fetch Azure OpenAI settings from the website.
  * Supports both plain HTTP endpoints and GitHub raw content URLs.
  * When SETTINGS_API_TOKEN is set and the URL is a GitHub raw URL, the
  * request is automatically upgraded to the GitHub Contents API so that
  * private repository files can be retrieved.
+ *
+ * As a side-effect, any HotelBeds settings present in the remote config
+ * are also applied to process.env (so the HotelBeds routes can use them
+ * without needing a separate fetch).
  */
 async function fetchSettingsFromWebsite() {
   const websiteUrl = process.env.SETTINGS_SOURCE_URL;
@@ -105,28 +135,34 @@ async function fetchSettingsFromWebsite() {
       configData = response.data;
     }
 
-    if (configData && configData.AzureOpenAI) {
-      const azureConfig = configData.AzureOpenAI;
+    if (configData) {
+      // Apply HotelBeds settings from the remote source to env vars so that
+      // the /api/hotels routes can pick them up without a separate fetch.
+      applyHotelBedsEnvVars(configData);
 
-      // Skip placeholder values that indicate the file has not been populated
-      if (isPlaceholderValue(azureConfig.Endpoint) || isPlaceholderValue(azureConfig.ApiKey)) {
-        console.warn('⚠️ Settings source contains placeholder credentials – skipping');
-        return null;
+      if (configData.AzureOpenAI) {
+        const azureConfig = configData.AzureOpenAI;
+
+        // Skip placeholder values that indicate the file has not been populated
+        if (isPlaceholderValue(azureConfig.Endpoint) || isPlaceholderValue(azureConfig.ApiKey)) {
+          console.warn('⚠️ Settings source contains placeholder credentials – skipping');
+          return null;
+        }
+
+        console.log('✅ Successfully fetched Azure settings from website');
+        return {
+          endpoint: azureConfig.Endpoint,
+          apiKey: azureConfig.ApiKey,
+          deploymentName: azureConfig.DeploymentName,
+          apiVersion: azureConfig.ApiVersion,
+          maxTokens: azureConfig.MaxTokens,
+          temperature: azureConfig.Temperature,
+          topP: azureConfig.TopP,
+          frequencyPenalty: azureConfig.FrequencyPenalty,
+          presencePenalty: azureConfig.PresencePenalty,
+          source: 'website'
+        };
       }
-
-      console.log('✅ Successfully fetched Azure settings from website');
-      return {
-        endpoint: azureConfig.Endpoint,
-        apiKey: azureConfig.ApiKey,
-        deploymentName: azureConfig.DeploymentName,
-        apiVersion: azureConfig.ApiVersion,
-        maxTokens: azureConfig.MaxTokens,
-        temperature: azureConfig.Temperature,
-        topP: azureConfig.TopP,
-        frequencyPenalty: azureConfig.FrequencyPenalty,
-        presencePenalty: azureConfig.PresencePenalty,
-        source: 'website'
-      };
     }
 
     throw new Error('Invalid settings format from website');
@@ -247,8 +283,49 @@ function clearCache() {
   lastFetchTime = null;
 }
 
+/**
+ * Ensure HotelBeds settings are resolved by:
+ *   1. Returning immediately if already configured in env vars.
+ *   2. Fetching from the remote settings URL (same source as Azure settings).
+ *   3. Checking the local appsettings.json as a fallback.
+ *
+ * Returns true when HOTELBEDS_API_KEY and HOTELBEDS_API_SECRET are set after
+ * this call, false otherwise.
+ */
+async function ensureHotelBedsConfigured() {
+  // Fast path — already in env vars (set either at startup or by a prior call)
+  if (process.env.HOTELBEDS_API_KEY && process.env.HOTELBEDS_API_SECRET) {
+    return true;
+  }
+
+  const useWebsiteSettings = process.env.USE_WEBSITE_SETTINGS !== 'false';
+  if (useWebsiteSettings) {
+    // fetchSettingsFromWebsite() applies HotelBeds env vars as a side-effect
+    await fetchSettingsFromWebsite();
+    if (process.env.HOTELBEDS_API_KEY && process.env.HOTELBEDS_API_SECRET) {
+      return true;
+    }
+  }
+
+  // Try local appsettings.json (handles values that appSettings.js may have
+  // skipped because they were empty at startup but have since been updated)
+  try {
+    const filePath = path.join(__dirname, '..', 'appsettings.json');
+    if (fs.existsSync(filePath)) {
+      const raw = fs.readFileSync(filePath, 'utf8');
+      applyHotelBedsEnvVars(JSON.parse(raw));
+    }
+  } catch (err) {
+    console.warn('⚠️  Could not read local appsettings.json for HotelBeds settings:', err.message);
+    // ignore read errors
+  }
+
+  return Boolean(process.env.HOTELBEDS_API_KEY && process.env.HOTELBEDS_API_SECRET);
+}
+
 module.exports = {
   getAzureSettings,
+  ensureHotelBedsConfigured,
   clearCache,
   toGitHubApiUrl
 };
