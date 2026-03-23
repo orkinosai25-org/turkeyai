@@ -480,6 +480,27 @@ const AGENT_TOOLS = [
         required: ["query"]
       }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "searchWeb",
+      description: "Search the web for current, real-time information about hotels, facilities, nearby restaurants, attractions, accessibility features, child facilities, and any other information that may not be in the training data. Use this when users ask about specific hotel amenities (e.g. 'does X have a children's pool?'), nearby dining options, recent reviews, accessibility features, or any current factual questions about a hotel or destination.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            description: "The search query. Be specific – include the hotel name and destination for hotel-specific searches. Examples: 'Hillside Beach Club Fethiye children pool facilities', 'best restaurants near Bodrum Gumbet beach', 'Kempinski Bodrum wheelchair accessibility'."
+          },
+          location_hint: {
+            type: "string",
+            description: "Optional: location context to improve search relevance (e.g. 'Bodrum', 'Fethiye', 'Gumbet'). The system will append this and 'Turkey' to the query."
+          }
+        },
+        required: ["query"]
+      }
+    }
   }
 ];
 
