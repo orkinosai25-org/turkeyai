@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 #
 # Required GitHub Secrets:
-#   AZUREAPPSERVICE_PUBLISHPROFILE_TURKAIHOLIDAYS – Download from Azure Portal → Web App (turkaiholidays) → Get publish profile
+#   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App (turkaiholidays) → Get publish profile
 #
 # Optional GitHub Secrets (set as Azure App Service Application Settings):
 #   HOTELBEDS_API_KEY        – HotelBeds API key (from developer.hotelbeds.com dashboard)
@@ -89,5 +89,5 @@ jobs:
         with:
           app-name: 'turkaiholidays'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_TURKAIHOLIDAYS }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
