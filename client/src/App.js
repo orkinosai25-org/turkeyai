@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import SearchPage from './pages/SearchPage';
 import KnowledgeManager from './pages/KnowledgeManager';
+import HotelDetails from './pages/HotelDetails';
 import './App.css';
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/knowledge" element={<KnowledgeManager />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/hotels/:code" element={<HotelDetails />} />
         </Routes>
         <Footer />
       </div>

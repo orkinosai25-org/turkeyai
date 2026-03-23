@@ -7,6 +7,26 @@ const API_BASE = process.env.REACT_APP_API_URL || '';
 const DESTINATIONS = ['Bodrum', 'Antalya', 'Cappadocia', 'Marmaris', 'Fethiye', 'Istanbul', 'Kusadasi', 'Izmir'];
 const CATEGORIES = ['All', 'Resorts & Hotels', 'Excursions', 'Holiday Packages', 'Transfers', 'Cars', 'Flights'];
 
+// HotelBeds destination codes for popular Turkish destinations
+// Obtain full list via GET /hotel-content-api/1.0/locations/destinations
+const HOTELBEDS_DEST_CODES = {
+  Bodrum: 'BOD',
+  Antalya: 'ANT',
+  Istanbul: 'IST',
+  Marmaris: 'MAR',
+  Fethiye: 'FET',
+  Kusadasi: 'KUS',
+  Izmir: 'IZM',
+  Cappadocia: 'CAP',
+};
+
+// Default check-in / check-out helpers (today + 7 days and today + 14 days)
+function isoDate(daysFromNow = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + daysFromNow);
+  return d.toISOString().split('T')[0];
+}
+
 const QUICK_SEARCHES = [
   { label: 'Beach resorts Bodrum', icon: '🏖️' },
   { label: 'Luxury spa Antalya', icon: '💆' },
@@ -90,10 +110,45 @@ function FlightRouteCard({ result }) {
   );
 }
 
+function HotelAvailabilityCard({ result }) {
+  const minRateNum = parseFloat(result.minRate);
+  const minRate = !isNaN(minRateNum)
+    ? `${result.currency || ''} ${minRateNum.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : null;
+  const starsRaw = result.categoryCode ? parseInt(result.categoryCode, 10) : parseInt(result.stars, 10);
+  const stars = isNaN(starsRaw) ? 0 : Math.max(0, Math.min(starsRaw, 5));
+  return (
+    <div style={{ background: 'white', borderRadius: '12px', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+        <span style={{ color: '#f6ad55', fontSize: '0.9rem' }}>{'⭐'.repeat(stars)}</span>
+        <span style={{ background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600 }}>Live Availability</span>
+      </div>
+      <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.2rem', fontSize: '1rem' }}>{result.name}</h3>
+      <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
+        {result.destinationName || result.zoneName || ''}{result.address ? ` · ${result.address}` : ''}
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {minRate && (
+          <span style={{ color: 'var(--aegean-blue)', fontWeight: 700, fontSize: '1rem' }}>
+            From {minRate}
+          </span>
+        )}
+        <Link
+          to={`/hotels/${result.code}`}
+          style={{ color: 'var(--aegean-blue)', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none', border: '1px solid var(--aegean-blue)', padding: '0.3rem 0.7rem', borderRadius: '6px' }}
+        >
+          View details →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function SearchResultCard({ result, category }) {
   if (result._source === 'car') return <CarResultCard result={result} />;
   if (result._source === 'transfer') return <TransferResultCard result={result} />;
   if (result._source === 'flight') return <FlightRouteCard result={result} />;
+  if (result._source === 'hotelbeds') return <HotelAvailabilityCard result={result} />;
 
   const isExcursion = result.type && result.price_from;
   const isPackage = result.price_from_pp;
@@ -169,7 +224,14 @@ function SearchPage() {
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState('');
 
-  const runSearch = useCallback(async (searchQuery, searchCategory, searchDest) => {
+  // HotelBeds hotel availability search fields
+  const [checkIn, setCheckIn] = useState(isoDate(7));
+  const [checkOut, setCheckOut] = useState(isoDate(14));
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [rooms, setRooms] = useState(1);
+
+  const runSearch = useCallback(async (searchQuery, searchCategory, searchDest, hotelParams) => {
     if (!searchQuery.trim()) return;
     setLoading(true);
     setError('');
@@ -188,6 +250,23 @@ function SearchPage() {
           allResults.push(...(res.data.results || []).map(r => ({ ...r, _source: 'resort' })));
         } catch (resortErr) {
           console.warn('Resort search unavailable:', resortErr.message);
+        }
+
+        // HotelBeds live availability
+        if (hotelParams && hotelParams.destCode && hotelParams.checkIn && hotelParams.checkOut) {
+          try {
+            const hbRes = await axios.post(`${API_BASE}/api/hotels/availability`, {
+              destination: hotelParams.destCode,
+              checkIn: hotelParams.checkIn,
+              checkOut: hotelParams.checkOut,
+              adults: hotelParams.adults,
+              children: hotelParams.children,
+              rooms: hotelParams.rooms,
+            });
+            allResults.push(...(hbRes.data.hotels || []).map(h => ({ ...h, _source: 'hotelbeds' })));
+          } catch (hbErr) {
+            console.warn('HotelBeds availability unavailable:', hbErr.message);
+          }
         }
       }
 
@@ -290,12 +369,14 @@ function SearchPage() {
 
   function handleSearch(e) {
     e.preventDefault();
-    runSearch(query, category, destination);
+    const destCode = destination ? HOTELBEDS_DEST_CODES[destination] : null;
+    const hotelParams = destCode ? { destCode, checkIn, checkOut, adults, children, rooms } : null;
+    runSearch(query, category, destination, hotelParams);
   }
 
   function handleQuickSearch(label) {
     setQuery(label);
-    runSearch(label, 'All', '');
+    runSearch(label, 'All', '', null);
   }
 
   return (
@@ -356,6 +437,65 @@ function SearchPage() {
                 </button>
               ))}
             </div>
+
+            {/* Hotel date/guest fields — visible for Resorts & Hotels or All */}
+            {(category === 'Resorts & Hotels' || category === 'All') && (
+              <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: 600 }}>Check-in</span>
+                  <input
+                    type="date"
+                    value={checkIn}
+                    min={isoDate(1)}
+                    onChange={e => setCheckIn(e.target.value)}
+                    style={{ padding: '0.6rem 0.75rem', borderRadius: '8px', border: 'none', fontSize: '0.9rem', outline: 'none' }}
+                  />
+                </label>
+                <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: 600 }}>Check-out</span>
+                  <input
+                    type="date"
+                    value={checkOut}
+                    min={isoDate(2)}
+                    onChange={e => setCheckOut(e.target.value)}
+                    style={{ padding: '0.6rem 0.75rem', borderRadius: '8px', border: 'none', fontSize: '0.9rem', outline: 'none' }}
+                  />
+                </label>
+                <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: 600 }}>Adults</span>
+                  <input
+                    type="number"
+                    value={adults}
+                    min={1}
+                    max={20}
+                    onChange={e => setAdults(parseInt(e.target.value, 10) || 1)}
+                    style={{ padding: '0.6rem 0.75rem', borderRadius: '8px', border: 'none', fontSize: '0.9rem', outline: 'none', width: 70 }}
+                  />
+                </label>
+                <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: 600 }}>Children</span>
+                  <input
+                    type="number"
+                    value={children}
+                    min={0}
+                    max={10}
+                    onChange={e => setChildren(parseInt(e.target.value, 10) || 0)}
+                    style={{ padding: '0.6rem 0.75rem', borderRadius: '8px', border: 'none', fontSize: '0.9rem', outline: 'none', width: 70 }}
+                  />
+                </label>
+                <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.25rem' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: 600 }}>Rooms</span>
+                  <input
+                    type="number"
+                    value={rooms}
+                    min={1}
+                    max={10}
+                    onChange={e => setRooms(parseInt(e.target.value, 10) || 1)}
+                    style={{ padding: '0.6rem 0.75rem', borderRadius: '8px', border: 'none', fontSize: '0.9rem', outline: 'none', width: 70 }}
+                  />
+                </label>
+              </div>
+            )}
           </form>
         </div>
       </div>

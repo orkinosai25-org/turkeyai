@@ -30,7 +30,7 @@ function setIfMissing(key, value) {
 function mapSettings(config) {
   if (!config || typeof config !== 'object') return;
 
-  const { App, AzureOpenAI, AzureSearch, Database, ConnectionStrings, Settings } = config;
+  const { App, AzureOpenAI, AzureSearch, Database, ConnectionStrings, HotelBeds, Settings } = config;
 
   // App / server settings
   if (App) {
@@ -59,6 +59,15 @@ function mapSettings(config) {
     setIfMissing('AZURE_SEARCH_ENDPOINT', AzureSearch.Endpoint);
     setIfMissing('AZURE_SEARCH_API_KEY', AzureSearch.ApiKey);
     setIfMissing('AZURE_SEARCH_INDEX_NAME', AzureSearch.IndexName);
+  }
+
+  // HotelBeds API
+  if (HotelBeds) {
+    setIfMissing('HOTELBEDS_API_KEY', HotelBeds.ApiKey);
+    setIfMissing('HOTELBEDS_API_SECRET', HotelBeds.ApiSecret);
+    setIfMissing('HOTELBEDS_BASE_URL', HotelBeds.BaseUrl);
+    setIfMissing('HOTELBEDS_LANGUAGE', HotelBeds.Language);
+    setIfMissing('HOTELBEDS_CURRENCY', HotelBeds.Currency);
   }
 
   // Database — individual fields take precedence over the connection string
