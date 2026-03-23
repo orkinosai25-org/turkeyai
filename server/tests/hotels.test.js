@@ -152,19 +152,77 @@ assert(!(checkIn > checkIn), 'equal checkOut equals checkIn fails range check');
 
 console.log('');
 
-// ── Summary ──────────────────────────────────────────────────────────────────
-console.log('═══════════════════════════════════════');
-console.log(`Total Tests: ${passed + failed}`);
-console.log(`✅ Passed: ${passed}`);
-console.log(`❌ Failed: ${failed}`);
-console.log('═══════════════════════════════════════');
+// ── Test 8: Hotel search endpoint – static data ───────────────────────────────
+console.log('Test 8: Hotel Search Endpoint (Static Data)');
 
-if (failed > 0) {
-  process.exit(1);
-}
+// Unset HotelBeds credentials so static path is taken
+delete process.env.HOTELBEDS_API_KEY;
+delete process.env.HOTELBEDS_API_SECRET;
 
-console.log('\n🎉 All HotelBeds Integration Tests Passed!');
-console.log('\n📝 Note: Live API tests require valid HOTELBEDS_API_KEY and HOTELBEDS_API_SECRET.');
-console.log('   Configure credentials in appsettings.json or as environment variables.');
+const supertest = require('supertest');
+const hotelsRouterForSearch = require('../routes/hotels');
+const appForSearch = express();
+appForSearch.use(express.json());
+appForSearch.use('/api/hotels', hotelsRouterForSearch);
 
-process.exit(0);
+(async () => {
+  try {
+    // Bodrum search
+    const bodrumRes = await supertest(appForSearch).get('/api/hotels/search?destination=Bodrum');
+    assert(bodrumRes.status === 200, 'GET /api/hotels/search?destination=Bodrum returns 200');
+    assert(Array.isArray(bodrumRes.body.hotels), 'Bodrum search returns hotels array');
+    assert(bodrumRes.body.hotels.length > 0, 'Bodrum search returns at least one hotel');
+    assert(typeof bodrumRes.body.total === 'number', 'Bodrum search returns total count');
+    assert(bodrumRes.body.hotels.every(h => h.destinationName === 'Bodrum'), 'All Bodrum hotels have destinationName=Bodrum');
+    const bodrumCount = bodrumRes.body.total;
+    console.log(`   ℹ️  Bodrum returned ${bodrumCount} hotel(s)`);
+
+    // Fethiye search
+    const fethiyeRes = await supertest(appForSearch).get('/api/hotels/search?destination=Fethiye');
+    assert(fethiyeRes.status === 200, 'GET /api/hotels/search?destination=Fethiye returns 200');
+    assert(Array.isArray(fethiyeRes.body.hotels), 'Fethiye search returns hotels array');
+    assert(fethiyeRes.body.hotels.length > 0, 'Fethiye search returns at least one hotel');
+    assert(fethiyeRes.body.hotels.every(h => h.destinationName === 'Fethiye'), 'All Fethiye hotels have destinationName=Fethiye');
+    const fethiyeCount = fethiyeRes.body.total;
+    console.log(`   ℹ️  Fethiye returned ${fethiyeCount} hotel(s)`);
+
+    // Each hotel has required fields
+    const sampleBodrum = bodrumRes.body.hotels[0];
+    assert(typeof sampleBodrum.code === 'string' && sampleBodrum.code.length > 0, 'Hotel has a code');
+    assert(typeof sampleBodrum.name === 'string' && sampleBodrum.name.length > 0, 'Hotel has a name');
+    assert(typeof sampleBodrum.categoryCode === 'string', 'Hotel has a categoryCode');
+    assert(typeof sampleBodrum.minRate === 'string', 'Hotel has a minRate');
+    assert(typeof sampleBodrum.currency === 'string', 'Hotel has a currency');
+
+    // Unknown destination returns empty array (not an error)
+    const unknownRes = await supertest(appForSearch).get('/api/hotels/search?destination=UnknownPlace');
+    assert(unknownRes.status === 200, 'Unknown destination returns 200');
+    assert(Array.isArray(unknownRes.body.hotels) && unknownRes.body.hotels.length === 0, 'Unknown destination returns empty hotels array');
+
+    // No destination returns all hotels
+    const allRes = await supertest(appForSearch).get('/api/hotels/search');
+    assert(allRes.status === 200, 'No destination returns 200');
+    assert(Array.isArray(allRes.body.hotels) && allRes.body.hotels.length > 0, 'No destination returns all hotels');
+
+    console.log('');
+
+    // ── Summary ──────────────────────────────────────────────────────────────────
+    console.log('═══════════════════════════════════════');
+    console.log(`Total Tests: ${passed + failed}`);
+    console.log(`✅ Passed: ${passed}`);
+    console.log(`❌ Failed: ${failed}`);
+    console.log('═══════════════════════════════════════');
+
+    if (failed > 0) {
+      process.exit(1);
+    }
+
+    console.log('\n🎉 All HotelBeds Integration Tests Passed!');
+    console.log('\n📝 Note: Live API tests require valid HOTELBEDS_API_KEY and HOTELBEDS_API_SECRET.');
+    console.log('   Configure credentials in appsettings.json or as environment variables.');
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Async test error:', err.message);
+    process.exit(1);
+  }
+})();
