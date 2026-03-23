@@ -236,6 +236,7 @@ function SearchPage() {
   const [category, setCategory] = useState('All');
   const [destination, setDestination] = useState('');
   const [results, setResults] = useState([]);
+  const [hotelCount, setHotelCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState('');
@@ -252,6 +253,7 @@ function SearchPage() {
     setLoading(true);
     setError('');
     setSearched(true);
+    setHotelCount(0);
 
     try {
       const allResults = [];
@@ -268,6 +270,20 @@ function SearchPage() {
           console.warn('Resort search unavailable:', resortErr.message);
         }
 
+        // Hotel search by destination (works even without HotelBeds credentials)
+        const hotelDest = searchDest || detectDestinationFromText(searchQuery);
+        if (hotelDest) {
+          try {
+            const hsRes = await axios.get(`${API_BASE}/api/hotels/search`, {
+              params: { destination: hotelDest },
+            });
+            const hotelResults = (hsRes.data.hotels || []).map(h => ({ ...h, _source: 'hotelbeds' }));
+            allResults.push(...hotelResults);
+          } catch (hsErr) {
+            console.warn('Hotel search unavailable:', hsErr.message);
+          }
+        }
+
         // HotelBeds live availability
         if (hotelParams && hotelParams.destCode && hotelParams.checkIn && hotelParams.checkOut) {
           try {
@@ -279,7 +295,12 @@ function SearchPage() {
               children: hotelParams.children,
               rooms: hotelParams.rooms,
             });
-            allResults.push(...(hbRes.data.hotels || []).map(h => ({ ...h, _source: 'hotelbeds' })));
+            // Deduplicate: skip hotels already returned by search endpoint
+            const existingCodes = new Set(allResults.filter(r => r._source === 'hotelbeds').map(r => String(r.code)));
+            const liveHotels = (hbRes.data.hotels || [])
+              .filter(h => !existingCodes.has(String(h.code)))
+              .map(h => ({ ...h, _source: 'hotelbeds' }));
+            allResults.push(...liveHotels);
           } catch (hbErr) {
             console.warn('HotelBeds availability unavailable:', hbErr.message);
           }
@@ -376,6 +397,7 @@ function SearchPage() {
       }
 
       setResults(allResults);
+      setHotelCount(allResults.filter(r => r._source === 'hotelbeds').length);
     } catch (err) {
       setError('Search failed. Please try again.');
     } finally {
@@ -595,9 +617,16 @@ function SearchPage() {
         {searched && !loading && (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h2 style={{ color: 'var(--aegean-blue)', fontSize: '1.1rem', fontWeight: 600 }}>
-                {results.length > 0 ? `${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"` : `No results for "${query}"`}
-              </h2>
+              <div>
+                <h2 style={{ color: 'var(--aegean-blue)', fontSize: '1.1rem', fontWeight: 600, margin: '0 0 0.2rem' }}>
+                  {results.length > 0 ? `${results.length} result${results.length !== 1 ? 's' : ''} for "${query}"` : `No results for "${query}"`}
+                </h2>
+                {hotelCount > 0 && (
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--warm-slate-500)' }}>
+                    🏨 {hotelCount} hotel{hotelCount !== 1 ? 's' : ''} found
+                  </p>
+                )}
+              </div>
               {results.length > 0 && (
                 <Link to="/chat" style={{ color: 'var(--aegean-blue)', fontSize: '0.85rem', fontWeight: 600, textDecoration: 'none' }}>
                   🤖 Ask AI Agent →
@@ -617,7 +646,7 @@ function SearchPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
                 {results.map((r, i) => (
-                  <SearchResultCard key={r.id || i} result={r} category={category} />
+                  <SearchResultCard key={r.code || r.id || `result-${i}`} result={r} category={category} />
                 ))}
               </div>
             )}

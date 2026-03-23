@@ -5,6 +5,7 @@
  * Each function interacts with the backend API or database to retrieve information.
  */
 
+const axios = require('axios');
 const Resort = require('../models/Resort');
 const { getSearchClient } = require('./azureSearch');
 const { haversineKm } = require('../utils/geoUtils');
@@ -711,6 +712,116 @@ async function searchKnowledgeBase(params) {
 }
 
 /**
+ * Search the web for current information about hotels, facilities, nearby attractions, etc.
+ * Uses Bing Search API if BING_SEARCH_API_KEY is set, otherwise falls back to
+ * DuckDuckGo Instant Answers (free, no key required).
+ *
+ * @param {Object} params - Search parameters
+ * @returns {Promise<Object>} Web search results
+ */
+async function searchWeb(params) {
+  const { query, location_hint } = params;
+
+  if (!query) {
+    return { success: false, error: 'query is required for web search' };
+  }
+
+  const searchQuery = location_hint
+    ? `${query} ${location_hint} Turkey`
+    : query;
+
+  // Bing Web Search API (premium – used when key is configured)
+  const bingKey = process.env.BING_SEARCH_API_KEY;
+  if (bingKey) {
+    try {
+      const response = await axios.get('https://api.bing.microsoft.com/v7.0/search', {
+        headers: { 'Ocp-Apim-Subscription-Key': bingKey },
+        params: { q: searchQuery, count: 5, mkt: 'en-GB' },
+        timeout: 6000,
+      });
+      const pages = (response.data.webPages && response.data.webPages.value) || [];
+      return {
+        success: true,
+        query: searchQuery,
+        results: pages.map(p => ({
+          title: p.name,
+          url: p.url,
+          snippet: p.snippet,
+        })),
+        source: 'bing',
+      };
+    } catch (bingErr) {
+      console.warn('Bing search error:', bingErr.message);
+      // fall through to DuckDuckGo
+    }
+  }
+
+  // DuckDuckGo Instant Answer API (free, no key required)
+  try {
+    const ddgRes = await axios.get('https://api.duckduckgo.com/', {
+      params: {
+        q: searchQuery,
+        format: 'json',
+        no_html: '1',
+        skip_disambig: '1',
+      },
+      timeout: 6000,
+    });
+    const d = ddgRes.data;
+    const results = [];
+
+    if (d.AbstractText) {
+      results.push({
+        title: d.Heading || searchQuery,
+        snippet: d.AbstractText,
+        url: d.AbstractURL || null,
+      });
+    }
+    if (d.Answer) {
+      results.push({
+        title: 'Direct answer',
+        snippet: d.Answer,
+        url: null,
+      });
+    }
+    (d.RelatedTopics || []).slice(0, 4).forEach(t => {
+      if (t.Text) {
+        results.push({
+          title: t.Text.split(' - ')[0] || t.Text.slice(0, 60),
+          snippet: t.Text,
+          url: t.FirstURL || null,
+        });
+      }
+    });
+
+    if (results.length === 0) {
+      return {
+        success: false,
+        query: searchQuery,
+        results: [],
+        source: 'duckduckgo',
+        note: 'No instant answer found. Configure BING_SEARCH_API_KEY for comprehensive web search. Use your own knowledge to answer.',
+      };
+    }
+
+    return {
+      success: true,
+      query: searchQuery,
+      results: results.slice(0, 5),
+      source: 'duckduckgo',
+    };
+  } catch (ddgErr) {
+    console.warn('DuckDuckGo search error:', ddgErr.message);
+    return {
+      success: false,
+      query: searchQuery,
+      results: [],
+      error: 'Web search is currently unavailable. Use your training knowledge to answer the question as accurately as possible.',
+    };
+  }
+}
+
+/**
  * Execute a tool function by name
  * @param {string} functionName - Name of the function to execute
  * @param {Object} args - Arguments for the function
@@ -732,6 +843,7 @@ async function executeTool(functionName, args) {
     searchPrivateAviation,
     searchYachts,
     searchKnowledgeBase,
+    searchWeb,
   };
 
   const tool = tools[functionName];
@@ -760,5 +872,6 @@ module.exports = {
   searchPrivateAviation,
   searchYachts,
   searchKnowledgeBase,
+  searchWeb,
   executeTool
 };
