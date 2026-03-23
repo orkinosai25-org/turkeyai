@@ -323,13 +323,18 @@ Retrieve the full registry of all API and GDS supplier integrations, including i
 
 **Query Parameters:**
 - `vertical` (string, optional): Filter by service vertical (e.g., `hotels`, `flights`, `cars`, `transfers`, `excursions`, `packages`, `yachts`)
+- `lar_validated` (`true`, optional): When set to `true`, returns only suppliers confirmed live in the OrkinosAI [LAR reference system](https://github.com/orkinosai25-org/lar_system)
 
-**Example Request:**
+**Example Requests:**
 ```
 GET /api/services/suppliers?vertical=hotels
+GET /api/services/suppliers?lar_validated=true
 ```
 
-**Response:**
+**Notes:**
+- `lar_validated=true` is the only supported filter value. Omitting the parameter, or passing any other value, returns all suppliers without filtering by validation status.
+
+**Response (with `?lar_validated=true`):**
 ```json
 {
   "suppliers": [
@@ -340,14 +345,16 @@ GET /api/services/suppliers?vertical=hotels
       "data_provided": ["180,000+ properties globally", "Turkish Riviera depth", "Live rates", "Transfers API", "Static content API"],
       "gbp_support": true,
       "uk_compliance": "UK-registered entity; GDPR-compliant; widely used by ATOL holders",
-      "portal_url": "https://developer.hotelbeds.com"
+      "portal_url": "https://developer.hotelbeds.com",
+      "lar_validated": true
     }
   ],
-  "count": 3,
-  "filters": { "vertical": "hotels" },
+  "count": 6,
+  "filters": { "vertical": null, "lar_validated": "true" },
   "documentation": "/docs/API_SOURCES_AND_RECOMMENDATIONS.md",
+  "lar_reference": "https://github.com/orkinosai25-org/lar_system",
   "brand": "TürkiyeAI – Powered by OrkinosAI",
-  "note": "See docs/API_SOURCES_AND_RECOMMENDATIONS.md for full analysis and UK SaaS recommendations."
+  "note": "Suppliers marked lar_validated:true are confirmed live in the OrkinosAI LAR reference implementation."
 }
 ```
 

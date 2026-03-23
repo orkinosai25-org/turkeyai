@@ -9,9 +9,10 @@
 
 1. [Current API Integrations in the Codebase](#1-current-api-integrations-in-the-codebase)
 2. [Integration Locations & Data Provided](#2-integration-locations--data-provided)
-3. [Recommended APIs for UK Turkish Holiday SaaS](#3-recommended-apis-for-uk-turkish-holiday-saas)
-4. [UK Compliance & Regulatory Considerations](#4-uk-compliance--regulatory-considerations)
-5. [Integration Roadmap Suggestions](#5-integration-roadmap-suggestions)
+3. [Reference Implementation: LAR System (OrkinosAI)](#3-reference-implementation-lar-system-orkinosai)
+4. [Recommended APIs for UK Turkish Holiday SaaS](#4-recommended-apis-for-uk-turkish-holiday-saas)
+5. [UK Compliance & Regulatory Considerations](#5-uk-compliance--regulatory-considerations)
+6. [Integration Roadmap Suggestions](#6-integration-roadmap-suggestions)
 
 ---
 
@@ -108,7 +109,132 @@ Cruise itineraries with ports of call, duration, board basis, indicative prices 
 
 ---
 
-## 3. Recommended APIs for UK Turkish Holiday SaaS
+## 3. Reference Implementation: LAR System (OrkinosAI)
+
+> **Source repository:** [orkinosai25-org/lar_system](https://github.com/orkinosai25-org/lar_system)  
+> OrkinosAI has developed and audited the **Luxury Africa Resorts (LAR)** platform – a production-grade, multi-vertical travel booking system running on PHP / CodeIgniter with the same core supplier APIs as TürkiyeAI. The LAR system provides a validated, real-world blueprint for integrating these APIs at scale.
+
+### 3.1 LAR System Overview
+
+LAR is a B2C + B2B luxury travel platform covering:
+
+- **B2C portal** – direct consumer booking of flights, hotels, and car hire
+- **B2B agent panel** – agent login, sub-agent management, wallet, commissions
+- **Admin / Supervision dashboard** – operations, reporting
+- **Webservices layer** (`services/webservices/`) – normalised JSON API used by all front-ends to talk to supplier GDS/APIs
+
+**Technology stack:** PHP (CodeIgniter 2.x), MySQL, Apache, Redis (search result cache)
+
+---
+
+### 3.2 Confirmed Supplier API Integrations in LAR
+
+The LAR system's `services/webservices/application/config/constants.php` defines explicit booking-source constants for every supplier integrated in the platform. This confirms which APIs are production-tested within the OrkinosAI ecosystem:
+
+#### Hotels
+
+| Constant | Supplier | Notes |
+|---|---|---|
+| `TBO_HOTEL_BOOKING_SOURCE` | **TBO (Travel Boutique Online)** | Primary hotel API in LAR; same as TürkiyeAI reference |
+| `GRN_CONNECT_HOTEL_BOOKING_SOURCE` | **GRN Connect** | Global Resort Network hotel API; also referenced in TürkiyeAI |
+| `HB_HOTEL_BOOKING_SOURCE` | **Hotelbeds** | Production-confirmed in LAR; TürkiyeAI primary recommendation ✅ |
+| `RATEHAWK_HOTEL_BOOKING_SOURCE` | **RateHawk / WorldOta** | Production-confirmed in LAR; TürkiyeAI secondary recommendation ✅ |
+| `AGODA_HOTEL_BOOKING_SOURCE` | Agoda | Useful for Asia-Pacific markets; limited Turkish focus |
+| `DIDA_HOTEL_BOOKING_SOURCE` | DIDA Travel | Wholesale aggregator |
+
+#### Flights
+
+| Constant | Supplier | Notes |
+|---|---|---|
+| `TBO_FLIGHT_BOOKING_SOURCE` | **TBO Flight** | TBO dual-role as hotel + flight API |
+| `AMADEUS_FLIGHT_BOOKING_SOURCE` | **Amadeus GDS** | Production-confirmed in LAR; TürkiyeAI primary recommendation ✅ |
+| `TRAVELPORT_FLIGHT_BOOKING_SOURCE` | Travelport / Galileo | Alternative GDS; strong global coverage |
+| `MYSTIFLY_FLIGHT_BOOKING_SOURCE` | Mystifly | LCC-focused aggregator |
+| `SABRE_REST_FLIGHT_BOOKING_SOURCE` | Sabre REST | Sabre GDS via modern REST API |
+
+#### Car Hire
+
+| Constant | Supplier | Notes |
+|---|---|---|
+| `CARNECT_CAR_BOOKING_SOURCE` | **Carnect** | Production-confirmed in LAR; TürkiyeAI primary recommendation ✅ |
+
+#### Excursions / Sightseeing
+
+| Constant | Supplier | Notes |
+|---|---|---|
+| `SIGHTSEEING_BOOKING_SOURCE` | **Viator** | Production-confirmed in LAR; TürkiyeAI primary recommendation ✅ |
+| `VIATOR_TRANSFER_BOOKING_SOURCE` | **Viator Transfers** | Viator also provides airport transfer content |
+
+---
+
+### 3.3 LAR Architecture Patterns Applicable to TürkiyeAI
+
+#### "Blender" Aggregation Pattern
+
+The LAR system uses a **supplier blender** pattern to aggregate multiple APIs behind a single normalised interface:
+
+```
+hotel_v3 controller
+  └─ hotel_blender_v3 library
+       ├─ GRN Connect adapter
+       ├─ TBO adapter
+       ├─ Hotelbeds adapter
+       └─ RateHawk adapter
+
+car controller
+  └─ car_blender library
+       └─ Carnect adapter
+
+flight controller
+  └─ flight blender library
+       ├─ Amadeus adapter
+       ├─ TBO Flight adapter
+       └─ Travelport adapter
+```
+
+**Recommendation for TürkiyeAI:** Adopt the same blender pattern in the Node.js/Express layer. A single `HotelService` class can call Hotelbeds (primary) and fall back to RateHawk when inventory is unavailable, without the front-end knowing which supplier delivered the result.
+
+#### Redis Search Result Caching
+
+LAR caches flight and hotel search results in **Redis** to avoid repeated GDS calls for the same query. Key config:
+
+```php
+$config['cache_flight_search_ttl'] = 3600; // 1-hour TTL
+```
+
+**Recommendation for TürkiyeAI:** When activating Amadeus and Carnect live search, implement Redis (or Azure Cache for Redis) to cache search results for 30–60 minutes. This reduces GDS API costs, improves response times, and protects against rate limits.
+
+#### Domain / Multi-Tenant Management
+
+LAR supports multiple B2B "domain" clients, each with their own API credentials, markup, and daily request limits. This is implemented via the `domain_management` library and `domain_list` database table.
+
+**Recommendation for TürkiyeAI:** If building a B2B white-label offering (travel agents using TürkiyeAI as their AI backend), implement the same domain/tenant isolation model to support per-agent markup, credentials, and branding.
+
+#### Booking Source Constants
+
+LAR defines every supplier as a named constant (`CARNECT_CAR_BOOKING_SOURCE`, `AMADEUS_FLIGHT_BOOKING_SOURCE`, etc.) stored alongside each booking in the database. This enables supplier-level reporting, cancellation routing, and post-booking management.
+
+**Recommendation for TürkiyeAI:** Store a `supplier_source` field against every booking or recommendation record in Azure PostgreSQL to support analytics and supplier performance tracking.
+
+---
+
+### 3.4 Gaps Identified in LAR (Lessons for TürkiyeAI)
+
+The OrkinosAI audit of LAR ([AUDIT_REPORT.md](https://github.com/orkinosai25-org/lar_system/blob/main/AUDIT_REPORT.md)) identified issues that TürkiyeAI should proactively avoid:
+
+| LAR Issue | TürkiyeAI Mitigation |
+|---|---|
+| Hardcoded database credentials in PHP config files | ✅ TürkiyeAI uses Azure Key Vault / `.env` environment variables |
+| MD5 password hashing (cryptographically broken) | ✅ TürkiyeAI uses Azure AD B2C / modern auth |
+| 0% automated test coverage | ✅ TürkiyeAI has an existing test suite (Jest); maintain and expand it |
+| CodeIgniter 2.x (EOL 2015 – no security patches) | ✅ TürkiyeAI is built on current Node.js LTS + Express |
+| No Redis caching → 5–8 second search latency | ⚠️ Implement Redis when activating live GDS search |
+| Debug code left in payment controllers | ✅ TürkiyeAI does not process payments directly |
+| PCI DSS 17% compliant | ✅ TürkiyeAI redirects to ATOL-licensed providers for payment |
+
+---
+
+## 4. Recommended APIs for UK Turkish Holiday SaaS
 
 The following recommendations are evaluated against five criteria important to a UK-focused Turkish resort holiday platform:
 
@@ -328,7 +454,7 @@ Combining Hotelbeds + Amadeus into a self-assembled package requires ATOL protec
 
 ---
 
-## 4. UK Compliance & Regulatory Considerations
+## 5. UK Compliance & Regulatory Considerations
 
 ### 4.1 GDPR / UK GDPR
 
@@ -372,17 +498,18 @@ All five primary recommended suppliers (Hotelbeds, Amadeus, Carnect, Viator, Jet
 
 ---
 
-## 5. Integration Roadmap Suggestions
+## 6. Integration Roadmap Suggestions
 
 ### Phase 1 – Immediate (0–3 months): Activate Existing Named Integrations
 
-| Task | Supplier | Effort |
-|---|---|---|
-| Activate TBO or Hotelbeds hotel live availability | TBO / Hotelbeds | Medium |
-| Activate Carnect live car hire search | Carnect | Medium |
-| Activate Amadeus flight offers search | Amadeus | Medium |
-| Add Viator excursion API (affiliate deep-links) | Viator | Low |
-| Add Jet2 / TUI affiliate deep-links for packages | Jet2 / TUI | Low |
+| Task | Supplier | Effort | LAR Precedent |
+|---|---|---|---|
+| Activate TBO or Hotelbeds hotel live availability | TBO / Hotelbeds | Medium | ✅ Both live in LAR |
+| Activate Carnect live car hire search | Carnect | Medium | ✅ Live in LAR |
+| Activate Amadeus flight offers search | Amadeus | Medium | ✅ Live in LAR |
+| Add Viator excursion API (affiliate deep-links) | Viator | Low | ✅ Live in LAR (sightseeing) |
+| Add Jet2 / TUI affiliate deep-links for packages | Jet2 / TUI | Low | – |
+| Implement Redis caching for GDS search results | Azure Cache for Redis | Medium | ✅ Used in LAR |
 
 ### Phase 2 – Short-Term (3–6 months): Enhance & Diversify
 
@@ -410,6 +537,9 @@ All five primary recommended suppliers (Hotelbeds, Amadeus, Carnect, Viator, Jet
 
 | Resource | URL |
 |---|---|
+| **LAR System (Reference Implementation)** | https://github.com/orkinosai25-org/lar_system |
+| **LAR Audit Report** | https://github.com/orkinosai25-org/lar_system/blob/main/AUDIT_REPORT.md |
+| **LAR Development Plan** | https://github.com/orkinosai25-org/lar_system/blob/main/DEVELOPMENT_PLAN.md |
 | Hotelbeds Developer Portal | https://developer.hotelbeds.com |
 | Amadeus Self-Service APIs | https://developers.amadeus.com |
 | Carnect B2B Portal | https://www.carnect.com/en/for-partners |

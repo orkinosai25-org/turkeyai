@@ -60,6 +60,17 @@ const SUPPLIER_REGISTRY = [
     gbp_support: true,
     uk_compliance: 'UK-registered entity; GDPR-compliant; widely used by ATOL holders',
     portal_url: 'https://developer.hotelbeds.com',
+    lar_validated: true, // confirmed live in OrkinosAI LAR reference system
+  },
+  {
+    vertical: 'hotels',
+    supplier: 'RateHawk / WorldOta',
+    integration: 'recommended – not yet integrated',
+    data_provided: ['Strong Turkish hotel inventory', 'All-inclusive & resort properties', 'Affiliate/white-label programme', 'Live rates'],
+    gbp_support: true,
+    uk_compliance: 'GDPR-compliant; data processed in EU',
+    portal_url: 'https://www.worldota.net',
+    lar_validated: true, // confirmed live in OrkinosAI LAR reference system
   },
   {
     vertical: 'flights',
@@ -69,6 +80,7 @@ const SUPPLIER_REGISTRY = [
     gbp_support: true,
     uk_compliance: 'GDPR-compliant; standard B2B data processing agreement',
     portal_url: 'https://developers.amadeus.com',
+    lar_validated: true, // confirmed live in OrkinosAI LAR reference system
   },
   {
     vertical: 'cars',
@@ -78,6 +90,7 @@ const SUPPLIER_REGISTRY = [
     gbp_support: true,
     uk_compliance: 'GDPR-compliant; standard B2B data processing',
     portal_url: 'https://www.carnect.com/en/for-partners',
+    lar_validated: true, // confirmed live in OrkinosAI LAR reference system
   },
   {
     vertical: 'transfers',
@@ -96,6 +109,7 @@ const SUPPLIER_REGISTRY = [
     gbp_support: true,
     uk_compliance: 'GDPR-compliant; ICO-registered',
     portal_url: 'https://partnerresources.viator.com',
+    lar_validated: true, // confirmed live in OrkinosAI LAR reference system (sightseeing + transfers)
   },
   {
     vertical: 'packages',
@@ -123,6 +137,7 @@ const SUPPLIER_REGISTRY = [
     gbp_support: true,
     uk_compliance: 'Standard B2B data processing agreement required',
     portal_url: 'https://www.grn.com',
+    lar_validated: true, // GRN Connect confirmed live in OrkinosAI LAR reference system
   },
 ];
 
@@ -213,10 +228,13 @@ router.get('/', (req, res) => {
  * Full registry of all API/GDS supplier integrations for TürkiyeAI.
  * Documents current integration status, data provided, GBP support,
  * UK compliance notes, and developer portal URLs.
- * Query params: vertical (filter by service vertical)
+ * Query params:
+ *   vertical     (string)  – filter by service vertical
+ *   lar_validated (boolean) – when 'true', return only suppliers confirmed
+ *                             live in the OrkinosAI LAR reference system
  */
 router.get('/suppliers', (req, res) => {
-  const { vertical } = req.query;
+  const { vertical, lar_validated } = req.query;
 
   let results = [...SUPPLIER_REGISTRY];
 
@@ -226,13 +244,20 @@ router.get('/suppliers', (req, res) => {
     );
   }
 
+  if (lar_validated === 'true') {
+    results = results.filter(s => s.lar_validated === true);
+  }
+  // Note: only lar_validated=true is a supported filter value;
+  // omitting the parameter or passing any other value returns all results.
+
   res.json({
     suppliers: results,
     count: results.length,
-    filters: { vertical },
+    filters: { vertical, lar_validated },
     documentation: '/docs/API_SOURCES_AND_RECOMMENDATIONS.md',
+    lar_reference: 'https://github.com/orkinosai25-org/lar_system',
     brand: 'TürkiyeAI – Powered by OrkinosAI',
-    note: 'See docs/API_SOURCES_AND_RECOMMENDATIONS.md for full analysis and UK SaaS recommendations.',
+    note: 'Suppliers marked lar_validated:true are confirmed live in the OrkinosAI LAR reference implementation. See docs/API_SOURCES_AND_RECOMMENDATIONS.md for full analysis.',
   });
 });
 
