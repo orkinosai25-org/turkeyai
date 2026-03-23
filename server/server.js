@@ -10,6 +10,13 @@ const { loadAppSettings } = require('./config/appSettings');
 loadAppSettings();
 dotenv.config();
 
+// Eagerly resolve remote settings (including HotelBeds) so they are available
+// before the first inbound request arrives.
+const { ensureHotelBedsConfigured } = require('./config/settingsProvider');
+ensureHotelBedsConfigured().catch(err => {
+  console.warn('⚠️  Could not pre-load HotelBeds settings at startup:', err.message);
+});
+
 const app = express();
 
 // Middleware
