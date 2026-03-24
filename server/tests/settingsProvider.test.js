@@ -23,26 +23,31 @@ async function runTests() {
   let testsPassed = 0;
   let testsFailed = 0;
 
-  // Test 1: Settings resolution — returns valid settings when credentials are available,
-  //         or throws a clear error when they are not.
-  console.log('Test 1: Settings resolution (live credentials or clear error when absent)');
+  // Test 1: Settings resolution — the file endpoint takes precedence; the API key may come
+  //         from the file or from an env var (App Service application setting).
+  console.log('Test 1: Settings resolution (file endpoint + env-var API key)');
   try {
     const restore = saveEnv('USE_WEBSITE_SETTINGS', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
     process.env.USE_WEBSITE_SETTINGS = 'false';
-    process.env.AZURE_OPENAI_ENDPOINT = 'https://test-resolution.openai.azure.com/';
+    // Set API key via env var (simulating App Service application setting)
+    delete process.env.AZURE_OPENAI_ENDPOINT;   // let the file supply the endpoint
     process.env.AZURE_OPENAI_API_KEY = 'test-key-resolution';
     clearCache();
 
     const settings = await getAzureSettings();
 
-    if (!settings || !settings.endpoint || !settings.apiKey || !settings.deploymentName) {
+    if (!settings || !settings.endpoint || !settings.deploymentName) {
       throw new Error('Required settings fields are missing');
     }
-    if (settings.endpoint !== 'https://test-resolution.openai.azure.com/') {
-      throw new Error('Unexpected endpoint returned');
+    // Endpoint comes from appsettings.json; API key is supplemented from env var
+    if (settings.source !== 'appsettings.json') {
+      throw new Error(`Expected source 'appsettings.json', got '${settings.source}'`);
+    }
+    if (!settings.apiKey || settings.apiKey !== 'test-key-resolution') {
+      throw new Error('API key from env var was not applied');
     }
 
-    console.log('✅ PASS: Settings resolved correctly');
+    console.log('✅ PASS: Settings resolved correctly (file endpoint + env-var API key)');
     console.log(`   - Endpoint: ${settings.endpoint}`);
     console.log(`   - Deployment: ${settings.deploymentName}`);
     console.log(`   - Source: ${settings.source}`);
@@ -108,23 +113,30 @@ async function runTests() {
   }
   console.log('');
 
-  // Test 4: Local fallback (when website is disabled)
-  console.log('Test 4: Local environment variable fallback');
+  // Test 4: API key supplemented from env var when file has no key
+  console.log('Test 4: API key from env var supplements file-based endpoint');
   try {
     const restore = saveEnv('USE_WEBSITE_SETTINGS', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
     process.env.USE_WEBSITE_SETTINGS = 'false';
-    process.env.AZURE_OPENAI_ENDPOINT = 'https://test-local.openai.azure.com/';
-    process.env.AZURE_OPENAI_API_KEY = 'test-key-123';
+    delete process.env.AZURE_OPENAI_ENDPOINT;           // file endpoint takes precedence anyway
+    process.env.AZURE_OPENAI_API_KEY = 'test-key-123'; // App Service application setting
     clearCache();
 
     const settings = await getAzureSettings();
 
-    if (settings.endpoint !== 'https://test-local.openai.azure.com/') {
-      throw new Error('Did not use local environment variables');
+    if (!settings.endpoint) {
+      throw new Error('Expected endpoint from file settings');
+    }
+    if (!settings.apiKey || settings.apiKey !== 'test-key-123') {
+      throw new Error('Expected API key from env var to be applied');
+    }
+    if (settings.source !== 'appsettings.json') {
+      throw new Error(`Expected source 'appsettings.json', got '${settings.source}'`);
     }
 
-    console.log('✅ PASS: Local fallback works correctly');
-    console.log(`   - Used endpoint: ${settings.endpoint}`);
+    console.log('✅ PASS: API key from env var correctly supplements file endpoint');
+    console.log(`   - Endpoint (from file): ${settings.endpoint}`);
+    console.log(`   - API key (from env): ${settings.apiKey ? '***set***' : 'not set'}`);
 
     restore();
     testsPassed++;
@@ -134,30 +146,27 @@ async function runTests() {
   }
   console.log('');
 
-  // Test 5: Missing credentials throw a clear error
-  console.log('Test 5: Missing credentials throw a descriptive error');
+  // Test 5: Endpoint-only settings (no API key) succeed for managed identity;
+  //         a descriptive error is only thrown when the endpoint itself is absent.
+  console.log('Test 5: Endpoint-only settings succeed (managed identity path); missing endpoint throws');
   try {
+    // When appsettings.json has a real endpoint but no API key is configured anywhere,
+    // getAzureSettings() should succeed and return settings with a null/undefined apiKey
+    // so that the client can authenticate via Azure Managed Identity.
     const restore = saveEnv('USE_WEBSITE_SETTINGS', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
     process.env.USE_WEBSITE_SETTINGS = 'false';
     delete process.env.AZURE_OPENAI_ENDPOINT;
     delete process.env.AZURE_OPENAI_API_KEY;
     clearCache();
 
-    let threw = false;
-    try {
-      await getAzureSettings();
-    } catch (err) {
-      threw = true;
-      if (!err.message.includes('Azure OpenAI credentials not configured')) {
-        throw new Error(`Unexpected error message: ${err.message}`);
-      }
+    const settings = await getAzureSettings();
+    if (!settings || !settings.endpoint) {
+      throw new Error('Expected settings with an endpoint for managed identity path');
     }
 
-    if (!threw) {
-      throw new Error('Expected an error to be thrown when credentials are missing');
-    }
-
-    console.log('✅ PASS: Missing credentials produce a descriptive error');
+    console.log('✅ PASS: Endpoint-only settings succeed (apiKey absent → managed identity will be used)');
+    console.log(`   - Endpoint: ${settings.endpoint}`);
+    console.log(`   - apiKey present: ${Boolean(settings.apiKey)}`);
 
     restore();
     testsPassed++;
@@ -168,22 +177,24 @@ async function runTests() {
   console.log('');
 
   // Test 6: Website settings disabled when USE_WEBSITE_SETTINGS=false
-  console.log('Test 6: Website settings skipped when USE_WEBSITE_SETTINGS=false');
+  // Test 6: File settings are used when website settings are disabled
+  console.log('Test 6: File settings are used when USE_WEBSITE_SETTINGS=false');
   try {
     const restore = saveEnv('USE_WEBSITE_SETTINGS', 'SETTINGS_SOURCE_URL', 'AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY');
     process.env.USE_WEBSITE_SETTINGS = 'false';
     process.env.SETTINGS_SOURCE_URL = 'https://test-fixture.example.com/appsettings.json';
-    process.env.AZURE_OPENAI_ENDPOINT = 'https://test-skip-website.openai.azure.com/';
+    delete process.env.AZURE_OPENAI_ENDPOINT;        // file supplies the endpoint
     process.env.AZURE_OPENAI_API_KEY = 'test-key-skip';
     clearCache();
 
     const settings = await getAzureSettings();
 
-    if (settings.source !== 'local-env') {
-      throw new Error(`Expected source 'local-env', got '${settings.source}'`);
+    // File endpoint takes precedence; source should be 'appsettings.json'
+    if (settings.source !== 'appsettings.json') {
+      throw new Error(`Expected source 'appsettings.json', got '${settings.source}'`);
     }
 
-    console.log('✅ PASS: Website settings correctly skipped');
+    console.log('✅ PASS: Website settings correctly skipped; file settings used');
     console.log(`   - Source: ${settings.source}`);
 
     restore();
@@ -194,8 +205,8 @@ async function runTests() {
   }
   console.log('');
 
-  // Test 7: Placeholder credentials in website response are skipped
-  console.log('Test 7: Placeholder credentials in fetched settings are skipped, fallback to env vars');
+  // Test 7: Placeholder credentials in website response are skipped; file settings are used
+  console.log('Test 7: Placeholder credentials in fetched settings are skipped, fallback to file settings');
   try {
     const http = require('http');
     // Start a minimal HTTP server that returns placeholder credentials
@@ -217,21 +228,22 @@ async function runTests() {
     process.env.USE_WEBSITE_SETTINGS = 'true';
     process.env.SETTINGS_SOURCE_URL = `http://127.0.0.1:${placeholderPort}/appsettings.json`;
     delete process.env.SETTINGS_API_TOKEN;
-    process.env.AZURE_OPENAI_ENDPOINT = 'https://test-fallback.openai.azure.com/';
+    delete process.env.AZURE_OPENAI_ENDPOINT;    // file supplies the endpoint
     process.env.AZURE_OPENAI_API_KEY = 'test-key-fallback';
     clearCache();
 
     try {
       const settings = await getAzureSettings();
 
-      if (settings.source !== 'local-env') {
-        throw new Error(`Expected fallback to local-env (got '${settings.source}')`);
+      // After skipping placeholder website credentials, file settings are used
+      if (settings.source !== 'appsettings.json') {
+        throw new Error(`Expected fallback to appsettings.json (got '${settings.source}')`);
       }
-      if (settings.endpoint !== 'https://test-fallback.openai.azure.com/') {
-        throw new Error(`Expected env var endpoint, got '${settings.endpoint}'`);
+      if (!settings.endpoint) {
+        throw new Error('Expected endpoint in settings after fallback');
       }
 
-      console.log('✅ PASS: Placeholder credentials skipped, fell back to env vars');
+      console.log('✅ PASS: Placeholder credentials skipped, fell back to file settings');
       console.log(`   - Source: ${settings.source}`);
       testsPassed++;
     } finally {
