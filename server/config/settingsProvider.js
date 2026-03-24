@@ -173,33 +173,73 @@ async function fetchSettingsFromWebsite() {
 }
 
 /**
- * Get Azure OpenAI settings from a local appsettings.json file.
- * Returns null if the file is missing or does not contain an AzureOpenAI section.
+ * Get Azure OpenAI settings from local appsettings.json (and an optional
+ * environment-specific overlay such as appsettings.development.json).
+ * Any values that are absent or empty in the files are supplemented from
+ * the matching process.env variable so that secrets set via App Service
+ * application settings or a .env file are picked up without triggering the
+ * "local environment variables" fallback path.
+ *
+ * Returns null if neither the files nor the environment provide a usable
+ * endpoint and API key.
  */
 function getSettingsFromFile() {
   try {
-    const filePath = path.join(__dirname, '..', 'appsettings.json');
-    if (!fs.existsSync(filePath)) return null;
+    const dir = path.join(__dirname, '..');
+    const basePath = path.join(dir, 'appsettings.json');
+    if (!fs.existsSync(basePath)) return null;
 
-    const raw = fs.readFileSync(filePath, 'utf8');
-    const config = JSON.parse(raw);
+    const base = JSON.parse(fs.readFileSync(basePath, 'utf8'));
 
-    if (!config.AzureOpenAI) return null;
+    // Apply environment-specific overlay (e.g. appsettings.development.json)
+    const env = process.env.NODE_ENV || 'development';
+    const overlayPath = path.join(dir, `appsettings.${env}.json`);
+    let merged = base;
+    if (fs.existsSync(overlayPath)) {
+      try {
+        const overlay = JSON.parse(fs.readFileSync(overlayPath, 'utf8'));
+        merged = Object.assign({}, base);
+        for (const section of Object.keys(overlay)) {
+          if (typeof overlay[section] === 'object' && !Array.isArray(overlay[section])) {
+            merged[section] = Object.assign({}, merged[section] || {}, overlay[section]);
+          } else {
+            merged[section] = overlay[section];
+          }
+        }
+      } catch {
+        // overlay parse failure is non-fatal
+      }
+    }
 
-    const az = config.AzureOpenAI;
-    if (!az.Endpoint || !az.ApiKey) return null;
+    if (!merged.AzureOpenAI) return null;
+
+    const az = merged.AzureOpenAI;
+
+    // Supplement empty/missing values from environment variables so that
+    // secrets provided via App Service application settings are honoured
+    // without treating the whole settings block as "from environment variables".
+    const endpoint = az.Endpoint || process.env.AZURE_OPENAI_ENDPOINT;
+    const apiKey   = az.ApiKey   || process.env.AZURE_OPENAI_API_KEY;
+
+    if (!endpoint || !apiKey) return null;
+
+    // Helper: parse a numeric env var, returning defaultVal when absent or NaN
+    const envNum = (key, defaultVal) => {
+      const n = Number(process.env[key]);
+      return Number.isFinite(n) ? n : defaultVal;
+    };
 
     console.log('📋 Using Azure settings from local appsettings.json');
     return {
-      endpoint: az.Endpoint,
-      apiKey: az.ApiKey,
-      deploymentName: az.DeploymentName || 'gpt-4o',
-      apiVersion: az.ApiVersion || '2024-12-01-preview',
-      maxTokens: az.MaxTokens || 800,
-      temperature: az.Temperature !== undefined ? az.Temperature : 0.7,
-      topP: az.TopP !== undefined ? az.TopP : 0.95,
-      frequencyPenalty: az.FrequencyPenalty !== undefined ? az.FrequencyPenalty : 0,
-      presencePenalty: az.PresencePenalty !== undefined ? az.PresencePenalty : 0,
+      endpoint,
+      apiKey,
+      deploymentName: az.DeploymentName || process.env.AZURE_OPENAI_DEPLOYMENT_NAME || 'gpt-4o',
+      apiVersion: az.ApiVersion || process.env.AZURE_OPENAI_API_VERSION || '2024-12-01-preview',
+      maxTokens: az.MaxTokens !== undefined ? az.MaxTokens : envNum('AZURE_OPENAI_MAX_TOKENS', 800),
+      temperature: az.Temperature !== undefined ? az.Temperature : envNum('AZURE_OPENAI_TEMPERATURE', 0.7),
+      topP: az.TopP !== undefined ? az.TopP : envNum('AZURE_OPENAI_TOP_P', 0.95),
+      frequencyPenalty: az.FrequencyPenalty !== undefined ? az.FrequencyPenalty : envNum('AZURE_OPENAI_FREQUENCY_PENALTY', 0),
+      presencePenalty: az.PresencePenalty !== undefined ? az.PresencePenalty : envNum('AZURE_OPENAI_PRESENCE_PENALTY', 0),
       source: 'appsettings.json'
     };
   } catch (err) {
