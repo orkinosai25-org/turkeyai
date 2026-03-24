@@ -118,12 +118,23 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error('Chat API Error:', error);
-    const isConfigError = error.message && error.message.includes('Azure OpenAI credentials not configured');
+    const isConfigError = error.message && (
+      error.message.includes('Azure OpenAI credentials not configured') ||
+      error.message.includes('Azure OpenAI configuration is incomplete')
+    );
+    if (isConfigError) {
+      console.error('⚙️  Azure OpenAI is not configured. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY in appsettings.json, a .env file, or via App Service application settings.');
+    }
     res.status(isConfigError ? 503 : 500).json({ 
       error: isConfigError
-        ? 'AI service is not available. Please configure Azure OpenAI credentials.'
+        ? 'AI service is not available. Please configure Azure OpenAI credentials in appsettings.json or environment variables.'
         : 'Failed to process chat message',
-      details: error.message 
+      details: error.message,
+      configurationRequired: isConfigError ? {
+        required: ['AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY'],
+        optional: ['AZURE_OPENAI_DEPLOYMENT_NAME', 'AZURE_OPENAI_API_VERSION'],
+        documentation: 'See appsettings.example.json or docs/AZURE_SETUP.md for configuration instructions.'
+      } : undefined
     });
   }
 });

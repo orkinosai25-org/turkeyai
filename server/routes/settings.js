@@ -28,9 +28,18 @@ router.get('/status', async (req, res) => {
     });
   } catch (error) {
     console.error('Settings Status Error:', error);
-    res.status(500).json({
-      status: 'error',
-      error: error.message
+    const isConfigError = error.message && (
+      error.message.includes('credentials not configured') ||
+      error.message.includes('configuration is incomplete')
+    );
+    res.status(isConfigError ? 503 : 500).json({
+      status: isConfigError ? 'unconfigured' : 'error',
+      error: error.message,
+      ...(isConfigError && {
+        required: ['AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY'],
+        optional: ['AZURE_OPENAI_DEPLOYMENT_NAME', 'AZURE_OPENAI_API_VERSION'],
+        documentation: 'See appsettings.example.json or docs/AZURE_SETUP.md for configuration instructions.'
+      })
     });
   }
 });

@@ -187,6 +187,12 @@ function HotelChatWidget({ hotel }) {
       setMessages(prev => [...prev, { role: 'ai', content: res.data.response }]);
     } catch (err) {
       const isServiceUnavailable = err.response?.status === 503;
+      const isConfigError = isServiceUnavailable && err.response?.data?.configurationRequired;
+      if (isConfigError) {
+        console.warn('⚙️ Azure OpenAI is not configured:', err.response?.data?.configurationRequired);
+      } else if (isServiceUnavailable) {
+        console.warn('Chat API unavailable:', err.response?.data);
+      }
       const errMsg = isServiceUnavailable
         ? "The AI assistant is currently unavailable. Please try again later."
         : "Sorry, I couldn't reach the AI agent right now. Please try again.";
