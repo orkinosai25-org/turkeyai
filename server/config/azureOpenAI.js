@@ -1,4 +1,5 @@
 const { AzureOpenAI } = require("openai");
+const { DefaultAzureCredential, getBearerTokenProvider } = require("@azure/identity");
 const { getAzureSettings } = require("./settingsProvider");
 
 let client = null;
@@ -14,31 +15,51 @@ function hasSettingsChanged(settings) {
   return (
     !client ||
     currentEndpoint !== settings.endpoint ||
-    currentApiKey !== settings.apiKey ||
+    currentApiKey !== (settings.apiKey || null) ||
     currentApiVersion !== settings.apiVersion
   );
 }
 
 /**
- * Initialize Azure OpenAI client with dynamic settings
+ * Initialize Azure OpenAI client with dynamic settings.
+ * When an API key is provided it is used directly; otherwise the client
+ * authenticates via Azure Managed Identity (DefaultAzureCredential).
  */
 async function getAzureOpenAIClient() {
   const settings = await getAzureSettings();
 
-  if (!settings.endpoint || !settings.apiKey || !settings.apiVersion) {
-    throw new Error('Azure OpenAI configuration is incomplete: endpoint, apiKey, and apiVersion are required.');
+  if (!settings.endpoint || !settings.apiVersion) {
+    throw new Error('Azure OpenAI configuration is incomplete: endpoint and apiVersion are required.');
   }
 
   // Recreate client if settings have changed
   if (hasSettingsChanged(settings)) {
     console.log('🔄 Initializing Azure OpenAI client with updated settings');
-    client = new AzureOpenAI({
-      endpoint: settings.endpoint,
-      apiKey: settings.apiKey,
-      apiVersion: settings.apiVersion
-    });
+
+    if (settings.apiKey) {
+      // API key authentication
+      client = new AzureOpenAI({
+        endpoint: settings.endpoint,
+        apiKey: settings.apiKey,
+        apiVersion: settings.apiVersion
+      });
+    } else {
+      // Managed Identity / DefaultAzureCredential authentication (keyless)
+      console.log('🔑 No API key configured – using Azure Managed Identity (DefaultAzureCredential)');
+      const credential = new DefaultAzureCredential();
+      const azureADTokenProvider = getBearerTokenProvider(
+        credential,
+        'https://cognitiveservices.azure.com/.default'
+      );
+      client = new AzureOpenAI({
+        endpoint: settings.endpoint,
+        azureADTokenProvider,
+        apiVersion: settings.apiVersion
+      });
+    }
+
     currentEndpoint = settings.endpoint;
-    currentApiKey = settings.apiKey;
+    currentApiKey = settings.apiKey || null;
     currentApiVersion = settings.apiVersion;
   }
   

@@ -123,7 +123,7 @@ router.post('/', async (req, res) => {
       error.message.includes('Azure OpenAI configuration is incomplete')
     );
     if (isConfigError) {
-      console.error('⚙️  Azure OpenAI is not configured. Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY in appsettings.json, a .env file, or via App Service application settings.');
+      console.error('⚙️  Azure OpenAI is not configured. Set AZURE_OPENAI_ENDPOINT in appsettings.json, a .env file, or via App Service application settings. Set AZURE_OPENAI_API_KEY or enable a Managed Identity on the App Service for keyless authentication.');
     }
     res.status(isConfigError ? 503 : 500).json({ 
       error: isConfigError
@@ -131,8 +131,9 @@ router.post('/', async (req, res) => {
         : 'Failed to process chat message',
       details: error.message,
       configurationRequired: isConfigError ? {
-        required: ['AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY'],
-        optional: ['AZURE_OPENAI_DEPLOYMENT_NAME', 'AZURE_OPENAI_API_VERSION'],
+        required: ['AZURE_OPENAI_ENDPOINT'],
+        optional: ['AZURE_OPENAI_API_KEY', 'AZURE_OPENAI_DEPLOYMENT_NAME', 'AZURE_OPENAI_API_VERSION'],
+        note: 'AZURE_OPENAI_API_KEY can be omitted when the App Service has a Managed Identity with the Cognitive Services OpenAI User role.',
         documentation: 'See appsettings.example.json or docs/AZURE_SETUP.md for configuration instructions.'
       } : undefined
     });

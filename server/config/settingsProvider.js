@@ -218,10 +218,13 @@ function getSettingsFromFile() {
     // Supplement empty/missing values from environment variables so that
     // secrets provided via App Service application settings are honoured
     // without treating the whole settings block as "from environment variables".
-    const endpoint = az.Endpoint || process.env.AZURE_OPENAI_ENDPOINT;
-    const apiKey   = az.ApiKey   || process.env.AZURE_OPENAI_API_KEY;
+    // isPlaceholderValue rejects empty strings and known template values
+    // (e.g. 'your-openai-api-key', 'https://your-resource.openai.azure.com/').
+    const endpoint = (!isPlaceholderValue(az.Endpoint) ? az.Endpoint : null) || process.env.AZURE_OPENAI_ENDPOINT;
+    const apiKey   = (!isPlaceholderValue(az.ApiKey)   ? az.ApiKey   : null) || process.env.AZURE_OPENAI_API_KEY;
 
-    if (!endpoint || !apiKey) return null;
+    // Endpoint is required; API key is optional (absence means managed identity will be used).
+    if (!endpoint) return null;
 
     // Helper: parse a numeric env var, returning defaultVal when absent or NaN
     const envNum = (key, defaultVal) => {
@@ -273,6 +276,10 @@ function getLocalSettings() {
  *      USE_WEBSITE_SETTINGS is not 'false' AND SETTINGS_SOURCE_URL is non-empty)
  *   2. Local appsettings.json / appsettings.<env>.json
  *   3. Environment variables (.env or host settings)
+ *
+ * An API key is optional — when absent the Azure OpenAI client will authenticate
+ * via Azure Managed Identity (DefaultAzureCredential).  Only the endpoint is
+ * strictly required.
  */
 async function getAzureSettings() {
   const now = Date.now();
@@ -292,20 +299,31 @@ async function getAzureSettings() {
     settings = await fetchSettingsFromWebsite();
   }
   
-  // Try local appsettings.json next
-  if (!settings || !settings.endpoint || !settings.apiKey) {
+  // Try local appsettings.json next (a valid endpoint is sufficient to stop the chain)
+  if (!settings || !settings.endpoint) {
     settings = getSettingsFromFile();
   }
 
   // Fall back to environment variables
-  if (!settings || !settings.endpoint || !settings.apiKey) {
+  if (!settings || !settings.endpoint) {
     console.log('📋 Using local environment variables for Azure settings');
     settings = getLocalSettings();
   }
+
+  // If we now have an endpoint but the API key is still missing, check whether the
+  // env var was set without going through getLocalSettings() (e.g. the endpoint came
+  // from appsettings.json but the key was injected via App Service application settings).
+  if (settings && settings.endpoint && !settings.apiKey) {
+    const envKey = process.env.AZURE_OPENAI_API_KEY;
+    if (envKey) {
+      settings = { ...settings, apiKey: envKey };
+    }
+  }
   
-  // Validate that we have required settings
-  if (!settings.endpoint || !settings.apiKey) {
-    throw new Error('Azure OpenAI credentials not configured. Please set environment variables, appsettings.json, or configure website settings URL.');
+  // Validate that we have required settings (endpoint is required; API key is optional — absence
+  // means the client will authenticate via Azure Managed Identity / DefaultAzureCredential).
+  if (!settings || !settings.endpoint) {
+    throw new Error('Azure OpenAI credentials not configured. Please set AZURE_OPENAI_ENDPOINT in appsettings.json, a .env file, or via App Service application settings.');
   }
   
   // Cache the settings
