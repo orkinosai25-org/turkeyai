@@ -343,30 +343,26 @@ function clearCache() {
 
 /**
  * Ensure HotelBeds settings are resolved by:
- *   1. Returning immediately if already configured in env vars.
- *   2. Fetching from the remote settings URL (same source as Azure settings).
- *   3. Checking the local appsettings.json as a fallback.
+ *   1. Returning immediately if already configured in env vars (set at startup
+ *      by server/config/appSettings.js reading appsettings.json).
+ *   2. Checking the local appsettings.json as a safety-net for values that may
+ *      have been added after the server started.
+ *
+ * Config is ALWAYS sourced from the local appsettings.json file only.
+ * No remote fetch, no Key Vault, no URL is ever used for dev/CI/MVP.
  *
  * Returns true when HOTELBEDS_API_KEY and HOTELBEDS_API_SECRET are set after
  * this call, false otherwise.
  */
 async function ensureHotelBedsConfigured() {
-  // Fast path — already in env vars (set either at startup or by a prior call)
+  // Fast path — already in env vars (set at startup from appsettings.json)
   if (process.env.HOTELBEDS_API_KEY && process.env.HOTELBEDS_API_SECRET) {
     return true;
   }
 
-  const useWebsiteSettings = process.env.USE_WEBSITE_SETTINGS !== 'false';
-  if (useWebsiteSettings) {
-    // fetchSettingsFromWebsite() applies HotelBeds env vars as a side-effect
-    await fetchSettingsFromWebsite();
-    if (process.env.HOTELBEDS_API_KEY && process.env.HOTELBEDS_API_SECRET) {
-      return true;
-    }
-  }
-
-  // Try local appsettings.json (handles values that appSettings.js may have
-  // skipped because they were empty at startup but have since been updated)
+  // Safety-net: re-read local appsettings.json in case the env vars were not
+  // populated at startup (e.g. the file was updated without a server restart).
+  // Always populate config from local `appsettings.json` only.
   try {
     const filePath = path.join(__dirname, '..', 'appsettings.json');
     if (fs.existsSync(filePath)) {
@@ -375,10 +371,22 @@ async function ensureHotelBedsConfigured() {
     }
   } catch (err) {
     console.warn('⚠️  Could not read local appsettings.json for HotelBeds settings:', err.message);
-    // ignore read errors
   }
 
-  return Boolean(process.env.HOTELBEDS_API_KEY && process.env.HOTELBEDS_API_SECRET);
+  const missingKeys = [
+    !process.env.HOTELBEDS_API_KEY    && 'HOTELBEDS_API_KEY',
+    !process.env.HOTELBEDS_API_SECRET && 'HOTELBEDS_API_SECRET',
+  ].filter(Boolean);
+
+  if (missingKeys.length > 0) {
+    console.error(
+      `❌ Missing HotelBeds credential(s): ${missingKeys.join(', ')}. ` +
+      'Add them to server/appsettings.json under the "HotelBeds" section. ' +
+      'Hotel search will fall back to static demo data until they are configured.'
+    );
+    return false;
+  }
+  return true;
 }
 
 module.exports = {
