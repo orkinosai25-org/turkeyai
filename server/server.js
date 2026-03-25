@@ -10,11 +10,11 @@ const { loadAppSettings } = require('./config/appSettings');
 loadAppSettings();
 dotenv.config();
 
-// Eagerly resolve remote settings (including HotelBeds) so they are available
-// before the first inbound request arrives.
+// Verify HotelBeds credentials are present in appsettings.json at startup.
+// Config is always loaded from the local appsettings.json file only.
 const { ensureHotelBedsConfigured } = require('./config/settingsProvider');
 ensureHotelBedsConfigured().catch(err => {
-  console.warn('⚠️  Could not pre-load HotelBeds settings at startup:', err.message);
+  console.error('❌ HotelBeds startup check failed:', err.message);
 });
 
 const app = express();
