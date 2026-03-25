@@ -30,7 +30,7 @@ function setIfMissing(key, value) {
 function mapSettings(config) {
   if (!config || typeof config !== 'object') return;
 
-  const { App, AzureOpenAI, AzureSearch, Database, ConnectionStrings, HotelBeds, Settings } = config;
+  const { App, AzureOpenAI, AzureSearch, Database, ConnectionStrings, HotelBeds, BingSearch, Settings } = config;
 
   // App / server settings
   if (App) {
@@ -68,6 +68,11 @@ function mapSettings(config) {
     setIfMissing('HOTELBEDS_BASE_URL', HotelBeds.BaseUrl);
     setIfMissing('HOTELBEDS_LANGUAGE', HotelBeds.Language);
     setIfMissing('HOTELBEDS_CURRENCY', HotelBeds.Currency);
+  }
+
+  // Bing Web Search API (used by the hotel AI chat to search the web for real-time hotel information)
+  if (BingSearch) {
+    setIfMissing('BING_SEARCH_API_KEY', BingSearch.ApiKey);
   }
 
   // Database — individual fields take precedence over the connection string
