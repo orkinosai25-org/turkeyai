@@ -17,7 +17,7 @@
 #   AZURE_SEARCH_API_KEY         – Azure AI Search admin key
 #   AZURE_SEARCH_INDEX_NAME      – Travel index name
 #   AZURE_KNOWLEDGE_INDEX_NAME   – Knowledge base index name
-#   BING_SEARCH_API_KEY          – Azure Bing Search v7 key (optional; web search works without it)
+#   BING_SEARCH_API_KEY          – Azure Bing Search v7 key (auto-discovered from Azure resource if not set)
 #   HOTELBEDS_API_KEY            – HotelBeds API key
 #   HOTELBEDS_API_SECRET         – HotelBeds API secret
 #   HOTELBEDS_BASE_URL           – HotelBeds base URL
@@ -137,7 +137,7 @@ jobs:
           AZURE_SEARCH_API_KEY: ${{ secrets.AZURE_SEARCH_API_KEY }}
           AZURE_SEARCH_INDEX_NAME: ${{ secrets.AZURE_SEARCH_INDEX_NAME }}
           AZURE_KNOWLEDGE_INDEX_NAME: ${{ secrets.AZURE_KNOWLEDGE_INDEX_NAME }}
-          # Bing Web Search (optional — web search works without this key too)
+          # Bing Web Search (auto-discovered from Azure; override by setting this secret)
           BING_SEARCH_API_KEY: ${{ secrets.BING_SEARCH_API_KEY }}
           # HotelBeds
           HOTELBEDS_API_KEY: ${{ secrets.HOTELBEDS_API_KEY }}
@@ -162,6 +162,22 @@ jobs:
           if [ -z "$RG" ]; then
             echo "⚠️  Web App '$APP_NAME' not found in subscription — skipping settings push"
             exit 0
+          fi
+
+          # Auto-discover the Bing Web Search key from the Azure Cognitive Services resource.
+          # This reads the key directly from the Azure resource — no GitHub Secret needed.
+          if [ -z "$BING_SEARCH_API_KEY" ]; then
+            BING_RES=$(az cognitiveservices account list \
+              --query "[?contains(kind,'Bing')].{name:name,rg:resourceGroup} | [0]" \
+              -o json 2>/dev/null || echo "{}")
+            BING_RES_NAME=$(echo "$BING_RES" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('name',''))" 2>/dev/null || true)
+            BING_RES_RG=$(echo "$BING_RES"   | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('rg',''))"   2>/dev/null || true)
+            if [ -n "$BING_RES_NAME" ] && [ -n "$BING_RES_RG" ]; then
+              BING_SEARCH_API_KEY=$(az cognitiveservices account keys list \
+                --name "$BING_RES_NAME" --resource-group "$BING_RES_RG" \
+                --query key1 -o tsv 2>/dev/null || true)
+              [ -n "$BING_SEARCH_API_KEY" ] && echo "🔍 Bing Search key auto-discovered from Azure resource '$BING_RES_NAME'"
+            fi
           fi
 
           SETTINGS=()
