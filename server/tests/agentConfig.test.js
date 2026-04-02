@@ -6,7 +6,7 @@
  */
 
 const { getAgentPrompt, getAgentTools, getToolConfig } = require('../config/agentConfig');
-const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, searchKnowledgeBase, executeTool } = require('../config/agentTools');
+const { searchResorts, getResort, compareResorts, buildItinerary, getResortDeepDive, getNearbyResorts, searchExcursions, searchPackages, getTransferOptions, searchCarRentals, searchCruises, searchPrivateAviation, searchYachts, searchKnowledgeBase, searchWeb, executeTool } = require('../config/agentTools');
 
 console.log('🧪 Testing AI Agent Configuration and Tools\n');
 
@@ -34,7 +34,7 @@ logTest('getAgentPrompt returns string', typeof prompt === 'string' && prompt.le
 logTest('Prompt includes TürkiyeAI', prompt.includes('TürkiyeAI'));
 logTest('Prompt includes OrkinosAI', prompt.includes('OrkinosAI'));
 logTest('getAgentTools returns array', Array.isArray(tools));
-logTest('Tools array has 14 tools', tools.length === 14);
+logTest('Tools array has 15 tools', tools.length === 15);
 logTest('getToolConfig returns object', typeof toolConfig === 'object');
 console.log('');
 
@@ -43,7 +43,8 @@ console.log('Test 2: Tool Definitions Structure');
 const expectedTools = [
   'searchResorts', 'getResort', 'compareResorts', 'buildItinerary',
   'getResortDeepDive', 'getNearbyResorts', 'searchExcursions', 'searchPackages', 'getTransferOptions',
-  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts', 'searchKnowledgeBase'
+  'searchCarRentals', 'searchCruises', 'searchPrivateAviation', 'searchYachts', 'searchKnowledgeBase',
+  'searchWeb'
 ];
 const actualToolNames = tools.map(t => t.function.name);
 
@@ -88,6 +89,11 @@ logTest('getNearbyResorts requires resort_id',
 const transferTool = tools.find(t => t.function.name === 'getTransferOptions');
 logTest('getTransferOptions requires destination',
   transferTool?.function.parameters.required.includes('destination'));
+
+const searchWebTool = tools.find(t => t.function.name === 'searchWeb');
+logTest('searchWeb is defined', !!searchWebTool);
+logTest('searchWeb requires query', searchWebTool?.function.parameters.required.includes('query'));
+logTest('searchWeb has location_hint parameter', searchWebTool?.function.parameters.properties.location_hint !== undefined);
 console.log('');
 
 // Test 4: Tool Handler Functions
@@ -106,6 +112,7 @@ logTest('searchCruises is a function', typeof searchCruises === 'function');
 logTest('searchPrivateAviation is a function', typeof searchPrivateAviation === 'function');
 logTest('searchYachts is a function', typeof searchYachts === 'function');
 logTest('searchKnowledgeBase is a function', typeof searchKnowledgeBase === 'function');
+logTest('searchWeb is a function', typeof searchWeb === 'function');
 logTest('executeTool is a function', typeof executeTool === 'function');
 console.log('');
 
@@ -269,6 +276,18 @@ async function testToolHandlers() {
     // Test executeTool routes to knowledge base handler
     const kbExec = await executeTool('searchKnowledgeBase', { query: 'Gumbet restaurants' });
     logTest('executeTool routes searchKnowledgeBase correctly', typeof kbExec === 'object' && 'success' in kbExec);
+
+    // Test searchWeb - missing query returns error
+    const webMissing = await searchWeb({});
+    logTest('searchWeb validates missing query', !webMissing.success && webMissing.error);
+
+    // Test searchWeb - returns object with success field
+    const webResult = await searchWeb({ query: 'Bodrum beach hotels facilities' });
+    logTest('searchWeb returns object with success field', typeof webResult === 'object' && 'success' in webResult);
+
+    // Test executeTool routes to searchWeb handler
+    const webExec = await executeTool('searchWeb', { query: 'Istanbul restaurants near Sultanahmet' });
+    logTest('executeTool routes searchWeb correctly', typeof webExec === 'object' && 'success' in webExec);
 
     // Test executeTool with invalid function
     const invalidExec = await executeTool('nonExistentTool', {});

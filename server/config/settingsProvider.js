@@ -88,6 +88,16 @@ function applyHotelBedsEnvVars(config) {
 }
 
 /**
+ * Apply Bing Search settings from a raw config object to process.env.
+ * Enables the hotel AI chat to perform live web searches when BingSearch.ApiKey
+ * is present in appsettings.json or the remote settings source.
+ */
+function applyBingSearchEnvVars(config) {
+  if (!config || !config.BingSearch) return;
+  setEnvIfMissing('BING_SEARCH_API_KEY', config.BingSearch.ApiKey);
+}
+
+/**
  * Fetch Azure OpenAI settings from the website.
  * Supports both plain HTTP endpoints and GitHub raw content URLs.
  * When SETTINGS_API_TOKEN is set and the URL is a GitHub raw URL, the
@@ -136,9 +146,10 @@ async function fetchSettingsFromWebsite() {
     }
 
     if (configData) {
-      // Apply HotelBeds settings from the remote source to env vars so that
-      // the /api/hotels routes can pick them up without a separate fetch.
+      // Apply HotelBeds and BingSearch settings from the remote source to env vars so that
+      // the /api/hotels routes and hotel AI chat can pick them up without a separate fetch.
       applyHotelBedsEnvVars(configData);
+      applyBingSearchEnvVars(configData);
 
       if (configData.AzureOpenAI) {
         const azureConfig = configData.AzureOpenAI;

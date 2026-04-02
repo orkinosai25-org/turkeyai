@@ -159,11 +159,13 @@ function HotelChatWidget({ hotel }) {
   const buildHistory = (userInput) => {
     const hotelCtx = {
       role: 'user',
-      content: `[Context] The user is viewing the hotel details page for: "${hotel.name.content}", a ${stars}-star hotel located in ${hotel.zoneName ? `${hotel.zoneName}, ` : ''}${hotel.destinationName}, Turkey. Hotel code: ${hotel.code}. Address: ${hotel.address ? hotel.address.content : 'N/A'}. Please answer all questions in the context of this hotel, and use the searchWeb and searchKnowledgeBase tools to find current, specific information.`,
+      content: `[Context] The user is on the hotel details page for: "${hotel.name.content}", a ${stars}-star hotel in ${hotel.zoneName ? `${hotel.zoneName}, ` : ''}${hotel.destinationName}, Turkey. Hotel code: ${hotel.code}. Address: ${hotel.address ? hotel.address.content : 'N/A'}.
+
+Please use the searchWeb tool to find current, real-world information before answering questions about this hotel's facilities, nearby restaurants, beach access, accessibility, reviews, or anything else the user asks. Search using the hotel name and destination for specific queries (e.g. "${hotel.name.content} children pool" or "${hotel.name.content} wheelchair accessible"). If web search returns results, base your answer on those. If search is unavailable, answer from your training knowledge and note that you are doing so.`,
     };
     const hotelAck = {
       role: 'assistant',
-      content: `Understood! I have context for ${hotel.name.content} in ${hotel.destinationName}. I'll use web search to answer specific questions about this hotel's facilities, nearby dining, accessibility, and more. What would you like to know?`,
+      content: `Understood! I'm focused on ${hotel.name.content} in ${hotel.destinationName}. I'll search the web for current information before answering. What would you like to know?`,
     };
     const priorMsgs = messages.slice(1).map(m => ({
       role: m.role === 'ai' ? 'assistant' : 'user',

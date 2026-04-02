@@ -714,7 +714,7 @@ async function searchKnowledgeBase(params) {
 /**
  * Search the web for current information about hotels, facilities, nearby attractions, etc.
  * Uses Bing Search API if BING_SEARCH_API_KEY is set, otherwise falls back to
- * DuckDuckGo Instant Answers (free, no key required).
+ * DuckDuckGo HTML search (free, no key required, returns real web results).
  *
  * @param {Object} params - Search parameters
  * @returns {Promise<Object>} Web search results
@@ -730,7 +730,7 @@ async function searchWeb(params) {
     ? `${query} ${location_hint} Turkey`
     : query;
 
-  // Bing Web Search API (premium – used when key is configured)
+  // Bing Web Search API (Azure Cognitive Services — used when key is configured)
   const bingKey = process.env.BING_SEARCH_API_KEY;
   if (bingKey) {
     try {
@@ -752,11 +752,78 @@ async function searchWeb(params) {
       };
     } catch (bingErr) {
       console.warn('Bing search error:', bingErr.message);
-      // fall through to DuckDuckGo
+      // fall through to DuckDuckGo HTML search
     }
   }
 
-  // DuckDuckGo Instant Answer API (free, no key required)
+  // DuckDuckGo HTML search — returns real web results, no API key required.
+  // Uses the HTML endpoint which provides comprehensive results for any query,
+  // unlike the limited Instant Answer API which only returns factual/Wikipedia-style answers.
+  // Note: parses public HTML; structure may change over time if DuckDuckGo updates their page.
+  try {
+    const ddgHtmlRes = await axios.post(
+      'https://html.duckduckgo.com/html/',
+      new URLSearchParams({ q: searchQuery, kl: 'en-gb' }).toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (compatible; TurkiyeAI/1.0; +https://turkiyeai.travel)',
+          Accept: 'text/html',
+        },
+        timeout: 8000,
+      }
+    );
+
+    const html = ddgHtmlRes.data || '';
+
+    // Extract titles (class="result__a"), URLs and snippets (class="result__snippet")
+    // from the DuckDuckGo HTML search results page.
+    // Both lists are extracted in document order and paired by index; snippet is optional.
+    const titleRe = /class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+    const snippetRe = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+
+    const titles = [];
+    let m;
+    while ((m = titleRe.exec(html)) !== null) {
+      const url = m[1];
+      const title = m[2].replace(/<[\s\S]*?>/g, '').replace(/</g, '').trim();
+      // Skip internal DuckDuckGo navigation links using hostname check
+      let isDdgInternal = true;
+      try {
+        const host = new URL(url).hostname;
+        isDdgInternal = host === 'duckduckgo.com' || host.endsWith('.duckduckgo.com');
+      } catch (_) { /* malformed URL — skip */ }
+      if (title && !isDdgInternal) {
+        titles.push({ title, url });
+      }
+    }
+
+    const snippets = [];
+    while ((m = snippetRe.exec(html)) !== null) {
+      const snippet = m[1].replace(/<[\s\S]*?>/g, '').replace(/</g, '').trim();
+      if (snippet) snippets.push(snippet);
+    }
+
+    // Pair by index; snippet is optional so results with no matching snippet are still kept
+    const results = titles.slice(0, 5).map((t, i) => ({
+      title: t.title,
+      url: t.url,
+      snippet: snippets[i] || '',
+    })).filter(r => r.title);
+
+    if (results.length > 0) {
+      return {
+        success: true,
+        query: searchQuery,
+        results,
+        source: 'web',
+      };
+    }
+  } catch (htmlErr) {
+    console.warn('DuckDuckGo HTML search error:', htmlErr.message);
+  }
+
+  // Last resort: DuckDuckGo Instant Answer API (handles well-known entities)
   try {
     const ddgRes = await axios.get('https://api.duckduckgo.com/', {
       params: {
@@ -778,13 +845,9 @@ async function searchWeb(params) {
       });
     }
     if (d.Answer) {
-      results.push({
-        title: 'Direct answer',
-        snippet: d.Answer,
-        url: null,
-      });
+      results.push({ title: 'Direct answer', snippet: d.Answer, url: null });
     }
-    (d.RelatedTopics || []).slice(0, 4).forEach(t => {
+    (d.RelatedTopics || []).slice(0, 3).forEach(t => {
       if (t.Text) {
         results.push({
           title: t.Text.split(' - ')[0] || t.Text.slice(0, 60),
@@ -794,31 +857,19 @@ async function searchWeb(params) {
       }
     });
 
-    if (results.length === 0) {
-      return {
-        success: false,
-        query: searchQuery,
-        results: [],
-        source: 'duckduckgo',
-        note: 'No instant answer found. Configure BING_SEARCH_API_KEY for comprehensive web search. Use your own knowledge to answer.',
-      };
+    if (results.length > 0) {
+      return { success: true, query: searchQuery, results: results.slice(0, 5), source: 'web' };
     }
-
-    return {
-      success: true,
-      query: searchQuery,
-      results: results.slice(0, 5),
-      source: 'duckduckgo',
-    };
   } catch (ddgErr) {
     console.warn('DuckDuckGo search error:', ddgErr.message);
-    return {
-      success: false,
-      query: searchQuery,
-      results: [],
-      error: 'Web search is currently unavailable. Use your training knowledge to answer the question as accurately as possible.',
-    };
   }
+
+  return {
+    success: false,
+    query: searchQuery,
+    results: [],
+    error: 'Web search is currently unavailable. Use your training knowledge to answer the question as accurately as possible.',
+  };
 }
 
 /**

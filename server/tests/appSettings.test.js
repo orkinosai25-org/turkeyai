@@ -142,6 +142,23 @@ function runTests() {
   }
   console.log('');
 
+  // ── Test 4b: BingSearch section mapped ────────────────────────────────────
+  console.log('Test 4b: BingSearch section mapped to process.env');
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'appsettings-test-'));
+    delete process.env.BING_SEARCH_API_KEY;
+
+    loadWithConfig({
+      BingSearch: { ApiKey: 'bing-key-test-123' }
+    }, dir);
+
+    assert(process.env.BING_SEARCH_API_KEY === 'bing-key-test-123', 'BING_SEARCH_API_KEY set from BingSearch.ApiKey');
+
+    fs.rmSync(dir, { recursive: true });
+    delete process.env.BING_SEARCH_API_KEY;
+  }
+  console.log('');
+
   // ── Test 5: No appsettings.json — no error ────────────────────────────────
   console.log('Test 5: Missing appsettings.json does not throw');
   {
