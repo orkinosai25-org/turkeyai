@@ -4,13 +4,14 @@
 #   • Every push to the `test` or `develop` branch
 #   • Manual dispatch (workflow_dispatch) so you can deploy on demand
 #
-# Required GitHub Secrets:
-#   AZURE_WEBAPP_NAME            – Name of the Azure Web App  (e.g. turkeyai-test)
+# Required GitHub Secrets (already set up by Azure):
+#   AZUREAPPSERVICE_CLIENTID_7A83B8DD24C54575BC643AD49F90C3A4  – App Registration client ID
+#   AZUREAPPSERVICE_TENANTID_060FD436145F4510B618D84FA30404F9  – Azure AD tenant ID
+#   AZUREAPPSERVICE_SUBSCRIPTIONID_9BE23357DD1F4EBC96790EFCADECEC8F – Azure subscription ID
+#   AZURE_WEBAPP_NAME            – Name of the Azure Web App (e.g. turkeyai-test)
 #   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
 #
-# Optional GitHub Secrets — configure once; automatically applied to App Service on every deploy:
-#   AZURE_CREDENTIALS            – Service Principal JSON (az ad sp create-for-rbac --sdk-auth)
-#   AZURE_RESOURCE_GROUP         – Resource group containing the Web App  (needed to push settings)
+# Optional GitHub Secrets — add once; automatically pushed to App Service on every deploy:
 #   AZURE_OPENAI_ENDPOINT        – Azure OpenAI / AI Foundry project endpoint
 #   AZURE_OPENAI_API_KEY         – Azure OpenAI API key
 #   AZURE_OPENAI_DEPLOYMENT_NAME – Chat model deployment name  (e.g. gpt-4o)
@@ -19,7 +20,7 @@
 #   AZURE_SEARCH_API_KEY         – Azure AI Search admin key
 #   AZURE_SEARCH_INDEX_NAME      – Travel index name
 #   AZURE_KNOWLEDGE_INDEX_NAME   – Knowledge base index name
-#   BING_SEARCH_API_KEY          – Azure Bing Search v7 key (hotel AI chat web search)
+#   BING_SEARCH_API_KEY          – Azure Bing Search v7 key (optional; web search works without it)
 #   HOTELBEDS_API_KEY            – HotelBeds API key
 #   HOTELBEDS_API_SECRET         – HotelBeds API secret
 #   HOTELBEDS_BASE_URL           – HotelBeds base URL
@@ -52,6 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write   # Required for OIDC login to Azure
 
     steps:
       # ── Checkout ────────────────────────────────────────────────────────────
@@ -108,21 +110,19 @@ jobs:
           package: deploy.zip
 
       # ── Push Application Settings to Azure App Service ───────────────────────
-      # Reads each GitHub Secret and writes it as an App Service Application
-      # Setting so no credentials are ever stored in the repository.
-      # Only secrets that are non-empty are pushed; missing secrets are skipped.
-      # Requires AZURE_CREDENTIALS and AZURE_RESOURCE_GROUP to be configured.
-      - name: Login to Azure CLI
-        if: ${{ secrets.AZURE_CREDENTIALS != '' && secrets.AZURE_RESOURCE_GROUP != '' }}
+      # Uses the existing OIDC credentials (already configured by Azure) to log in
+      # and write all non-empty GitHub Secrets as App Service Application Settings.
+      # Resource group is auto-discovered from the app name — no extra secrets needed.
+      - name: Login to Azure (OIDC)
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A83B8DD24C54575BC643AD49F90C3A4 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_060FD436145F4510B618D84FA30404F9 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9BE23357DD1F4EBC96790EFCADECEC8F }}
 
       - name: Push App Service Application Settings
-        if: ${{ secrets.AZURE_CREDENTIALS != '' && secrets.AZURE_RESOURCE_GROUP != '' }}
         env:
           APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME }}
-          RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
           # Azure OpenAI
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
@@ -133,7 +133,7 @@ jobs:
           AZURE_SEARCH_API_KEY: ${{ secrets.AZURE_SEARCH_API_KEY }}
           AZURE_SEARCH_INDEX_NAME: ${{ secrets.AZURE_SEARCH_INDEX_NAME }}
           AZURE_KNOWLEDGE_INDEX_NAME: ${{ secrets.AZURE_KNOWLEDGE_INDEX_NAME }}
-          # Bing Web Search (Azure Cognitive Services — hotel AI chat web search)
+          # Bing Web Search (optional — web search works without this key too)
           BING_SEARCH_API_KEY: ${{ secrets.BING_SEARCH_API_KEY }}
           # HotelBeds
           HOTELBEDS_API_KEY: ${{ secrets.HOTELBEDS_API_KEY }}
@@ -153,6 +153,18 @@ jobs:
           SETTINGS_SOURCE_URL: ${{ secrets.SETTINGS_SOURCE_URL }}
           SETTINGS_API_TOKEN: ${{ secrets.SETTINGS_API_TOKEN }}
         run: |
+          if [ -z "$APP_NAME" ]; then
+            echo "⚠️  AZURE_WEBAPP_NAME not set — skipping settings push"
+            exit 0
+          fi
+
+          # Auto-discover resource group from app name (no AZURE_RESOURCE_GROUP secret needed)
+          RG=$(az webapp list --query "[?name=='$APP_NAME'].resourceGroup | [0]" -o tsv 2>/dev/null || true)
+          if [ -z "$RG" ]; then
+            echo "⚠️  Web App '$APP_NAME' not found in subscription — skipping settings push"
+            exit 0
+          fi
+
           SETTINGS=()
           # Azure OpenAI
           [ -n "$AZURE_OPENAI_ENDPOINT" ]        && SETTINGS+=("AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT")
@@ -164,7 +176,7 @@ jobs:
           [ -n "$AZURE_SEARCH_API_KEY" ]         && SETTINGS+=("AZURE_SEARCH_API_KEY=$AZURE_SEARCH_API_KEY")
           [ -n "$AZURE_SEARCH_INDEX_NAME" ]      && SETTINGS+=("AZURE_SEARCH_INDEX_NAME=$AZURE_SEARCH_INDEX_NAME")
           [ -n "$AZURE_KNOWLEDGE_INDEX_NAME" ]   && SETTINGS+=("AZURE_KNOWLEDGE_INDEX_NAME=$AZURE_KNOWLEDGE_INDEX_NAME")
-          # Bing Web Search (Azure Cognitive Services — hotel AI chat web search)
+          # Bing Web Search (optional)
           [ -n "$BING_SEARCH_API_KEY" ]          && SETTINGS+=("BING_SEARCH_API_KEY=$BING_SEARCH_API_KEY")
           # HotelBeds
           [ -n "$HOTELBEDS_API_KEY" ]            && SETTINGS+=("HOTELBEDS_API_KEY=$HOTELBEDS_API_KEY")
@@ -189,10 +201,10 @@ jobs:
             exit 0
           fi
 
-          echo "📋 Pushing ${#SETTINGS[@]} application setting(s) to $APP_NAME …"
+          echo "📋 Pushing ${#SETTINGS[@]} setting(s) to '$APP_NAME' (resource group: $RG) …"
           az webapp config appsettings set \
             --name "$APP_NAME" \
-            --resource-group "$RESOURCE_GROUP" \
+            --resource-group "$RG" \
             --settings "${SETTINGS[@]}"
           echo "✅ App Service settings updated"
 
