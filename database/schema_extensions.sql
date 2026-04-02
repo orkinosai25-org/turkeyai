@@ -185,3 +185,31 @@ CREATE INDEX IF NOT EXISTS idx_knowledge_location_tags ON knowledge_items USING 
 CREATE INDEX IF NOT EXISTS idx_knowledge_active ON knowledge_items(is_active);
 CREATE INDEX IF NOT EXISTS idx_knowledge_indexed ON knowledge_items(is_indexed);
 CREATE INDEX IF NOT EXISTS idx_knowledge_created ON knowledge_items(created_at DESC);
+
+-- ========================================
+-- ADVERTISING MANAGEMENT
+-- ========================================
+-- Stores advertising banners, text ads, and HTML creatives for display across the site.
+
+CREATE TABLE IF NOT EXISTS ads (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    zone VARCHAR(100) NOT NULL,          -- e.g. 'header_banner', 'search_sidebar'
+    ad_type VARCHAR(20) NOT NULL CHECK (ad_type IN ('image', 'text', 'html')),
+    title VARCHAR(500) NOT NULL,
+    body_text TEXT,                       -- Text copy or HTML content
+    image_url TEXT,                       -- Path to uploaded image or external URL
+    link_url TEXT,                        -- Click-through URL
+    alt_text VARCHAR(500),                -- Alt text for image ads
+    advertiser_name VARCHAR(255),
+    package_type VARCHAR(20) DEFAULT 'bronze' CHECK (package_type IN ('bronze', 'silver', 'gold', 'platinum')),
+    is_active BOOLEAN DEFAULT TRUE,
+    display_order INTEGER DEFAULT 0,
+    start_date TIMESTAMP,                 -- NULL = always active
+    end_date TIMESTAMP,                   -- NULL = no expiry
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_ads_zone ON ads(zone);
+CREATE INDEX IF NOT EXISTS idx_ads_active ON ads(is_active);
+CREATE INDEX IF NOT EXISTS idx_ads_zone_active ON ads(zone, is_active);

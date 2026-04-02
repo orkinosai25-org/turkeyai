@@ -1,8 +1,12 @@
 import React from 'react';
+import AdBanner from './AdBanner';
 
 function Footer() {
   return (
-    <footer className="footer">
+    <>
+      {/* Footer ad banner – rendered above the footer */}
+      <AdBanner zone="footer_banner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 1.5rem' }} label={true} />
+      <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
           <div className="footer-brand">
@@ -52,6 +56,7 @@ function Footer() {
         <p>Built on Microsoft Azure</p>
       </div>
     </footer>
+    </>
   );
 }
 

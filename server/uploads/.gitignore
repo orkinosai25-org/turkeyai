@@ -1,0 +1,5 @@
+# Ignore uploaded files
+ads/*
+# But keep the directory structure
+!ads/
+!ads/.gitkeep

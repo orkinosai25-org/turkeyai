@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import AdBanner from '../components/AdBanner';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
@@ -545,6 +546,9 @@ function SearchPage() {
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '2rem 1.5rem' }}>
 
+        {/* Ad banner above search results area */}
+        <AdBanner zone="search_top" style={{ marginBottom: '0.5rem' }} />
+
         {/* Quick Search Suggestions */}
         {!searched && (
           <>
@@ -644,10 +648,16 @@ function SearchPage() {
                 </Link>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
-                {results.map((r, i) => (
-                  <SearchResultCard key={r.code || r.id || `result-${i}`} result={r} category={category} />
-                ))}
+              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 280px', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                  {results.map((r, i) => (
+                    <SearchResultCard key={r.code || r.id || `result-${i}`} result={r} category={category} />
+                  ))}
+                </div>
+                {/* Sidebar ad – only shows when there is content for this zone */}
+                <div style={{ width: 300, flexShrink: 0, minWidth: 0 }}>
+                  <AdBanner zone="search_sidebar" label={true} />
+                </div>
               </div>
             )}
 

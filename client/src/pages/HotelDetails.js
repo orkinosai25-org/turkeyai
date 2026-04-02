@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import AdBanner from '../components/AdBanner';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
@@ -376,6 +377,9 @@ export default function HotelDetails() {
 
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '2rem 1.5rem' }}>
 
+        {/* Top detail ad banner */}
+        <AdBanner zone="detail_top" style={{ marginBottom: '1rem' }} />
+
         {/* Loading */}
         {loading && (
           <div style={{ textAlign: 'center', padding: '5rem', color: 'var(--warm-slate-500)' }}>
@@ -524,6 +528,9 @@ export default function HotelDetails() {
 
             {/* AI Chat Widget */}
             <HotelChatWidget hotel={hotel} />
+
+            {/* Bottom detail ad banner */}
+            <AdBanner zone="detail_bottom" style={{ margin: '1rem 0' }} />
 
             {/* Back CTA */}
             <div style={{ textAlign: 'center', paddingBottom: '2rem' }}>
