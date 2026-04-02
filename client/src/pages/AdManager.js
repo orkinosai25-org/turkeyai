@@ -11,6 +11,8 @@ const BLANK_FORM = {
   link_url: '',
   alt_text: '',
   advertiser_name: '',
+  advertiser_email: '',
+  advertiser_phone: '',
   package_type: 'bronze',
   is_active: true,
   display_order: 0,
@@ -25,7 +27,41 @@ const PACKAGE_COLOURS = {
   platinum: '#7c3aed',
 };
 
+const PACKAGE_ICONS = { bronze: '🥉', silver: '🥈', gold: '🥇', platinum: '💎' };
+
 const AD_TYPE_LABELS = { image: '🖼️ Image', text: '📝 Text', html: '🌐 HTML' };
+
+// Quick-duration options shown as buttons on the booking form
+const QUICK_DURATIONS = [
+  { label: '1 Week',    days: 7   },
+  { label: '2 Weeks',   days: 14  },
+  { label: '1 Month',   days: 30  },
+  { label: '3 Months',  days: 90  },
+  { label: '6 Months',  days: 180 },
+  { label: '12 Months', days: 365 },
+];
+
+/** Return today's date as YYYY-MM-DD */
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+/** Add days to a YYYY-MM-DD string and return YYYY-MM-DD */
+function addDays(dateStr, days) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+/** Format a YYYY-MM-DD string as "DD Mon YYYY" */
+function fmtDate(str) {
+  if (!str) return '—';
+  try {
+    return new Date(str + 'T12:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch {
+    return str;
+  }
+}
 
 function AdManager() {
   const [ads, setAds] = useState([]);
@@ -104,6 +140,8 @@ function AdManager() {
       link_url: ad.link_url || '',
       alt_text: ad.alt_text || '',
       advertiser_name: ad.advertiser_name || '',
+      advertiser_email: ad.advertiser_email || '',
+      advertiser_phone: ad.advertiser_phone || '',
       package_type: ad.package_type || 'bronze',
       is_active: ad.is_active !== false,
       display_order: ad.display_order || 0,
@@ -141,6 +179,28 @@ function AdManager() {
     } catch {
       showFeedback('Failed to update ad status.', 'error');
     }
+  }
+
+  /** Apply a quick-duration to the form: set start_date = today, end_date = today + days */
+  function applyDuration(days) {
+    const start = today();
+    const end = addDays(start, days - 1);
+    setForm(f => ({ ...f, start_date: start, end_date: end }));
+  }
+
+  /** Find the suggested price for the currently selected package + duration (if dates are set) */
+  function getSuggestedPrice(pkg, pricing) {
+    if (!form.start_date || !form.end_date) return null;
+    const start = new Date(form.start_date + 'T12:00:00');
+    const end   = new Date(form.end_date   + 'T12:00:00');
+    const days  = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    if (days <= 0) return null;
+    const pkgPricing = packages.find(p => p.type === pkg);
+    if (!pkgPricing || !pkgPricing.pricing) return null;
+    // Find closest duration tier
+    const tiers = [...pkgPricing.pricing].sort((a, b) => a.days - b.days);
+    const match = tiers.find(t => days <= t.days) || tiers[tiers.length - 1];
+    return { price: match.price, duration: match.duration, days };
   }
 
   async function handleSubmit(e) {
@@ -234,13 +294,18 @@ function AdManager() {
               boxShadow: '0 1px 6px rgba(0,0,0,0.07)',
             }}>
               <div style={{ fontWeight: 700, fontSize: '1rem', color: PACKAGE_COLOURS[pkg.type], textTransform: 'capitalize', marginBottom: '0.5rem' }}>
-                {pkg.type.charAt(0).toUpperCase() + pkg.type.slice(1)}
+                {PACKAGE_ICONS[pkg.type]} {pkg.type.charAt(0).toUpperCase() + pkg.type.slice(1)}
               </div>
               <div style={{ fontSize: '0.78rem', color: '#6b7280', lineHeight: 1.6 }}>
                 <div>📝 Max words: <strong>{pkg.maxWords}</strong></div>
                 <div>🖼️ Image: <strong>{pkg.maxImageWidth > 0 ? `${pkg.maxImageWidth}×${pkg.maxImageHeight}` : 'Text only'}</strong></div>
                 <div>🎬 Video: <strong>{pkg.maxVideoSeconds > 0 ? `${pkg.maxVideoSeconds}s` : '—'}</strong></div>
                 <div>📍 Zones: <strong>{pkg.maxZones >= 99 ? 'All' : pkg.maxZones}</strong></div>
+                {pkg.pricing && (
+                  <div style={{ marginTop: '0.4rem', borderTop: '1px solid #f3f4f6', paddingTop: '0.4rem', color: '#374151' }}>
+                    💰 From <strong>£{pkg.pricing[0].price}/wk</strong>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -248,7 +313,12 @@ function AdManager() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '2px solid #e5e7eb', paddingBottom: '0.5rem' }}>
-          {[{ id: 'list', label: '📋 All Ads' }, { id: 'zones', label: '📍 Ad Zones' }, { id: 'form', label: editingId ? '✏️ Edit Ad' : '➕ New Ad' }].map(tab => (
+          {[
+            { id: 'list',    label: '📋 All Ads' },
+            { id: 'zones',   label: '📍 Ad Zones' },
+            { id: 'pricing', label: '💰 Pricing Guide' },
+            { id: 'form',    label: editingId ? '✏️ Edit Ad' : '➕ New Ad' },
+          ].map(tab => (
             <button
               key={tab.id}
               onClick={() => { if (tab.id !== 'form') { setEditingId(null); setForm(BLANK_FORM); setImagePreview(null); } setActiveTab(tab.id); }}
@@ -316,15 +386,20 @@ function AdManager() {
                       <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {ad.title}
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '0.15rem' }}>
-                        <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '1px 6px', borderRadius: 4, marginRight: 6, fontWeight: 600 }}>
+                      <div style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '0.15rem', display: 'flex', flexWrap: 'wrap', gap: '0.25rem', alignItems: 'center' }}>
+                        <span style={{ background: '#e0f2fe', color: '#0369a1', padding: '1px 6px', borderRadius: 4, fontWeight: 600 }}>
                           {zoneLabel(ad.zone)}
                         </span>
-                        <span style={{ marginRight: 6 }}>{AD_TYPE_LABELS[ad.ad_type]}</span>
+                        <span>{AD_TYPE_LABELS[ad.ad_type]}</span>
                         <span style={{ color: PACKAGE_COLOURS[ad.package_type], fontWeight: 600, textTransform: 'capitalize' }}>
-                          {ad.package_type}
+                          {PACKAGE_ICONS[ad.package_type]} {ad.package_type}
                         </span>
-                        {ad.advertiser_name && <span style={{ marginLeft: 8, color: '#9ca3af' }}>· {ad.advertiser_name}</span>}
+                        {ad.advertiser_name && <span style={{ color: '#374151', fontWeight: 600 }}>· {ad.advertiser_name}</span>}
+                        {(ad.start_date || ad.end_date) && (
+                          <span style={{ color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                            📅 {fmtDate(ad.start_date)} → {fmtDate(ad.end_date)}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -401,6 +476,80 @@ function AdManager() {
           </div>
         )}
 
+        {/* ── Tab: Pricing Guide ── */}
+        {activeTab === 'pricing' && (
+          <div>
+            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 8, padding: '0.85rem 1rem', marginBottom: '1.25rem', fontSize: '0.875rem', color: '#92400e' }}>
+              💡 <strong>Startup Pricing (GBP incl. VAT).</strong> These are suggested launch rates for a UK-focused Turkish travel platform. Prices are indicative — adjust as traffic and demand grow. All packages allow one advertiser per zone booking.
+            </div>
+
+            {/* Pricing table */}
+            <div style={{ overflowX: 'auto', borderRadius: 10, boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ background: '#1e3a5f', color: 'white' }}>
+                    <th style={{ padding: '0.85rem 1rem', textAlign: 'left', fontWeight: 700 }}>Package</th>
+                    <th style={{ padding: '0.85rem 1rem', textAlign: 'left', fontWeight: 600, opacity: 0.85 }}>What's Included</th>
+                    {QUICK_DURATIONS.map(d => (
+                      <th key={d.label} style={{ padding: '0.85rem 0.75rem', textAlign: 'center', fontWeight: 600, whiteSpace: 'nowrap' }}>{d.label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {packages.filter(p => p.pricing).map((pkg, idx) => (
+                    <tr key={pkg.type} style={{ background: idx % 2 === 0 ? 'white' : '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
+                      <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: PACKAGE_COLOURS[pkg.type] }}>
+                        {PACKAGE_ICONS[pkg.type]} {pkg.type.charAt(0).toUpperCase() + pkg.type.slice(1)}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', color: '#6b7280', fontSize: '0.8rem', maxWidth: 220 }}>
+                        {pkg.description}
+                      </td>
+                      {QUICK_DURATIONS.map(dur => {
+                        const tier = pkg.pricing.find(t => t.days === dur.days);
+                        return (
+                          <td key={dur.label} style={{ padding: '0.85rem 0.75rem', textAlign: 'center', fontWeight: 600, color: '#111827' }}>
+                            {tier ? `£${tier.price.toLocaleString()}` : '—'}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Per-package breakdown cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
+              {packages.filter(p => p.pricing).map(pkg => (
+                <div key={pkg.type} style={{
+                  background: 'white', borderRadius: 10, padding: '1.25rem',
+                  borderTop: `4px solid ${PACKAGE_COLOURS[pkg.type]}`,
+                  boxShadow: '0 1px 6px rgba(0,0,0,0.07)',
+                }}>
+                  <div style={{ fontWeight: 700, fontSize: '1rem', color: PACKAGE_COLOURS[pkg.type], marginBottom: '0.3rem' }}>
+                    {PACKAGE_ICONS[pkg.type]} {pkg.type.charAt(0).toUpperCase() + pkg.type.slice(1)} Package
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#6b7280', marginBottom: '0.85rem' }}>{pkg.description}</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    {pkg.pricing.map(t => (
+                      <div key={t.duration} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem' }}>
+                        <span style={{ color: '#374151' }}>{t.duration}</span>
+                        <span style={{ fontWeight: 700, color: '#111827' }}>£{t.price.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => { setForm(f => ({ ...f, package_type: pkg.type })); startCreate(); }}
+                    style={{ marginTop: '1rem', width: '100%', padding: '0.45rem', background: PACKAGE_COLOURS[pkg.type], color: 'white', border: 'none', borderRadius: 6, fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}
+                  >
+                    ➕ Book {pkg.type.charAt(0).toUpperCase() + pkg.type.slice(1)} Ad
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── Tab: New / Edit Form ── */}
         {activeTab === 'form' && (
           <form onSubmit={handleSubmit}>
@@ -419,8 +568,19 @@ function AdManager() {
                   </div>
 
                   <div style={{ marginBottom: '1rem' }}>
-                    <label style={labelStyle}>Advertiser Name</label>
-                    <input name="advertiser_name" value={form.advertiser_name} onChange={handleFormChange} placeholder="Company or individual name" style={inputStyle} />
+                    <label style={labelStyle}>Advertiser Company / Name *</label>
+                    <input name="advertiser_name" value={form.advertiser_name} onChange={handleFormChange} placeholder="Company or individual name" style={inputStyle} required />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={labelStyle}>Advertiser Email</label>
+                      <input name="advertiser_email" value={form.advertiser_email} onChange={handleFormChange} placeholder="billing@company.com" type="email" style={inputStyle} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Advertiser Phone</label>
+                      <input name="advertiser_phone" value={form.advertiser_phone} onChange={handleFormChange} placeholder="+44 7700 900000" style={inputStyle} />
+                    </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
@@ -466,8 +626,39 @@ function AdManager() {
                       </label>
                     </div>
                   </div>
+                </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                {/* Campaign Booking */}
+                <div style={{ ...sectionCard, borderLeft: '4px solid #0284c7' }}>
+                  <h2 style={{ color: '#1e3a5f', marginTop: 0, marginBottom: '0.25rem', fontSize: '1rem' }}>
+                    📅 Campaign Booking & Dates
+                  </h2>
+                  <p style={{ color: '#6b7280', fontSize: '0.78rem', margin: '0 0 1rem' }}>
+                    Each booking is per company. Select a duration below to auto-fill the dates, or enter manually.
+                  </p>
+
+                  {/* Quick Duration buttons */}
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={labelStyle}>Quick Duration</label>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      {QUICK_DURATIONS.map(d => (
+                        <button
+                          key={d.label}
+                          type="button"
+                          onClick={() => applyDuration(d.days)}
+                          style={{
+                            padding: '0.3rem 0.75rem', borderRadius: 6, border: '1.5px solid #d1d5db',
+                            background: 'white', color: '#374151', fontWeight: 600, fontSize: '0.78rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
                     <div>
                       <label style={labelStyle}>Start Date</label>
                       <input name="start_date" value={form.start_date} onChange={handleFormChange} type="date" style={inputStyle} />
@@ -477,6 +668,31 @@ function AdManager() {
                       <input name="end_date" value={form.end_date} onChange={handleFormChange} type="date" style={inputStyle} />
                     </div>
                   </div>
+
+                  {/* Price estimate */}
+                  {(() => {
+                    const est = getSuggestedPrice(form.package_type, packages);
+                    if (!est) return (
+                      <div style={{ fontSize: '0.78rem', color: '#9ca3af', background: '#f9fafb', borderRadius: 6, padding: '0.6rem 0.75rem' }}>
+                        Select a duration above to see a suggested price.
+                      </div>
+                    );
+                    return (
+                      <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8, padding: '0.75rem 1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: '0.78rem', color: '#166534', fontWeight: 600, marginBottom: '0.1rem' }}>
+                            💰 Suggested Price ({est.days} day{est.days !== 1 ? 's' : ''})
+                          </div>
+                          <div style={{ fontSize: '0.72rem', color: '#6b7280' }}>
+                            Based on {form.package_type} × {est.duration} tier
+                          </div>
+                        </div>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#166534' }}>
+                          £{est.price.toLocaleString()}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

@@ -41,6 +41,56 @@ const PACKAGE_CONSTRAINTS = {
   platinum: { maxWords: 500, maxImageWidth: 1200, maxImageHeight: 400, maxVideoSeconds: 60, maxZones: 99 },
 };
 
+// ─── Suggested startup pricing (GBP) by package × duration ───────────────────
+// These are indicative launch prices for a UK-focused Turkish travel platform.
+// Adjust as revenue grows.
+const PACKAGE_PRICING = {
+  bronze: {
+    description: 'Text-only ad, up to 3 zones',
+    pricing: [
+      { duration: '1 week',   days: 7,   price: 25  },
+      { duration: '2 weeks',  days: 14,  price: 45  },
+      { duration: '1 month',  days: 30,  price: 75  },
+      { duration: '3 months', days: 90,  price: 180 },
+      { duration: '6 months', days: 180, price: 320 },
+      { duration: '12 months',days: 365, price: 550 },
+    ],
+  },
+  silver: {
+    description: 'Image (300×250) + text, up to 5 zones',
+    pricing: [
+      { duration: '1 week',   days: 7,   price: 60   },
+      { duration: '2 weeks',  days: 14,  price: 110  },
+      { duration: '1 month',  days: 30,  price: 180  },
+      { duration: '3 months', days: 90,  price: 420  },
+      { duration: '6 months', days: 180, price: 750  },
+      { duration: '12 months',days: 365, price: 1200 },
+    ],
+  },
+  gold: {
+    description: 'Image (728×90) + text + video (30s), all zones',
+    pricing: [
+      { duration: '1 week',   days: 7,   price: 120  },
+      { duration: '2 weeks',  days: 14,  price: 220  },
+      { duration: '1 month',  days: 30,  price: 350  },
+      { duration: '3 months', days: 90,  price: 900  },
+      { duration: '6 months', days: 180, price: 1600 },
+      { duration: '12 months',days: 365, price: 2800 },
+    ],
+  },
+  platinum: {
+    description: 'All formats, image (1200×400), video (60s), all zones – priority placement',
+    pricing: [
+      { duration: '1 week',   days: 7,   price: 200  },
+      { duration: '2 weeks',  days: 14,  price: 380  },
+      { duration: '1 month',  days: 30,  price: 600  },
+      { duration: '3 months', days: 90,  price: 1500 },
+      { duration: '6 months', days: 180, price: 2800 },
+      { duration: '12 months',days: 365, price: 5000 },
+    ],
+  },
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function generateId() {
@@ -115,6 +165,8 @@ class Ad {
       link_url: data.link_url || null,
       alt_text: (data.alt_text || '').trim(),
       advertiser_name: (data.advertiser_name || '').trim(),
+      advertiser_email: (data.advertiser_email || '').trim(),
+      advertiser_phone: (data.advertiser_phone || '').trim(),
       package_type: data.package_type || 'bronze',
       is_active: data.is_active !== undefined ? Boolean(data.is_active) : true,
       display_order: parseInt(data.display_order, 10) || 0,
@@ -172,12 +224,13 @@ class Ad {
   }
 
   /**
-   * Return all available package types with their constraints.
+   * Return all available package types with their constraints and suggested pricing.
    */
   static allPackages() {
     return Object.entries(PACKAGE_CONSTRAINTS).map(([type, constraints]) => ({
       type,
       ...constraints,
+      ...PACKAGE_PRICING[type],
     }));
   }
 
@@ -203,3 +256,4 @@ class Ad {
 
 module.exports = Ad;
 module.exports.PACKAGE_CONSTRAINTS = PACKAGE_CONSTRAINTS;
+module.exports.PACKAGE_PRICING = PACKAGE_PRICING;

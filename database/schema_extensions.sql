@@ -201,6 +201,8 @@ CREATE TABLE IF NOT EXISTS ads (
     link_url TEXT,                        -- Click-through URL
     alt_text VARCHAR(500),                -- Alt text for image ads
     advertiser_name VARCHAR(255),
+    advertiser_email VARCHAR(255),          -- Contact email for the advertiser
+    advertiser_phone VARCHAR(50),           -- Contact phone for the advertiser
     package_type VARCHAR(20) DEFAULT 'bronze' CHECK (package_type IN ('bronze', 'silver', 'gold', 'platinum')),
     is_active BOOLEAN DEFAULT TRUE,
     display_order INTEGER DEFAULT 0,
