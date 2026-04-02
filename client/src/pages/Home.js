@@ -1,11 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import AdBanner from '../components/AdBanner';
 
 function Home() {
   const navigate = useNavigate();
 
   return (
     <div className="page">
+      {/* Top billboard ad – above hero */}
+      <AdBanner zone="home_top" style={{ marginBottom: '1.5rem' }} />
+
       <div className="hero">
         <h1>🇹🇷 Welcome to TurkiyAI Holidays</h1>
         <p>AI Knows Turkey Better</p>
@@ -94,6 +98,9 @@ function Home() {
         </div>
       </div>
 
+      {/* Mid-page ad banner between sections */}
+      <AdBanner zone="home_mid" style={{ marginTop: '1.5rem' }} />
+
       {/* Service Verticals */}
       <div style={{ marginTop: '3rem' }}>
         <h2 style={{ textAlign: 'center', color: 'var(--aegean-blue)', marginBottom: '0.5rem' }}>
@@ -154,6 +161,9 @@ function Home() {
           TurkiyAI Holidays represents intelligent navigation through Turkish travel using AI.
         </p>
       </div>
+
+      {/* Bottom banner ad */}
+      <AdBanner zone="home_bottom" style={{ marginTop: '1.5rem' }} />
     </div>
   );
 }

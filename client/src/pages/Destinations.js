@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import HighlightCarousel from '../components/HighlightCarousel';
+import AdBanner from '../components/AdBanner';
 
 const API_BASE = process.env.REACT_APP_API_URL || '';
 
@@ -56,6 +57,9 @@ function Destinations() {
 
   return (
     <div className="page">
+      {/* Top listing ad banner */}
+      <AdBanner zone="listing_top" style={{ marginBottom: '1.25rem' }} />
+
       <h1 style={{ color: 'var(--aegean-blue)', marginBottom: '1rem' }}>
         Explore Turkish Destinations
       </h1>
@@ -107,6 +111,9 @@ function Destinations() {
           </div>
         ))}
       </div>
+
+      {/* Ad banner between destination cards and resort listings */}
+      <AdBanner zone="listing_sidebar" style={{ marginTop: '1.5rem' }} />
 
       {/* Resort Listings with Deep Dive */}
       {resorts.length > 0 && (
