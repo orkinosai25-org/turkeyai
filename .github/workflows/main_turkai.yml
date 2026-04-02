@@ -118,13 +118,16 @@ jobs:
       # and write all non-empty GitHub Secrets as App Service Application Settings.
       # Resource group is auto-discovered from the app name — no extra secrets needed.
       - name: Login to Azure (OIDC)
+        id: azure-login
         uses: azure/login@v2
+        continue-on-error: true
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_839D79185D62477C82C9E336B1BD0C13 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F3B80827BD0F41DFA0734178432797E5 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D0C0518B4BD8475A844154BAFE14B0C7 }}
 
       - name: Push App Service Application Settings
+        if: steps.azure-login.outcome == 'success'
         env:
           APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
           # Azure OpenAI
