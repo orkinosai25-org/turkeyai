@@ -3,6 +3,33 @@
 #
 # Required GitHub Secrets:
 #   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
+#
+# Optional GitHub Secrets — configure once; automatically applied to App Service on every deploy:
+#   AZURE_CREDENTIALS            – Service Principal JSON (az ad sp create-for-rbac --sdk-auth)
+#   AZURE_RESOURCE_GROUP         – Resource group containing the Web App  (needed to push settings)
+#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'turkai' if not set)
+#   AZURE_OPENAI_ENDPOINT        – Azure OpenAI / AI Foundry project endpoint
+#   AZURE_OPENAI_API_KEY         – Azure OpenAI API key
+#   AZURE_OPENAI_DEPLOYMENT_NAME – Chat model deployment name  (e.g. gpt-4o)
+#   AZURE_OPENAI_API_VERSION     – API version  (e.g. 2025-04-01-preview)
+#   AZURE_SEARCH_ENDPOINT        – Azure AI Search service endpoint
+#   AZURE_SEARCH_API_KEY         – Azure AI Search admin key
+#   AZURE_SEARCH_INDEX_NAME      – Travel index name
+#   AZURE_KNOWLEDGE_INDEX_NAME   – Knowledge base index name
+#   BING_SEARCH_API_KEY          – Azure Bing Search v7 key (hotel AI chat web search)
+#   HOTELBEDS_API_KEY            – HotelBeds API key
+#   HOTELBEDS_API_SECRET         – HotelBeds API secret
+#   HOTELBEDS_BASE_URL           – HotelBeds base URL
+#   DB_HOST                      – PostgreSQL host
+#   DB_PORT                      – PostgreSQL port
+#   DB_NAME                      – PostgreSQL database name
+#   DB_USER                      – PostgreSQL user
+#   DB_PASSWORD                  – PostgreSQL password
+#   DB_SSL                       – true/false
+#   DB_USE_AAD_AUTH              – true to use Azure AD auth
+#   JWT_SECRET                   – Secret used to sign auth tokens
+#   SETTINGS_SOURCE_URL          – Optional remote appsettings URL
+#   SETTINGS_API_TOKEN           – GitHub PAT for private remote settings
 
 name: Build and deploy Node.js app to Azure Web App - turkai
 
@@ -79,8 +106,96 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'turkai'
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
-          
+
+      # ── Push Application Settings to Azure App Service ───────────────────────
+      # Reads each GitHub Secret and writes it as an App Service Application
+      # Setting so no credentials are ever stored in the repository.
+      # Only secrets that are non-empty are pushed; missing secrets are skipped.
+      # Requires AZURE_CREDENTIALS and AZURE_RESOURCE_GROUP to be configured.
+      - name: Login to Azure CLI
+        if: ${{ secrets.AZURE_CREDENTIALS != '' && secrets.AZURE_RESOURCE_GROUP != '' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Push App Service Application Settings
+        if: ${{ secrets.AZURE_CREDENTIALS != '' && secrets.AZURE_RESOURCE_GROUP != '' }}
+        env:
+          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
+          RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          # Azure OpenAI
+          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}
+          AZURE_OPENAI_API_VERSION: ${{ secrets.AZURE_OPENAI_API_VERSION }}
+          # Azure AI Search
+          AZURE_SEARCH_ENDPOINT: ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+          AZURE_SEARCH_API_KEY: ${{ secrets.AZURE_SEARCH_API_KEY }}
+          AZURE_SEARCH_INDEX_NAME: ${{ secrets.AZURE_SEARCH_INDEX_NAME }}
+          AZURE_KNOWLEDGE_INDEX_NAME: ${{ secrets.AZURE_KNOWLEDGE_INDEX_NAME }}
+          # Bing Web Search (Azure Cognitive Services — hotel AI chat web search)
+          BING_SEARCH_API_KEY: ${{ secrets.BING_SEARCH_API_KEY }}
+          # HotelBeds
+          HOTELBEDS_API_KEY: ${{ secrets.HOTELBEDS_API_KEY }}
+          HOTELBEDS_API_SECRET: ${{ secrets.HOTELBEDS_API_SECRET }}
+          HOTELBEDS_BASE_URL: ${{ secrets.HOTELBEDS_BASE_URL }}
+          # Database
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_SSL: ${{ secrets.DB_SSL }}
+          DB_USE_AAD_AUTH: ${{ secrets.DB_USE_AAD_AUTH }}
+          # Auth
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # Remote settings source
+          SETTINGS_SOURCE_URL: ${{ secrets.SETTINGS_SOURCE_URL }}
+          SETTINGS_API_TOKEN: ${{ secrets.SETTINGS_API_TOKEN }}
+        run: |
+          SETTINGS=()
+          # Azure OpenAI
+          [ -n "$AZURE_OPENAI_ENDPOINT" ]        && SETTINGS+=("AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT")
+          [ -n "$AZURE_OPENAI_API_KEY" ]         && SETTINGS+=("AZURE_OPENAI_API_KEY=$AZURE_OPENAI_API_KEY")
+          [ -n "$AZURE_OPENAI_DEPLOYMENT_NAME" ] && SETTINGS+=("AZURE_OPENAI_DEPLOYMENT_NAME=$AZURE_OPENAI_DEPLOYMENT_NAME")
+          [ -n "$AZURE_OPENAI_API_VERSION" ]     && SETTINGS+=("AZURE_OPENAI_API_VERSION=$AZURE_OPENAI_API_VERSION")
+          # Azure AI Search
+          [ -n "$AZURE_SEARCH_ENDPOINT" ]        && SETTINGS+=("AZURE_SEARCH_ENDPOINT=$AZURE_SEARCH_ENDPOINT")
+          [ -n "$AZURE_SEARCH_API_KEY" ]         && SETTINGS+=("AZURE_SEARCH_API_KEY=$AZURE_SEARCH_API_KEY")
+          [ -n "$AZURE_SEARCH_INDEX_NAME" ]      && SETTINGS+=("AZURE_SEARCH_INDEX_NAME=$AZURE_SEARCH_INDEX_NAME")
+          [ -n "$AZURE_KNOWLEDGE_INDEX_NAME" ]   && SETTINGS+=("AZURE_KNOWLEDGE_INDEX_NAME=$AZURE_KNOWLEDGE_INDEX_NAME")
+          # Bing Web Search (Azure Cognitive Services — hotel AI chat web search)
+          [ -n "$BING_SEARCH_API_KEY" ]          && SETTINGS+=("BING_SEARCH_API_KEY=$BING_SEARCH_API_KEY")
+          # HotelBeds
+          [ -n "$HOTELBEDS_API_KEY" ]            && SETTINGS+=("HOTELBEDS_API_KEY=$HOTELBEDS_API_KEY")
+          [ -n "$HOTELBEDS_API_SECRET" ]         && SETTINGS+=("HOTELBEDS_API_SECRET=$HOTELBEDS_API_SECRET")
+          [ -n "$HOTELBEDS_BASE_URL" ]           && SETTINGS+=("HOTELBEDS_BASE_URL=$HOTELBEDS_BASE_URL")
+          # Database
+          [ -n "$DB_HOST" ]                      && SETTINGS+=("DB_HOST=$DB_HOST")
+          [ -n "$DB_NAME" ]                      && SETTINGS+=("DB_NAME=$DB_NAME")
+          [ -n "$DB_PORT" ]                      && SETTINGS+=("DB_PORT=$DB_PORT")
+          [ -n "$DB_USER" ]                      && SETTINGS+=("DB_USER=$DB_USER")
+          [ -n "$DB_PASSWORD" ]                  && SETTINGS+=("DB_PASSWORD=$DB_PASSWORD")
+          [ -n "$DB_SSL" ]                       && SETTINGS+=("DB_SSL=$DB_SSL")
+          [ -n "$DB_USE_AAD_AUTH" ]              && SETTINGS+=("DB_USE_AAD_AUTH=$DB_USE_AAD_AUTH")
+          # Auth
+          [ -n "$JWT_SECRET" ]                   && SETTINGS+=("JWT_SECRET=$JWT_SECRET")
+          # Remote settings source
+          [ -n "$SETTINGS_SOURCE_URL" ]          && SETTINGS+=("SETTINGS_SOURCE_URL=$SETTINGS_SOURCE_URL")
+          [ -n "$SETTINGS_API_TOKEN" ]           && SETTINGS+=("SETTINGS_API_TOKEN=$SETTINGS_API_TOKEN")
+
+          if [ ${#SETTINGS[@]} -eq 0 ]; then
+            echo "ℹ️  No application settings secrets configured — skipping settings update"
+            exit 0
+          fi
+
+          echo "📋 Pushing ${#SETTINGS[@]} application setting(s) to $APP_NAME …"
+          az webapp config appsettings set \
+            --name "$APP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --settings "${SETTINGS[@]}"
+          echo "✅ App Service settings updated"
