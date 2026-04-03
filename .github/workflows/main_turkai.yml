@@ -104,30 +104,28 @@ jobs:
         with:
           name: node-app
 
+      # ── Login to Azure via OIDC (used for both deploy and settings push) ──────
+      - name: Login to Azure (OIDC)
+        id: azure-login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_839D79185D62477C82C9E336B1BD0C13 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F3B80827BD0F41DFA0734178432797E5 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D0C0518B4BD8475A844154BAFE14B0C7 }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
 
       # ── Push Application Settings to Azure App Service ───────────────────────
-      # Uses the existing OIDC credentials (already configured by Azure) to log in
-      # and write all non-empty GitHub Secrets as App Service Application Settings.
+      # Uses the OIDC credentials (already logged in above) to write all non-empty
+      # GitHub Secrets as App Service Application Settings.
       # Resource group is auto-discovered from the app name — no extra secrets needed.
-      - name: Login to Azure (OIDC)
-        id: azure-login
-        uses: azure/login@v2
-        continue-on-error: true
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_839D79185D62477C82C9E336B1BD0C13 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F3B80827BD0F41DFA0734178432797E5 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D0C0518B4BD8475A844154BAFE14B0C7 }}
-
       - name: Push App Service Application Settings
-        if: steps.azure-login.outcome == 'success'
         env:
           APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
           # Azure OpenAI
