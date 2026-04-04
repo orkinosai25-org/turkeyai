@@ -2,13 +2,13 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 #
 # Required GitHub Secrets (already set up by Azure):
-#   AZUREAPPSERVICE_CLIENTID_839D79185D62477C82C9E336B1BD0C13  – App Registration client ID
-#   AZUREAPPSERVICE_TENANTID_F3B80827BD0F41DFA0734178432797E5  – Azure AD tenant ID
-#   AZUREAPPSERVICE_SUBSCRIPTIONID_D0C0518B4BD8475A844154BAFE14B0C7 – Azure subscription ID
-#   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
+#   AZUREAPPSERVICE_CLIENTID_C7BA4621EF474BBE94974B96CE1B926E  – App Registration client ID
+#   AZUREAPPSERVICE_TENANTID_5ECA2F2096BE48BC85762C6ADDA0AB5D  – Azure AD tenant ID
+#   AZUREAPPSERVICE_SUBSCRIPTIONID_C54E32D4CA56475EA186436F2EB3641F – Azure subscription ID
+#   PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
 #
 # Optional GitHub Secrets — add once; automatically pushed to App Service on every deploy:
-#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'turkai' if not set)
+#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'supremeai' if not set)
 #   AZURE_OPENAI_ENDPOINT        – Azure OpenAI / AI Foundry project endpoint
 #   AZURE_OPENAI_API_KEY         – Azure OpenAI API key
 #   AZURE_OPENAI_DEPLOYMENT_NAME – Chat model deployment name  (e.g. gpt-4o)
@@ -32,7 +32,7 @@
 #   SETTINGS_SOURCE_URL          – Optional remote appsettings URL
 #   SETTINGS_API_TOKEN           – GitHub PAT for private remote settings
 
-name: Build and deploy Node.js app to Azure Web App - turkai
+name: Build and deploy Node.js app to Azure Web App - supremeai
 
 on:
   push:
@@ -104,34 +104,31 @@ jobs:
         with:
           name: node-app
 
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C7BA4621EF474BBE94974B96CE1B926E }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5ECA2F2096BE48BC85762C6ADDA0AB5D }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C54E32D4CA56475EA186436F2EB3641F }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.PUBLISH_PROFILE }}
           package: deploy.zip
 
-      # ── Login to Azure via OIDC (used for settings push) ────────────────────
-      - name: Login to Azure (OIDC)
-        id: azure-login
-        continue-on-error: true
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_839D79185D62477C82C9E336B1BD0C13 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F3B80827BD0F41DFA0734178432797E5 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D0C0518B4BD8475A844154BAFE14B0C7 }}
-
       # ── Push Application Settings to Azure App Service ───────────────────────
-      # Uses the OIDC credentials (logged in above, if available) to write all
+      # Uses the OIDC credentials (logged in above) to write all
       # non-empty GitHub Secrets as App Service Application Settings.
-      # This step is skipped gracefully if OIDC login did not succeed.
+      # This step is skipped gracefully if the web app is not found.
       # Resource group is auto-discovered from the app name — no extra secrets needed.
       - name: Push App Service Application Settings
         continue-on-error: true
         env:
-          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'turkai' }}
+          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
           # Azure OpenAI
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
