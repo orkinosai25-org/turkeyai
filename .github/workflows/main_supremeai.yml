@@ -105,6 +105,7 @@ jobs:
           name: node-app
 
       - name: Login to Azure
+        continue-on-error: true
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C7BA4621EF474BBE94974B96CE1B926E }}
