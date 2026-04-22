@@ -96,20 +96,12 @@ jobs:
     needs: build
     permissions:
       contents: read
-      id-token: write   # Required for OIDC login to Azure
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C7BA4621EF474BBE94974B96CE1B926E }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5ECA2F2096BE48BC85762C6ADDA0AB5D }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C54E32D4CA56475EA186436F2EB3641F }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -121,10 +113,10 @@ jobs:
           package: deploy.zip
 
       # ── Push Application Settings to Azure App Service ───────────────────────
-      # Uses the Azure CLI (requires OIDC login credentials to be configured) to
-      # write all non-empty GitHub Secrets as App Service Application Settings.
-      # This step is skipped gracefully if credentials aren't available or the
-      # web app is not found. Resource group is auto-discovered from the app name.
+      # Uses the Azure CLI to write all non-empty GitHub Secrets as App Service
+      # Application Settings. Requires Azure CLI to be authenticated (e.g. via
+      # OIDC login). Skipped gracefully if not authenticated or the web app is
+      # not found. Resource group is auto-discovered from the app name.
       - name: Push App Service Application Settings
         continue-on-error: true
         env:
