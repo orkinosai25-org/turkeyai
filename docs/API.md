@@ -287,6 +287,179 @@ Search for regions by name.
 
 ---
 
+## Services
+
+### Get All Service Verticals
+
+#### `GET /api/services`
+
+Retrieve an overview of all available TürkiyeAI travel service verticals and their associated supplier/GDS information.
+
+**Response:**
+```json
+{
+  "brand": "TürkiyeAI – Powered by OrkinosAI",
+  "suppliers_overview": "10 supplier/API integrations registered. See GET /api/services/suppliers for full details.",
+  "service_verticals": [
+    {
+      "vertical": "hotels",
+      "title": "Hotels & Resorts",
+      "description": "Luxury and boutique hotels across Turkey's finest destinations.",
+      "icon": "🏨",
+      "endpoint": "/api/resorts",
+      "supplier_note": "Hotel availability via TBO, PROVAB contracted supplier APIs."
+    }
+  ]
+}
+```
+
+---
+
+### Get Supplier / API Registry
+
+#### `GET /api/services/suppliers`
+
+Retrieve the full registry of all API and GDS supplier integrations, including integration status, data provided, GBP support, UK compliance notes, and developer portal URLs.
+
+**Query Parameters:**
+- `vertical` (string, optional): Filter by service vertical (e.g., `hotels`, `flights`, `cars`, `transfers`, `excursions`, `packages`, `yachts`)
+- `lar_validated` (`true`, optional): When set to `true`, returns only suppliers confirmed live in the OrkinosAI [LAR reference system](https://github.com/orkinosai25-org/lar_system)
+
+**Example Requests:**
+```
+GET /api/services/suppliers?vertical=hotels
+GET /api/services/suppliers?lar_validated=true
+```
+
+**Notes:**
+- `lar_validated=true` is the only supported filter value. Omitting the parameter, or passing any other value, returns all suppliers without filtering by validation status.
+
+**Response (with `?lar_validated=true`):**
+```json
+{
+  "suppliers": [
+    {
+      "vertical": "hotels",
+      "supplier": "Hotelbeds API",
+      "integration": "recommended – not yet integrated",
+      "data_provided": ["180,000+ properties globally", "Turkish Riviera depth", "Live rates", "Transfers API", "Static content API"],
+      "gbp_support": true,
+      "uk_compliance": "UK-registered entity; GDPR-compliant; widely used by ATOL holders",
+      "portal_url": "https://developer.hotelbeds.com",
+      "lar_validated": true
+    }
+  ],
+  "count": 6,
+  "filters": { "vertical": null, "lar_validated": "true" },
+  "documentation": "/docs/API_SOURCES_AND_RECOMMENDATIONS.md",
+  "lar_reference": "https://github.com/orkinosai25-org/lar_system",
+  "brand": "TürkiyeAI – Powered by OrkinosAI",
+  "note": "Suppliers marked lar_validated:true are confirmed live in the OrkinosAI LAR reference implementation."
+}
+```
+
+---
+
+### Get Car Hire Options
+
+#### `GET /api/services/cars`
+
+Retrieve car hire categories available at Turkish airports via Carnect GDS.
+
+**Query Parameters:**
+- `airport` (string, optional): Filter by IATA airport code (e.g., `AYT`, `BJV`, `DLM`)
+- `category` (string, optional): Filter by vehicle category (e.g., `Economy`, `SUV`, `Luxury`)
+- `seats_min` (integer, optional): Minimum seat count
+
+---
+
+### Get Flight Information
+
+#### `GET /api/services/flights`
+
+Retrieve Turkish airport information and popular UK–Turkey route guidance. Live flight search is powered by the Amadeus GDS integration.
+
+---
+
+### Get Package Holidays
+
+#### `GET /api/services/packages`
+
+Retrieve holiday package catalog with indicative pricing.
+
+**Query Parameters:**
+- `destination` (string, optional): Filter by destination name
+- `category` (string, optional): Filter by package category
+- `board_basis` (string, optional): Filter by board basis (e.g., `All Inclusive`)
+- `duration_min` (integer, optional): Minimum nights
+- `duration_max` (integer, optional): Maximum nights
+
+---
+
+### Get Excursions
+
+#### `GET /api/services/excursions`
+
+Retrieve the excursion and experiences catalog.
+
+**Query Parameters:**
+- `destination` (string, optional): Filter by destination
+- `type` (string, optional): Filter by type (e.g., `Cultural`, `Adventure`, `Wellness`)
+- `difficulty` (string, optional): Filter by difficulty level
+
+---
+
+### Get Transfers
+
+#### `GET /api/services/transfers`
+
+Retrieve airport transfer options with vehicle types and indicative pricing.
+
+**Query Parameters:**
+- `airport` (string, optional): Filter by departure IATA code
+- `destination` (string, optional): Filter by destination name
+
+---
+
+### Get Cruises
+
+#### `GET /api/services/cruises`
+
+Retrieve cruise itineraries departing from or calling at Turkish ports.
+
+**Query Parameters:**
+- `departure_port` (string, optional): Filter by departure port
+- `ship_type` (string, optional): Filter by ship type (e.g., `Ocean Cruise`, `Traditional Gulet`)
+- `duration_min` (integer, optional): Minimum nights
+- `duration_max` (integer, optional): Maximum nights
+
+---
+
+### Get Private Aviation
+
+#### `GET /api/services/private-aviation`
+
+Retrieve private jet and charter flight options to Turkish airports.
+
+**Query Parameters:**
+- `aircraft_type` (string, optional): Filter by aircraft type
+- `max_passengers_min` (integer, optional): Minimum passenger capacity
+
+---
+
+### Get Private Boats & Yachts
+
+#### `GET /api/services/yachts`
+
+Retrieve yacht charter options along the Turkish coast via GRN (Global Resort Network).
+
+**Query Parameters:**
+- `vessel_type` (string, optional): Filter by vessel type (e.g., `Gulet`, `Motor Yacht`, `Superyacht`)
+- `home_port` (string, optional): Filter by home port
+- `max_guests_min` (integer, optional): Minimum guest capacity
+
+---
+
 ## Resorts
 
 ### Get All Resorts
