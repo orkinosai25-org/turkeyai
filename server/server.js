@@ -63,6 +63,7 @@ app.use('/api/resorts', require('./routes/proximity'));
 app.use('/api/services', require('./routes/services'));
 app.use('/api/knowledge', require('./routes/knowledge'));
 app.use('/api/hotels', require('./routes/hotels'));
+app.use('/api/holidays', require('./routes/holidays'));
 app.use('/api/ads', require('./routes/ads'));
 
 // Health check endpoint
