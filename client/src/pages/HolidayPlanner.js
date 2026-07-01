@@ -14,6 +14,21 @@ function isoDate(daysFromNow = 0) {
   return d.toISOString().split('T')[0];
 }
 
+/**
+ * Calculate whole-day difference between two ISO date strings using UTC
+ * midnight values so that DST transitions do not skew the count.
+ */
+function daysBetween(isoFrom, isoTo) {
+  if (!isoFrom || !isoTo) return null;
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const [fy, fm, fd] = isoFrom.split('-').map(Number);
+  const [ty, tm, td] = isoTo.split('-').map(Number);
+  const from = Date.UTC(fy, fm - 1, fd);
+  const to = Date.UTC(ty, tm - 1, td);
+  if (isNaN(from) || isNaN(to)) return null;
+  return Math.round((to - from) / msPerDay);
+}
+
 const STEPS = [
   { id: 1, label: 'Destination', icon: '📍' },
   { id: 2, label: 'Hotel', icon: '🏨' },
@@ -279,9 +294,7 @@ function Step2({ form, selectedHotel, setSelectedHotel, onNext, onBack }) {
 
 function Step3({ form, plan, selectedFlight, setSelectedFlight, onNext, onBack }) {
   const links = plan ? plan.affiliate_booking_links || [] : [];
-  const nights = form.checkIn && form.checkOut
-    ? Math.round((new Date(form.checkOut) - new Date(form.checkIn)) / 86400000)
-    : null;
+  const nights = daysBetween(form.checkIn, form.checkOut);
 
   return (
     <div>
@@ -409,6 +422,16 @@ function Step4({ form, plan, selectedTransfer, setSelectedTransfer, onNext, onBa
     });
   });
 
+  function isTransferSelected(vehicle, route) {
+    return (
+      selectedTransfer != null &&
+      selectedTransfer.vehicle != null &&
+      selectedTransfer.vehicle.id === vehicle.id &&
+      selectedTransfer.route != null &&
+      selectedTransfer.route.from === route.from
+    );
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -425,7 +448,7 @@ function Step4({ form, plan, selectedTransfer, setSelectedTransfer, onNext, onBa
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
           {allVehicleOptions.map(({ route, vehicle }) => {
             const key = `${route.from}-${route.destination}-${vehicle.id}`;
-            const isSel = selectedTransfer && selectedTransfer.vehicle && selectedTransfer.vehicle.id === vehicle.id && selectedTransfer.route && selectedTransfer.route.from === route.from;
+            const isSel = isTransferSelected(vehicle, route);
             return (
               <TransferCard
                 key={key}
@@ -515,9 +538,7 @@ function Step5({ form, plan, selectedTours, setSelectedTours, onNext, onBack }) 
 
 function Step6({ form, plan, selectedHotel, selectedFlight, selectedTransfer, selectedTours, onBack, onReset }) {
   const navigate = useNavigate();
-  const nights = form.checkIn && form.checkOut
-    ? Math.round((new Date(form.checkOut) - new Date(form.checkIn)) / 86400000)
-    : null;
+  const nights = daysBetween(form.checkIn, form.checkOut);
 
   const links = plan ? plan.affiliate_booking_links || [] : [];
   const chosenLink = links.find(l => l.provider === selectedFlight);

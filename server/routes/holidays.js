@@ -32,6 +32,24 @@ const DEST_CODE_MAP = {
 };
 
 /**
+ * Calculate the whole-day difference between two ISO date strings.
+ * Uses UTC midnight values so that DST transitions do not skew the count.
+ * Returns null if either date is missing or unparseable.
+ */
+function daysBetweenDates(isoFrom, isoTo) {
+  if (!isoFrom || !isoTo) return null;
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const from = Date.UTC(
+    ...isoFrom.split('-').map((n, i) => (i === 1 ? Number(n) - 1 : Number(n)))
+  );
+  const to = Date.UTC(
+    ...isoTo.split('-').map((n, i) => (i === 1 ? Number(n) - 1 : Number(n)))
+  );
+  if (isNaN(from) || isNaN(to)) return null;
+  return Math.round((to - from) / msPerDay);
+}
+
+/**
  * Build affiliate booking deep-links for a given destination and date range.
  * These are referral / affiliate URLs that earn commission when a user books.
  * All providers are ATOL-protected; TürkiyeAI acts only as a discovery referrer.
@@ -42,7 +60,8 @@ function buildAffiliateLinks({ destination, checkIn, checkOut, adults, children 
 
   // Jet2holidays – Awin affiliate deep-link skeleton
   const jet2Base = 'https://www.jet2holidays.com/holidays/turkey';
-  const jet2Link = `${jet2Base}?depDate=${checkIn}&dur=${checkOut ? Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000) : 7}&adults=${adults || 2}&children=${children || 0}&src=turkiyeai`;
+  const durationDays = daysBetweenDates(checkIn, checkOut) || 7;
+  const jet2Link = `${jet2Base}?depDate=${checkIn}&dur=${durationDays}&adults=${adults || 2}&children=${children || 0}&src=turkiyeai`;
 
   // TUI – Awin affiliate deep-link skeleton
   const tuiBase = 'https://www.tui.co.uk/destinations/europe/turkey';
@@ -134,10 +153,7 @@ router.get('/plan', (req, res) => {
   const adultsNum = Math.max(1, Math.min(parseInt(adults, 10) || 2, 20));
   const childrenNum = Math.max(0, Math.min(parseInt(children, 10) || 0, 10));
 
-  const durationNights =
-    checkIn && checkOut
-      ? Math.round((new Date(checkOut) - new Date(checkIn)) / 86400000)
-      : null;
+  const durationNights = daysBetweenDates(checkIn, checkOut);
 
   // Matching holiday packages
   const packages = PACKAGE_CATALOG.filter(
@@ -151,7 +167,7 @@ router.get('/plan', (req, res) => {
         ...route,
         vehicles: TRANSFER_TYPES.map(v => ({
           ...v,
-          price_eur: Math.round(route.base_price_eur * v.price_multiplier),
+          price_eur: Math.round(route.base_price_eur * v.price_multiplier * 100) / 100,
         })),
       }))
     : [];

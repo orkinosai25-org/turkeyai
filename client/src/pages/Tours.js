@@ -139,7 +139,10 @@ function Tours({ onAddToHoliday, selectedTours = [] }) {
       )
     : tours;
 
-  const isSelected = (tour) => selectedTours.some(t => t.id === tour.id);
+  const isSelected = useCallback(
+    (tour) => selectedTours.some(t => t.id === tour.id),
+    [selectedTours]
+  );
 
   return (
     <div className="page">
