@@ -18,6 +18,13 @@ function Home() {
         </p>
         
         <div className="hero-buttons">
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate('/holiday')}
+            style={{ background: 'var(--bougainvillea-pink)', fontSize: '1.05rem', padding: '0.75rem 1.6rem' }}
+          >
+            ✈️ Book My Holiday
+          </button>
           <button className="btn btn-primary" onClick={() => navigate('/trip-planner')}>
             📋 Plan Your Trip
           </button>
@@ -33,7 +40,38 @@ function Home() {
         </div>
       </div>
 
-      <div style={{ marginTop: '4rem' }}>
+      {/* Holiday Booking Banner */}
+      <div style={{
+        marginTop: '3rem',
+        background: 'linear-gradient(135deg, #1a4fa8 0%, #2577e3 50%, #0ea5e9 100%)',
+        borderRadius: '16px',
+        padding: '2.5rem 2rem',
+        textAlign: 'center',
+        color: 'white',
+      }}>
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.8rem' }}>🎉 Book Your Complete Turkey Holiday</h2>
+        <p style={{ margin: '0 0 1.5rem', opacity: 0.9, fontSize: '1.05rem' }}>
+          Flight + Hotel + Transfer + Tours — all in one AI-powered booking experience
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <button
+            className="btn"
+            onClick={() => navigate('/holiday')}
+            style={{ background: 'white', color: '#1a4fa8', fontWeight: 700, fontSize: '1rem', padding: '0.75rem 1.8rem', border: 'none' }}
+          >
+            ✈️ Book My Holiday Now
+          </button>
+          <button
+            className="btn"
+            onClick={() => navigate('/tours')}
+            style={{ background: 'rgba(255,255,255,0.15)', color: 'white', fontWeight: 600, fontSize: '1rem', padding: '0.75rem 1.8rem', border: '2px solid rgba(255,255,255,0.5)' }}
+          >
+            🗺️ Browse Tours
+          </button>
+        </div>
+      </div>
+
+      <div style={{ marginTop: '3rem' }}>
         <h2 style={{ textAlign: 'center', color: 'var(--aegean-blue)', marginBottom: '2rem' }}>
           About TurkiyAI Holidays
         </h2>

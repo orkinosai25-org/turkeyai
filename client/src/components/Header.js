@@ -44,7 +44,9 @@ function Header() {
         </Link>
         <nav className="nav">
           <Link to="/">Home</Link>
+          <Link to="/holiday" style={{ fontWeight: 600, color: 'var(--bougainvillea-pink)' }}>✈️ Book Holiday</Link>
           <Link to="/search">Search</Link>
+          <Link to="/tours">Tours</Link>
           <Link to="/destinations">Destinations</Link>
           <Link to="/services">Services</Link>
           <Link to="/trip-planner">Trip Planner</Link>

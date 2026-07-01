@@ -15,6 +15,8 @@ import SearchPage from './pages/SearchPage';
 import KnowledgeManager from './pages/KnowledgeManager';
 import HotelDetails from './pages/HotelDetails';
 import AdManager from './pages/AdManager';
+import HolidayPlanner from './pages/HolidayPlanner';
+import Tours from './pages/Tours';
 import './App.css';
 
 function App() {
@@ -36,6 +38,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/hotels/:code" element={<HotelDetails />} />
           <Route path="/admin/ads" element={<AdManager />} />
+          <Route path="/holiday" element={<HolidayPlanner />} />
+          <Route path="/tours" element={<Tours />} />
         </Routes>
         <Footer />
       </div>
