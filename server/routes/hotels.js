@@ -113,6 +113,48 @@ function hotelbedsRequest(method, path, body) {
 }
 
 /**
+ * GET /api/hotels/status
+ * Returns the current HotelBeds API configuration status (without exposing
+ * secrets) so that operators can verify the integration before going live.
+ *
+ * The "environment" field distinguishes between the HotelBeds sandbox
+ * (api.test.hotelbeds.com) used for development/testing and the production
+ * environment (api.hotelbeds.com) used for real hotel data and real bookings.
+ */
+router.get('/status', async (req, res) => {
+  const configured = await ensureHotelBedsConfigured();
+  const { baseUrl, language, currency } = getConfig();
+
+  let environment = 'unknown';
+  if (baseUrl.includes('api.test.hotelbeds.com')) {
+    environment = 'test';
+  } else if (baseUrl.includes('api.hotelbeds.com')) {
+    environment = 'production';
+  }
+
+  res.json({
+    configured,
+    environment,
+    baseUrl,
+    language,
+    currency,
+    message: configured
+      ? environment === 'production'
+        ? 'HotelBeds production API is configured. Hotel search and bookings use real live data.'
+        : 'HotelBeds test/sandbox API is configured. Switch BaseUrl to https://api.hotelbeds.com and use production credentials for real hotel data.'
+      : 'HotelBeds API is not configured. Set HotelBeds.ApiKey and HotelBeds.ApiSecret in server/appsettings.json. Hotel search is using static demo data.',
+    setup: {
+      appsettings: 'server/appsettings.json → HotelBeds section',
+      requiredFields: ['HotelBeds.ApiKey', 'HotelBeds.ApiSecret'],
+      testBaseUrl: 'https://api.test.hotelbeds.com',
+      productionBaseUrl: 'https://api.hotelbeds.com',
+      developerPortal: 'https://developer.hotelbeds.com',
+    },
+    brand: 'TürkiyeAI - Powered by OrkinosAI',
+  });
+});
+
+/**
  * GET /api/hotels/search
  * Search hotels by destination name.
  * Returns static hotel data when HotelBeds is not configured.
@@ -292,6 +334,140 @@ router.post('/availability', async (req, res) => {
     console.error('HotelBeds availability error:', err.message);
     res.status(err.status || 502).json({
       error: 'Failed to fetch hotel availability',
+      message: err.message,
+    });
+  }
+});
+
+/**
+ * POST /api/hotels/book
+ * Create a hotel booking via the HotelBeds Booking API.
+ *
+ * The caller must supply a `rateKey` obtained from a prior call to
+ * POST /api/hotels/availability.  Rate keys are time-limited; the booking
+ * must be made within a few minutes of the availability response.
+ *
+ * Body:
+ *   holder          {object}   Lead guest — { name, surname }
+ *   rooms           {array}    One entry per room:
+ *                              { rateKey, paxes: [{ roomId, type, name, surname }] }
+ *                              type is "AD" (adult) or "CH" (child)
+ *   clientReference {string}   Optional. Your internal booking reference.
+ *                              Auto-generated if omitted.
+ *   remark          {string}   Optional. Free-text note to the hotel.
+ *
+ * Requirements (credentials and settings):
+ *   - HotelBeds.ApiKey    in server/appsettings.json  (or HOTELBEDS_API_KEY env var)
+ *   - HotelBeds.ApiSecret in server/appsettings.json  (or HOTELBEDS_API_SECRET env var)
+ *   - HotelBeds.BaseUrl   must be https://api.hotelbeds.com for REAL bookings.
+ *     Using https://api.test.hotelbeds.com (sandbox) will simulate the booking
+ *     without charging or reserving a real room.
+ *   Sign up / obtain credentials at https://developer.hotelbeds.com
+ */
+router.post('/book', async (req, res) => {
+  const configured = await ensureHotelBedsConfigured();
+  if (!configured) {
+    return res.status(503).json({
+      error: 'HotelBeds API is not configured',
+      message: 'Set HotelBeds.ApiKey and HotelBeds.ApiSecret in server/appsettings.json. ' +
+        'For real bookings also set HotelBeds.BaseUrl to https://api.hotelbeds.com.',
+    });
+  }
+
+  const { holder, rooms, clientReference, remark } = req.body;
+
+  // Validate holder
+  if (!holder || typeof holder.name !== 'string' || !holder.name.trim() ||
+      typeof holder.surname !== 'string' || !holder.surname.trim()) {
+    return res.status(400).json({
+      error: 'Invalid holder',
+      message: 'holder.name and holder.surname are required.',
+    });
+  }
+
+  // Validate rooms
+  if (!Array.isArray(rooms) || rooms.length === 0) {
+    return res.status(400).json({
+      error: 'Invalid rooms',
+      message: 'rooms must be a non-empty array. Each room must include a rateKey.',
+    });
+  }
+
+  for (const [idx, room] of rooms.entries()) {
+    if (!room.rateKey || typeof room.rateKey !== 'string' || !room.rateKey.trim()) {
+      return res.status(400).json({
+        error: 'Invalid rateKey',
+        message: `rooms[${idx}].rateKey is required. Obtain it from POST /api/hotels/availability.`,
+      });
+    }
+    if (!Array.isArray(room.paxes) || room.paxes.length === 0) {
+      return res.status(400).json({
+        error: 'Invalid paxes',
+        message: `rooms[${idx}].paxes must be a non-empty array of guest objects.`,
+      });
+    }
+    for (const [pi, pax] of room.paxes.entries()) {
+      if (!['AD', 'CH'].includes(pax.type)) {
+        return res.status(400).json({
+          error: 'Invalid pax type',
+          message: `rooms[${idx}].paxes[${pi}].type must be "AD" (adult) or "CH" (child).`,
+        });
+      }
+      if (!pax.name || !pax.surname) {
+        return res.status(400).json({
+          error: 'Invalid pax',
+          message: `rooms[${idx}].paxes[${pi}] must have name and surname.`,
+        });
+      }
+    }
+  }
+
+  // Build request body for HotelBeds Bookings API
+  const ref = (typeof clientReference === 'string' && clientReference.trim())
+    ? clientReference.trim()
+    : `TURKEYAI-${Date.now()}`;
+
+  const requestBody = {
+    holder: { name: holder.name.trim(), surname: holder.surname.trim() },
+    rooms: rooms.map(room => ({
+      rateKey: room.rateKey.trim(),
+      paxes: room.paxes.map(pax => ({
+        roomId: typeof pax.roomId === 'number' ? pax.roomId : 1,
+        type: pax.type,
+        name: String(pax.name).trim(),
+        surname: String(pax.surname).trim(),
+      })),
+    })),
+    clientReference: ref,
+    ...(typeof remark === 'string' && remark.trim() ? { remark: remark.trim() } : {}),
+  };
+
+  const { baseUrl } = getConfig();
+  const isTestEnv = baseUrl.includes('api.test.hotelbeds.com');
+
+  try {
+    const data = await hotelbedsRequest('POST', '/hotel-api/1.0/bookings', requestBody);
+    const booking = data.booking || {};
+    res.status(201).json({
+      bookingReference: booking.reference || null,
+      clientReference: booking.clientReference || ref,
+      status: booking.status || null,
+      hotel: booking.hotel || null,
+      holder: booking.holder || null,
+      checkIn: booking.hotel ? booking.hotel.checkIn : null,
+      checkOut: booking.hotel ? booking.hotel.checkOut : null,
+      totalNet: booking.totalNet || null,
+      currency: booking.currency || null,
+      environment: isTestEnv ? 'test' : 'production',
+      warning: isTestEnv
+        ? 'This booking was made against the HotelBeds SANDBOX (test environment). No real room has been reserved. Switch HotelBeds.BaseUrl to https://api.hotelbeds.com for real bookings.'
+        : undefined,
+      brand: 'TürkiyeAI - Powered by OrkinosAI',
+    });
+  } catch (err) {
+    console.error('HotelBeds booking error:', err.message);
+    res.status(err.status || 502).json({
+      error: 'Booking failed',
       message: err.message,
     });
   }

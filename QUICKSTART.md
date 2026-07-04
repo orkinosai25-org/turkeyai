@@ -117,6 +117,7 @@ npm run search:populate
 npm run search:index-info
 ```
 
+
 ### 5. Start the App
 
 ```bash
@@ -125,6 +126,42 @@ npm run dev
 ```
 
 Now the AI chat will work with Azure OpenAI and semantic search! 🎉
+
+### 6. (Optional) Enable Real Hotel Data via HotelBeds
+
+By default the hotel search pages show static demo hotel data.  To enable live hotel data and real bookings:
+
+1. Register for a free account at [developer.hotelbeds.com](https://developer.hotelbeds.com)
+2. Obtain your **API Key** and **API Secret** from the developer portal
+3. Edit `server/appsettings.json` and fill in the `HotelBeds` section:
+
+```json
+"HotelBeds": {
+  "ApiKey": "your-hotelbeds-api-key",
+  "ApiSecret": "your-hotelbeds-api-secret",
+  "BaseUrl": "https://api.test.hotelbeds.com",
+  "Language": "ENG",
+  "Currency": "GBP"
+}
+```
+
+**Test vs Production:**
+
+| Environment | BaseUrl | Data |
+|---|---|---|
+| Test / Sandbox | `https://api.test.hotelbeds.com` | Simulated – no real charges |
+| **Production** | `https://api.hotelbeds.com` | **Real hotel data & real bookings** |
+
+Switch `BaseUrl` to `https://api.hotelbeds.com` and replace the credentials with your production API Key / Secret to go live.
+
+4. Verify the setup:
+```bash
+curl http://localhost:5000/api/hotels/status
+```
+
+The response will confirm whether HotelBeds is configured and which environment is active.
+
+
 
 ## Project Structure
 

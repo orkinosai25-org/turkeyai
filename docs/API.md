@@ -287,6 +287,285 @@ Search for regions by name.
 
 ---
 
+## Hotels (HotelBeds Integration)
+
+The hotel endpoints integrate with the [HotelBeds API](https://developer.hotelbeds.com) to provide real hotel
+content, live availability/pricing, and bookings.
+
+### Required Credentials
+
+Set these values in `server/appsettings.json` under the `HotelBeds` section, or via environment variables:
+
+| Setting | appsettings.json key | Environment variable | Description |
+|---|---|---|---|
+| API Key | `HotelBeds.ApiKey` | `HOTELBEDS_API_KEY` | Obtained from developer.hotelbeds.com |
+| API Secret | `HotelBeds.ApiSecret` | `HOTELBEDS_API_SECRET` | Paired secret for HMAC-SHA256 signing |
+| Base URL | `HotelBeds.BaseUrl` | `HOTELBEDS_BASE_URL` | See below |
+| Language | `HotelBeds.Language` | `HOTELBEDS_LANGUAGE` | Default: `ENG` |
+| Currency | `HotelBeds.Currency` | `HOTELBEDS_CURRENCY` | Default: `GBP` |
+
+**BaseUrl options:**
+- **Test/sandbox** (free, no real charges): `https://api.test.hotelbeds.com`
+- **Production** (real hotel data, real bookings): `https://api.hotelbeds.com`
+
+When credentials are not configured, hotel search falls back to static demo data and booking is disabled.
+
+---
+
+### Get HotelBeds Status
+
+#### `GET /api/hotels/status`
+
+Returns the current HotelBeds API configuration status without exposing secrets.
+
+**Response:**
+```json
+{
+  "configured": true,
+  "environment": "production",
+  "baseUrl": "https://api.hotelbeds.com",
+  "language": "ENG",
+  "currency": "GBP",
+  "message": "HotelBeds production API is configured. Hotel search and bookings use real live data.",
+  "setup": {
+    "appsettings": "server/appsettings.json → HotelBeds section",
+    "requiredFields": ["HotelBeds.ApiKey", "HotelBeds.ApiSecret"],
+    "testBaseUrl": "https://api.test.hotelbeds.com",
+    "productionBaseUrl": "https://api.hotelbeds.com",
+    "developerPortal": "https://developer.hotelbeds.com"
+  },
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**`environment` values:**
+- `production` – real hotel data and bookings (`api.hotelbeds.com`)
+- `test` – sandbox/simulated data, no real charges (`api.test.hotelbeds.com`)
+- `unknown` – non-standard BaseUrl
+
+---
+
+### Search Hotels by Destination
+
+#### `GET /api/hotels/search`
+
+Search hotels for a destination.  Uses HotelBeds Content API when configured; falls back to static demo
+data otherwise.  The `source` field in the response indicates whether results are real (`hotelbeds`) or
+demo (`static`).
+
+**Query Parameters:**
+- `destination` (string): Destination name (e.g. `Bodrum`, `Antalya`, `Istanbul`)
+
+**Response:**
+```json
+{
+  "hotels": [
+    {
+      "code": "43841",
+      "name": "Kempinski Hotel Barbaros Bay Bodrum",
+      "categoryCode": "5",
+      "destinationName": "Bodrum",
+      "zoneName": "Yalıkavak",
+      "address": "Gerenkuyu Mevkii, Bodrum"
+    }
+  ],
+  "total": 8,
+  "destination": "Bodrum",
+  "source": "hotelbeds",
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**`source` values:**
+- `hotelbeds` – live data from HotelBeds (credentials required)
+- `static` – demo/fallback data (no credentials needed)
+
+---
+
+### Hotel Availability & Live Pricing
+
+#### `POST /api/hotels/availability`
+
+Search for available hotels with live pricing for specific dates.
+Requires HotelBeds credentials.  Returns hotel rooms with `rateKey` values needed for booking.
+
+**Request Body:**
+```json
+{
+  "destination": "BOD",
+  "checkIn": "2026-08-01",
+  "checkOut": "2026-08-08",
+  "adults": 2,
+  "children": 0,
+  "rooms": 1
+}
+```
+
+**Response:**
+```json
+{
+  "hotels": [
+    {
+      "code": 43841,
+      "name": "Kempinski Hotel Barbaros Bay Bodrum",
+      "rooms": [
+        {
+          "code": "DBL.ST",
+          "name": "STANDARD DOUBLE ROOM",
+          "rates": [
+            {
+              "rateKey": "20260801|20260808|W|1|43841|DBL.ST|...",
+              "rateClass": "NOR",
+              "rateType": "BOOKABLE",
+              "net": "1540.00",
+              "currency": "GBP",
+              "boardCode": "BB",
+              "boardName": "BED AND BREAKFAST"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "total": 12,
+  "checkIn": "2026-08-01",
+  "checkOut": "2026-08-08",
+  "destination": "BOD",
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+**Error (503) – credentials not configured:**
+```json
+{
+  "error": "HotelBeds API is not configured",
+  "message": "Set HotelBeds.ApiKey and HotelBeds.ApiSecret in server/appsettings.json."
+}
+```
+
+---
+
+### Create Hotel Booking
+
+#### `POST /api/hotels/book`
+
+Create a confirmed hotel booking via HotelBeds.  Use the `rateKey` from a prior availability search.
+
+> ⚠️ **Environment note:** Bookings made against the test BaseUrl (`api.test.hotelbeds.com`) are simulated
+> and do **not** reserve a real room.  Set `HotelBeds.BaseUrl` to `https://api.hotelbeds.com` and use
+> production credentials for real reservations.
+
+**Request Body:**
+```json
+{
+  "holder": {
+    "name": "Jane",
+    "surname": "Smith"
+  },
+  "rooms": [
+    {
+      "rateKey": "20260801|20260808|W|1|43841|DBL.ST|...",
+      "paxes": [
+        { "roomId": 1, "type": "AD", "name": "Jane", "surname": "Smith" },
+        { "roomId": 1, "type": "AD", "name": "John", "surname": "Smith" }
+      ]
+    }
+  ],
+  "clientReference": "MY-REF-001",
+  "remark": "Late check-in requested"
+}
+```
+
+**Fields:**
+- `holder` (object, required): Lead guest name and surname
+- `rooms` (array, required): One entry per room booked
+  - `rateKey` (string, required): Taken from availability response; time-limited
+  - `paxes` (array, required): Each guest in the room
+    - `roomId` (integer): Room number, starting at 1
+    - `type` (string): `"AD"` for adult, `"CH"` for child
+    - `name`, `surname` (string, required)
+- `clientReference` (string, optional): Your internal reference; auto-generated if omitted
+- `remark` (string, optional): Free-text note to the hotel
+
+**Response (201 Created):**
+```json
+{
+  "bookingReference": "1-4545A",
+  "clientReference": "MY-REF-001",
+  "status": "CONFIRMED",
+  "hotel": {
+    "checkIn": "2026-08-01",
+    "checkOut": "2026-08-08",
+    "code": 43841,
+    "name": "KEMPINSKI HOTEL BARBAROS BAY BODRUM"
+  },
+  "holder": { "name": "Jane", "surname": "Smith" },
+  "checkIn": "2026-08-01",
+  "checkOut": "2026-08-08",
+  "totalNet": "1540.00",
+  "currency": "GBP",
+  "environment": "production",
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+When called against the test environment, an additional `warning` field is included:
+```json
+{
+  "environment": "test",
+  "warning": "This booking was made against the HotelBeds SANDBOX (test environment). No real room has been reserved. Switch HotelBeds.BaseUrl to https://api.hotelbeds.com for real bookings."
+}
+```
+
+**Error (400) – validation failure:**
+```json
+{
+  "error": "Invalid rateKey",
+  "message": "rooms[0].rateKey is required. Obtain it from POST /api/hotels/availability."
+}
+```
+
+**Error (503) – credentials not configured:**
+```json
+{
+  "error": "HotelBeds API is not configured",
+  "message": "Set HotelBeds.ApiKey and HotelBeds.ApiSecret in server/appsettings.json. For real bookings also set HotelBeds.BaseUrl to https://api.hotelbeds.com."
+}
+```
+
+---
+
+### Get Hotel Details
+
+#### `GET /api/hotels/:code`
+
+Retrieve detailed information for a specific hotel by its numeric HotelBeds code.
+
+**Parameters:**
+- `code` (string): Numeric hotel code (1–6 digits)
+
+**Response:**
+```json
+{
+  "hotel": {
+    "code": 43841,
+    "name": { "content": "Kempinski Hotel Barbaros Bay Bodrum" },
+    "categoryCode": "5",
+    "categoryName": { "content": "5 Stars" },
+    "destinationName": "Bodrum",
+    "zoneName": "Yalıkavak",
+    "address": { "content": "Gerenkuyu Mevkii, Bodrum" },
+    "description": { "content": "..." },
+    "coordinates": { "latitude": 37.068, "longitude": 27.352 },
+    "facilities": [...],
+    "images": [...]
+  },
+  "brand": "TürkiyeAI - Powered by OrkinosAI"
+}
+```
+
+---
+
 ## Services
 
 ### Get All Service Verticals

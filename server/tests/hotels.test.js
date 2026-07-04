@@ -206,6 +206,78 @@ appForSearch.use('/api/hotels', hotelsRouterForSearch);
 
     console.log('');
 
+    // ── Test 9: Status endpoint ────────────────────────────────────────────────
+    console.log('Test 9: Hotel Status Endpoint');
+
+    const statusRes = await supertest(appForSearch).get('/api/hotels/status');
+    assert(statusRes.status === 200, 'GET /api/hotels/status returns 200');
+    assert(typeof statusRes.body.configured === 'boolean', 'status has configured boolean');
+    assert(typeof statusRes.body.environment === 'string', 'status has environment string');
+    assert(['test', 'production', 'unknown'].includes(statusRes.body.environment), 'environment is test, production, or unknown');
+    assert(typeof statusRes.body.message === 'string' && statusRes.body.message.length > 0, 'status has a message');
+    assert(typeof statusRes.body.setup === 'object', 'status has setup guidance object');
+    assert(Array.isArray(statusRes.body.setup.requiredFields), 'setup has requiredFields array');
+    assert(typeof statusRes.body.setup.developerPortal === 'string', 'setup has developerPortal URL');
+    assert(statusRes.body.setup.testBaseUrl === 'https://api.test.hotelbeds.com', 'setup shows correct testBaseUrl');
+    assert(statusRes.body.setup.productionBaseUrl === 'https://api.hotelbeds.com', 'setup shows correct productionBaseUrl');
+    console.log(`   ℹ️  HotelBeds environment: ${statusRes.body.environment}, configured: ${statusRes.body.configured}`);
+
+    console.log('');
+
+    // ── Test 10: Book endpoint – validation errors ─────────────────────────────
+    console.log('Test 10: Hotel Book Endpoint (Validation)');
+
+    // Set credentials so validation tests can run past the auth gate
+    // (appsettings.json may also provide credentials in the real environment)
+    process.env.HOTELBEDS_API_KEY = 'test-key-for-validation';
+    process.env.HOTELBEDS_API_SECRET = 'test-secret-for-validation';
+
+    const hotelsRouterForBook = require('../routes/hotels');
+    const appForBook = express();
+    appForBook.use(express.json());
+    appForBook.use('/api/hotels', hotelsRouterForBook);
+
+    // Missing holder → 400
+    const bookNoHolderRes = await supertest(appForBook)
+      .post('/api/hotels/book')
+      .send({ rooms: [{ rateKey: 'key123', paxes: [{ roomId: 1, type: 'AD', name: 'Jane', surname: 'Smith' }] }] });
+    assert(bookNoHolderRes.status === 400, 'Missing holder returns 400');
+    assert(bookNoHolderRes.body.error === 'Invalid holder', 'Correct error for missing holder');
+
+    // Missing rooms → 400
+    const bookNoRoomsRes = await supertest(appForBook)
+      .post('/api/hotels/book')
+      .send({ holder: { name: 'Jane', surname: 'Smith' } });
+    assert(bookNoRoomsRes.status === 400, 'Missing rooms returns 400');
+    assert(bookNoRoomsRes.body.error === 'Invalid rooms', 'Correct error for missing rooms');
+
+    // Missing rateKey → 400
+    const bookNoRateKeyRes = await supertest(appForBook)
+      .post('/api/hotels/book')
+      .send({ holder: { name: 'Jane', surname: 'Smith' }, rooms: [{ paxes: [{ roomId: 1, type: 'AD', name: 'Jane', surname: 'Smith' }] }] });
+    assert(bookNoRateKeyRes.status === 400, 'Missing rateKey returns 400');
+    assert(bookNoRateKeyRes.body.error === 'Invalid rateKey', 'Correct error for missing rateKey');
+
+    // Invalid pax type → 400
+    const bookBadPaxTypeRes = await supertest(appForBook)
+      .post('/api/hotels/book')
+      .send({ holder: { name: 'Jane', surname: 'Smith' }, rooms: [{ rateKey: 'key123', paxes: [{ roomId: 1, type: 'XX', name: 'Jane', surname: 'Smith' }] }] });
+    assert(bookBadPaxTypeRes.status === 400, 'Invalid pax type returns 400');
+    assert(bookBadPaxTypeRes.body.error === 'Invalid pax type', 'Correct error for bad pax type');
+
+    // Missing pax name → 400
+    const bookNoPaxNameRes = await supertest(appForBook)
+      .post('/api/hotels/book')
+      .send({ holder: { name: 'Jane', surname: 'Smith' }, rooms: [{ rateKey: 'key123', paxes: [{ roomId: 1, type: 'AD', surname: 'Smith' }] }] });
+    assert(bookNoPaxNameRes.status === 400, 'Missing pax name returns 400');
+    assert(bookNoPaxNameRes.body.error === 'Invalid pax', 'Correct error for missing pax name');
+
+    // Restore
+    delete process.env.HOTELBEDS_API_KEY;
+    delete process.env.HOTELBEDS_API_SECRET;
+
+    console.log('');
+
     // ── Summary ──────────────────────────────────────────────────────────────────
     console.log('═══════════════════════════════════════');
     console.log(`Total Tests: ${passed + failed}`);
