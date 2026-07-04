@@ -435,7 +435,7 @@ router.post('/book', async (req, res) => {
     rooms: rooms.map(room => ({
       rateKey: room.rateKey.trim(),
       paxes: room.paxes.map(pax => ({
-        roomId: typeof pax.roomId === 'number' ? pax.roomId : 1,
+        roomId: typeof pax.roomId === 'number' ? pax.roomId : 1, // default to room 1 if not specified
         type: pax.type,
         name: String(pax.name).trim(),
         surname: String(pax.surname).trim(),
@@ -446,7 +446,7 @@ router.post('/book', async (req, res) => {
   };
 
   const { baseUrl } = getConfig();
-  let isTestEnv = true; // default conservative
+  let isTestEnv = true; // default to test – prevents accidental production bookings if URL parsing fails
   try {
     isTestEnv = new URL(baseUrl).hostname !== 'api.hotelbeds.com';
   } catch { /* invalid URL – treat as non-production */ }
