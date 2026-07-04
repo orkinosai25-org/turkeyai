@@ -126,11 +126,14 @@ router.get('/status', async (req, res) => {
   const { baseUrl, language, currency } = getConfig();
 
   let environment = 'unknown';
-  if (baseUrl.includes('api.test.hotelbeds.com')) {
-    environment = 'test';
-  } else if (baseUrl.includes('api.hotelbeds.com')) {
-    environment = 'production';
-  }
+  try {
+    const parsedUrl = new URL(baseUrl);
+    if (parsedUrl.hostname === 'api.test.hotelbeds.com') {
+      environment = 'test';
+    } else if (parsedUrl.hostname === 'api.hotelbeds.com') {
+      environment = 'production';
+    }
+  } catch { /* invalid URL – environment stays unknown */ }
 
   res.json({
     configured,
@@ -425,7 +428,7 @@ router.post('/book', async (req, res) => {
   // Build request body for HotelBeds Bookings API
   const ref = (typeof clientReference === 'string' && clientReference.trim())
     ? clientReference.trim()
-    : `TURKEYAI-${Date.now()}`;
+    : `TURKIYEAI-${Date.now()}`;
 
   const requestBody = {
     holder: { name: holder.name.trim(), surname: holder.surname.trim() },
@@ -443,7 +446,10 @@ router.post('/book', async (req, res) => {
   };
 
   const { baseUrl } = getConfig();
-  const isTestEnv = baseUrl.includes('api.test.hotelbeds.com');
+  let isTestEnv = true; // default conservative
+  try {
+    isTestEnv = new URL(baseUrl).hostname !== 'api.hotelbeds.com';
+  } catch { /* invalid URL – treat as non-production */ }
 
   try {
     const data = await hotelbedsRequest('POST', '/hotel-api/1.0/bookings', requestBody);
