@@ -134,11 +134,18 @@ function HotelAvailabilityCard({ result }) {
     : null;
   const starsRaw = result.categoryCode ? parseInt(result.categoryCode, 10) : parseInt(result.stars, 10);
   const stars = isNaN(starsRaw) ? 0 : Math.max(0, Math.min(starsRaw, 5));
+  const isLive = result._dataSource === 'hotelbeds';
   return (
     <div style={{ background: 'white', borderRadius: '12px', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
         <span style={{ color: '#f6ad55', fontSize: '0.9rem' }}>{'⭐'.repeat(stars)}</span>
-        <span style={{ background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600 }}>Live Availability</span>
+        <span style={{
+          background: isLive ? '#e8f5e9' : '#fff8e1',
+          color: isLive ? '#2e7d32' : '#b45309',
+          padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600
+        }}>
+          {isLive ? '🟢 Live API' : '📋 Demo Data'}
+        </span>
       </div>
       <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.2rem', fontSize: '1rem' }}>{result.name}</h3>
       <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
@@ -213,7 +220,12 @@ function SearchResultCard({ result, category }) {
     <div style={{ background: 'white', borderRadius: '12px', padding: '1.25rem', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
         <span style={{ color: '#f6ad55', fontSize: '0.9rem' }}>{'⭐'.repeat(result.star_rating || 0)}</span>
-        {result.score && <span style={{ background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.5rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>{Math.round((result.score || 0) * 100)}% match</span>}
+        <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
+          {result._isMockData && (
+            <span style={{ background: '#fff3e0', color: '#b45309', padding: '0.2rem 0.5rem', borderRadius: '20px', fontSize: '0.72rem', fontWeight: 600 }}>📋 Sample</span>
+          )}
+          {result.score && <span style={{ background: '#e8f5e9', color: '#2e7d32', padding: '0.2rem 0.5rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 600 }}>{Math.round((result.score || 0) * 100)}% match</span>}
+        </div>
       </div>
       <h3 style={{ color: 'var(--aegean-blue)', marginBottom: '0.25rem', fontSize: '1rem' }}>{result.resort_name || result.name}</h3>
       <p style={{ color: 'var(--warm-slate-500)', fontSize: '0.8rem', marginBottom: '0.75rem', lineHeight: 1.4 }}>{result.region || result.destination_name} · {(result.description || '').slice(0, 80)}{result.description?.length > 80 ? '…' : ''}</p>
@@ -241,6 +253,8 @@ function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState('');
+  const [hotelDataSource, setHotelDataSource] = useState(null);  // 'hotelbeds' (HotelBeds API) | 'static' (demo fallback) | null
+  const [resortsMock, setResortsMock] = useState(false);
 
   // HotelBeds hotel availability search fields
   const [checkIn, setCheckIn] = useState(isoDate(7));
@@ -255,6 +269,8 @@ function SearchPage() {
     setError('');
     setSearched(true);
     setHotelCount(0);
+    setHotelDataSource(null);
+    setResortsMock(false);
 
     try {
       const allResults = [];
@@ -266,7 +282,9 @@ function SearchPage() {
             query: searchQuery,
             filters: searchDest ? { region: searchDest } : {},
           });
-          allResults.push(...(res.data.results || []).map(r => ({ ...r, _source: 'resort' })));
+          const isMock = !!(res.data.note);
+          setResortsMock(isMock);
+          allResults.push(...(res.data.results || []).map(r => ({ ...r, _source: 'resort', _isMockData: isMock })));
         } catch (resortErr) {
           console.warn('Resort search unavailable:', resortErr.message);
         }
@@ -278,7 +296,9 @@ function SearchPage() {
             const hsRes = await axios.get(`${API_BASE}/api/hotels/search`, {
               params: { destination: hotelDest },
             });
-            const hotelResults = (hsRes.data.hotels || []).map(h => ({ ...h, _source: 'hotelbeds' }));
+            const hsSource = hsRes.data.source || 'static';
+            setHotelDataSource(hsSource);
+            const hotelResults = (hsRes.data.hotels || []).map(h => ({ ...h, _source: 'hotelbeds', _dataSource: hsSource }));
             allResults.push(...hotelResults);
           } catch (hsErr) {
             console.warn('Hotel search unavailable:', hsErr.message);
@@ -300,7 +320,7 @@ function SearchPage() {
             const existingCodes = new Set(allResults.filter(r => r._source === 'hotelbeds').map(r => String(r.code)));
             const liveHotels = (hbRes.data.hotels || [])
               .filter(h => !existingCodes.has(String(h.code)))
-              .map(h => ({ ...h, _source: 'hotelbeds' }));
+              .map(h => ({ ...h, _source: 'hotelbeds', _dataSource: 'hotelbeds' }));
             allResults.push(...liveHotels);
           } catch (hbErr) {
             console.warn('HotelBeds availability unavailable:', hbErr.message);
@@ -637,6 +657,21 @@ function SearchPage() {
                 </Link>
               )}
             </div>
+
+            {results.length > 0 && (hotelDataSource || resortsMock) && (
+              <div style={{ background: hotelDataSource === 'hotelbeds' ? '#f0fdf4' : '#fffbeb', border: `1px solid ${hotelDataSource === 'hotelbeds' ? '#86efac' : '#fcd34d'}`, borderRadius: '8px', padding: '0.6rem 1rem', marginBottom: '1.25rem', fontSize: '0.82rem', color: hotelDataSource === 'hotelbeds' ? '#15803d' : '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {hotelDataSource === 'hotelbeds'
+                  ? '🟢 Hotel data: Live HotelBeds API'
+                  : hotelDataSource === 'static'
+                  ? '📋 Hotel data: Demo/static fallback — configure HotelBeds API for live results'
+                  : null}
+                {resortsMock && (
+                  <span style={{ marginLeft: hotelDataSource ? '0.75rem' : 0 }}>
+                    📋 Resort data: Sample fallback — configure Azure AI Search for live results
+                  </span>
+                )}
+              </div>
+            )}
 
             {results.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
