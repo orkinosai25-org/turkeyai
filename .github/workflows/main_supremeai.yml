@@ -32,7 +32,7 @@
 #   SETTINGS_SOURCE_URL          – Optional remote appsettings URL
 #   SETTINGS_API_TOKEN           – GitHub PAT for private remote settings
 
-name: Build and deploy Node.js app to Azure Web App - supremeai
+name: Build and deploy Node.js app to Azure Web App - turkiye-ai
 
 on:
   push:
@@ -107,7 +107,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'turkiye-ai' }}
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
@@ -120,7 +120,7 @@ jobs:
       - name: Push App Service Application Settings
         continue-on-error: true
         env:
-          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
+          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'turkiye-ai' }}
           # Azure OpenAI
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
