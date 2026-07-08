@@ -109,7 +109,7 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
           slot-name: 'Production'
-          publish-profile: ${{ secrets.PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
 
       # ── Push Application Settings to Azure App Service ───────────────────────
