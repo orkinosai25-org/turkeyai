@@ -1,6 +1,12 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 #
+# NOTE: This workflow is intentionally NOT triggered on push to main.
+# Automatic deployments to production (turkiye-ai) are handled exclusively by
+# main_turkiye-ai.yml to avoid race conditions and Azure 409 Conflict errors.
+# Use workflow_dispatch to manually deploy to a secondary app (e.g. supremeai)
+# by setting the AZURE_WEBAPP_NAME secret appropriately before triggering.
+#
 # Required GitHub Secrets (already set up by Azure):
 #   AZUREAPPSERVICE_CLIENTID_C7BA4621EF474BBE94974B96CE1B926E  – App Registration client ID
 #   AZUREAPPSERVICE_TENANTID_5ECA2F2096BE48BC85762C6ADDA0AB5D  – Azure AD tenant ID
@@ -8,7 +14,7 @@
 #   PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
 #
 # Optional GitHub Secrets — add once; automatically pushed to App Service on every deploy:
-#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'supremeai' if not set)
+#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'turkiye-ai' if not set)
 #   AZURE_OPENAI_ENDPOINT        – Azure OpenAI / AI Foundry project endpoint
 #   AZURE_OPENAI_API_KEY         – Azure OpenAI API key
 #   AZURE_OPENAI_DEPLOYMENT_NAME – Chat model deployment name  (e.g. gpt-4o)
@@ -32,19 +38,16 @@
 #   SETTINGS_SOURCE_URL          – Optional remote appsettings URL
 #   SETTINGS_API_TOKEN           – GitHub PAT for private remote settings
 
-name: Build and deploy Node.js app to Azure Web App - turkiye-ai
+name: Build and deploy Node.js app to Azure Web App - secondary (manual)
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 env:
   NODE_VERSION: '24'
 
 concurrency:
-  group: azure-turkiye-ai-deploy-${{ github.ref }}
+  group: azure-supremeai-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
