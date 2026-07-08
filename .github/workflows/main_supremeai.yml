@@ -2,8 +2,8 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 #
 # NOTE: This workflow is intentionally NOT triggered on push to main.
-# Automatic deployments to production (turkiye-ai) are handled exclusively by
-# main_turkiye-ai.yml to avoid race conditions and Azure 409 Conflict errors.
+# Automatic deployments to production (turkai) are handled exclusively by
+# main_turkai.yml to avoid race conditions and Azure 409 Conflict errors.
 # Use workflow_dispatch to manually deploy to a secondary app (e.g. supremeai)
 # by setting the AZURE_WEBAPP_NAME secret appropriately before triggering.
 #
