@@ -14,7 +14,7 @@
 #   PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
 #
 # Optional GitHub Secrets — add once; automatically pushed to App Service on every deploy:
-#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'turkiye-ai' if not set)
+#   AZURE_WEBAPP_NAME            – Web App name (defaults to 'supremeai' if not set)
 #   AZURE_OPENAI_ENDPOINT        – Azure OpenAI / AI Foundry project endpoint
 #   AZURE_OPENAI_API_KEY         – Azure OpenAI API key
 #   AZURE_OPENAI_DEPLOYMENT_NAME – Chat model deployment name  (e.g. gpt-4o)
@@ -114,7 +114,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'turkiye-ai' }}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
@@ -127,7 +127,7 @@ jobs:
       - name: Push App Service Application Settings
         continue-on-error: true
         env:
-          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'turkiye-ai' }}
+          APP_NAME: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
           # Azure OpenAI
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
