@@ -11,7 +11,7 @@
 #   AZUREAPPSERVICE_CLIENTID_C7BA4621EF474BBE94974B96CE1B926E  – App Registration client ID
 #   AZUREAPPSERVICE_TENANTID_5ECA2F2096BE48BC85762C6ADDA0AB5D  – Azure AD tenant ID
 #   AZUREAPPSERVICE_SUBSCRIPTIONID_C54E32D4CA56475EA186436F2EB3641F – Azure subscription ID
-#   PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
+#   AZURE_WEBAPP_PUBLISH_PROFILE – Download from Azure Portal → Web App → Get publish profile
 #
 # Optional GitHub Secrets — add once; automatically pushed to App Service on every deploy:
 #   AZURE_WEBAPP_NAME            – Web App name (defaults to 'supremeai' if not set)
@@ -116,7 +116,7 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME || 'supremeai' }}
           slot-name: 'Production'
-          publish-profile: ${{ secrets.PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
 
       # ── Push Application Settings to Azure App Service ───────────────────────
