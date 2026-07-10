@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy Node.js app to Azure Web App - turkiye-ai
+name: Build and deploy Node.js app to Azure Web App - turkai
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
   NODE_VERSION: '24'
 
 concurrency:
-  group: azure-turkiye-ai-deploy-${{ github.ref }}
+  group: azure-turkai-deploy-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -80,7 +80,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'turkiye-ai'
+          app-name: 'turkai'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy.zip
