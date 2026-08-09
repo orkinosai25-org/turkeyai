@@ -7,6 +7,7 @@
 const settingsProviderPath = require.resolve('../config/settingsProvider');
 const azureOpenAIPath = require.resolve('../config/azureOpenAI');
 const originalSettingsProvider = require(settingsProviderPath);
+const originalSettingsProviderEntry = require.cache[settingsProviderPath];
 
 async function runTests() {
   console.log('🧪 Running Azure OpenAI Chat Options Tests\n');
@@ -49,7 +50,10 @@ async function runTests() {
     console.error('❌ FAIL: Test execution error', error);
     failed++;
   } finally {
-    require.cache[settingsProviderPath].exports = originalSettingsProvider;
+    if (originalSettingsProviderEntry) {
+      require.cache[settingsProviderPath] = originalSettingsProviderEntry;
+      require.cache[settingsProviderPath].exports = originalSettingsProvider;
+    }
     delete require.cache[azureOpenAIPath];
   }
 
