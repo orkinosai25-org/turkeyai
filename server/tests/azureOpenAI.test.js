@@ -58,8 +58,14 @@ async function runTests() {
   console.log(`✅ Passed: ${passed}`);
   console.log(`❌ Failed: ${failed}`);
   console.log('═══════════════════════════════════════');
-
-  process.exit(failed > 0 ? 1 : 0);
+  return failed;
 }
 
-runTests();
+runTests()
+  .then((failed) => {
+    process.exit(failed > 0 ? 1 : 0);
+  })
+  .catch((error) => {
+    console.error('Test execution error:', error);
+    process.exit(1);
+  });
