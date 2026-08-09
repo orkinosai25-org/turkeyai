@@ -81,7 +81,7 @@ async function getChatOptions() {
   const settings = await getAzureSettings();
   return {
     temperature: settings.temperature,
-    max_tokens: settings.maxTokens,
+    max_completion_tokens: settings.maxTokens,
     top_p: settings.topP,
     frequency_penalty: settings.frequencyPenalty,
     presence_penalty: settings.presencePenalty
