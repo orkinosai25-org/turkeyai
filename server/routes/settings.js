@@ -36,8 +36,9 @@ router.get('/status', async (req, res) => {
       status: isConfigError ? 'unconfigured' : 'error',
       error: error.message,
       ...(isConfigError && {
-        required: ['AZURE_OPENAI_ENDPOINT', 'AZURE_OPENAI_API_KEY'],
-        optional: ['AZURE_OPENAI_DEPLOYMENT_NAME', 'AZURE_OPENAI_API_VERSION'],
+        required: ['AZURE_OPENAI_ENDPOINT'],
+        optional: ['AZURE_OPENAI_API_KEY', 'AZURE_OPENAI_DEPLOYMENT_NAME', 'AZURE_OPENAI_API_VERSION'],
+        note: 'AZURE_OPENAI_API_KEY can be omitted when the App Service has a Managed Identity with the Cognitive Services OpenAI User role.',
         documentation: 'See appsettings.example.json or docs/AZURE_SETUP.md for configuration instructions.'
       })
     });
