@@ -8,6 +8,15 @@
 **Owner:** OrkinosAI Ltd  
 **Status:** Ready for deployment  
 
+## OrkinosAI Product Context
+
+TürkiyeAI is OrkinosAI's Turkish travel discovery and planning product, with a planned UK launch—not a booking agency. This repository contains the Azure-based travel application; deployment readiness does not imply a commercial launch.
+
+- **Ebru:** a separate Turkish and Islamic-aware AI assistant, currently in testing using Azure OpenAI at [ebru.sumotx.com](https://ebru.sumotx.com).
+- **Supreme Model T‑X / SMTX:** the separate private Turkish-first LLM programme and intended future base model layer. It is in development, not a current backend for TürkiyeAI or Ebru.
+
+The [README product stack and NVIDIA roadmap](README.md#-orkinosai-product-stack) distinguish implemented Azure integrations from technologies being considered: NVIDIA NeMo Framework, NeMo Megatron Core, TensorRT / TensorRT-ONNX Runtime, CUDA Toolkit, CUDA Python, and cuDNN. No NVIDIA integration or runtime acceleration is claimed for this repository.
+
 ## What's Been Built
 
 ### ✅ Complete MERN Stack Application
