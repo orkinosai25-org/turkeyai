@@ -14,6 +14,18 @@
 
 **TürkiyeAI** is an AI-powered Turkish travel discovery and planning platform, delivered as a SaaS AI travel agent. Built on Microsoft Azure, it provides intelligent travel recommendations for Turkish destinations including Bodrum, Marmaris, Fethiye, Antalya, Cappadocia, and more.
 
+### 🌐 OrkinosAI Product Stack
+
+**OrkinosAI** is building a multi-product AI business: travel discovery through TürkiyeAI, culturally aware assistance through Ebru, and a private model-development programme through SMTX.
+
+| Product | Value proposition | Current stage |
+|---------|-------------------|---------------|
+| **TürkiyeAI** | Turkish travel discovery, destination intelligence, and itinerary planning, with a planned UK launch. Not a booking agency. | In development; this repository implements the Azure-based travel application. [Product website](https://turkiyeai.travel) |
+| **Ebru** | Turkish and Islamic-aware AI assistant for culturally aware conversations and knowledge access. | Currently in testing, using Azure OpenAI; a separate product, not implemented in this repository. [Test website](https://ebru.sumotx.com) |
+| **Supreme Model T‑X / SMTX** | Private Turkish-first LLM programme and intended base model layer for future OrkinosAI products. | Developing separately; future integration with TürkiyeAI and Ebru is a roadmap goal, not a current dependency. [Company website](https://www.orkinosai.com) |
+
+The strategy is to validate useful applications first, then evaluate reusable retrieval, model customisation, and private deployment capabilities. Turkish and Islamic awareness describes Ebru's product focus; SMTX is intended as a broader model layer, not a religious-only assistant. Using third-party model APIs does not imply ownership of those models, and SMTX is not presented here as a trained or production-ready foundation model.
+
 ### 🏢 Company & Ownership
 
 - **Parent Company:** OrkinosAI Ltd
@@ -82,6 +94,32 @@ An AI-powered Turkish travel discovery & planning platform with:
 ### Infrastructure
 - **Cloud:** Microsoft Azure
 - **Region:** Azure regions closest to Europe/Turkey
+
+### NVIDIA-Aligned Technology Roadmap (Considering, Not Yet Integrated)
+
+**Current implementation:** this repository integrates Azure OpenAI and Azure AI Search; it does not include NVIDIA SDKs, local model training, or NVIDIA GPU inference. Managed API usage alone does not establish NVIDIA runtime acceleration. The technologies below are being considered for the wider OrkinosAI/SMTX roadmap, not claimed as current TürkiyeAI or Ebru capabilities.
+
+| Technology under consideration | Evaluation purpose |
+|--------------------------------|--------------------|
+| **NVIDIA NeMo Framework** | Evaluate model customisation and fine-tuning workflows for SMTX using licensed datasets and candidate base models. |
+| **NeMo Megatron Core** | Consider distributed training and continued pretraining only if benchmarks, data readiness, and compute budgets justify scaling. |
+| **TensorRT / TensorRT-ONNX Runtime** | Evaluate GPU inference optimisation for compatible exportable models using the ONNX Runtime TensorRT execution provider; not an optimisation path for hosted Azure OpenAI models. |
+| **CUDA Toolkit** | Consider GPU development and profiling for future training and inference experiments. |
+| **CUDA Python** | Evaluate Python-level GPU workflows where they offer measurable value beyond the chosen ML framework. |
+| **cuDNN** | Consider GPU-accelerated neural-network primitives through compatible training frameworks. |
+
+Evaluation milestones:
+
+1. **Ground and benchmark:** improve retrieval and measure travel relevance, Turkish-language quality, source accuracy, safety, latency, and cost. For Ebru, review Islamic-source rights and answer quality before expanding knowledge collections.
+2. **Pilot model customisation:** benchmark appropriately licensed open models, then evaluate NeMo fine-tuning on reviewed data. Compare quality and GPU costs against the current managed-API baseline before selecting a model or stack.
+3. **Validate deployment:** profile compatible checkpoints with CUDA and TensorRT/ONNX Runtime; measure accuracy, memory, throughput, and cost before any product integration.
+4. **Scale only with evidence:** consider Megatron Core and continued pretraining if smaller experiments demonstrate a need. Private or sovereign deployment remains a goal requiring controlled hosting, data access, updates, and a verified no-external-model-call mode.
+
+#### NVIDIA Inception & Investor Positioning
+
+For product discovery, describe **TürkiyeAI** as a travel application, **Ebru** as an assistant in testing, and **Supreme Model T‑X / SMTX** as a model programme in development. Keep current-use and runtime-acceleration fields tied to verified deployments; list roadmap technologies only as **considering** until adopted. These repository updates do not publish portal listings or confirm investor visibility.
+
+Potential Inception support topics include NeMo training guidance, GPU/cloud options, model evaluation, and inference profiling. Recommendations or membership do not imply NVIDIA endorsement, guaranteed funding, GPU access, or deployed integrations.
 
 ---
 
